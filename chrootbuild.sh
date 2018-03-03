@@ -23,6 +23,13 @@ sudo resize2fs $LOOPDEV"p2"
 
 [ ! -d root ] && mkdir root
 
+if [ $ENABLE_CCACHE -eq 1 ] && [ ! -d /var/cache/ccache ]
+then
+	sudo mkdir /var/cache/ccache
+	sudo chown root:root /var/cache/ccache
+	sudo chmod 777 /var/cache/ccache
+fi
+
 sudo mount -t ext4 $LOOPDEV"p2" root
 sudo mount -t vfat $LOOPDEV"p1" root/boot
 sudo mount -t devpts /dev/pts root/dev/pts
@@ -49,7 +56,7 @@ fi
 
 if [ $ENABLE_CCACHE -eq 1 ]
 then
-#	sudo apt-get -y remove ccache
+	sudo apt-get -y remove ccache
 	sudo umount root/var/cache/ccache
 	sudo rm -r root/var/cache/ccache
 fi
