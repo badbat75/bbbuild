@@ -81,7 +81,7 @@ then
 	rm $MOODENAME".img"
 	mv $MOODENAME".zip" $STARTDIR/
 else
-	mv $MOODENAME".img $STARTDIR/
+	mv $MOODENAME".img" $STARTDIR/
 fi
 
 [ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMPDIR
