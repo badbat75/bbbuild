@@ -63,7 +63,7 @@ fi
 
 if [ $ENABLE_CCACHE -eq 1 ]
 then
-	sudo apt-get -y remove ccache
+	sudo apt-get -y purge ccache
 	sudo umount root/var/cache/ccache
 	sudo rm -r root/var/cache/ccache
 fi
@@ -74,9 +74,10 @@ sudo umount root/boot
 sudo umount root
 sudo losetup -D
 
+mv $IMGNAME $MOODENAME".img"
+
 if [ $CREATE_ZIP -eq 1 ]
 then
-	mv $IMGNAME $MOODENAME".img"
 	zip $MOODENAME".zip" $MOODENAME".img"
 	rm $MOODENAME".img"
 	mv $MOODENAME".zip" $STARTDIR/
