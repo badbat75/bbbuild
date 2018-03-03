@@ -4,9 +4,10 @@ MOODEREL=r40
 MOODENAME=$(date +%Y-%m-%d)-moode-$MOODEREL
 ENABLE_CCACHE=1
 CREATE_ZIP=0
+STARTDIR=$PWD
 
-[ ! -d moode ] && mkdir moode
-cd moode
+[ ! -d /tmp/moode ] && mkdir /tmp/moode
+cd /tmp/moode
 
 ZIPNAME=$(basename $(wget -nc -q -S --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 unzip -n $ZIPNAME
@@ -72,6 +73,7 @@ then
 	mv $IMGNAME $MOODENAME".img"
 	zip $MOODENAME".zip" $MOODENAME".img"
 	rm $MOODENAME".img"
+	mv $MOODENAME".zip" $STARTDIR/
 fi
 
-cd ..
+cd $STARTDIR
