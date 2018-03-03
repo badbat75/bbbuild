@@ -44,7 +44,7 @@ then
 	sudo mkdir root/var/cache/ccache
 	sudo chmod 777 root/var/cache/ccache
 	sudo mount --bind /var/cache/ccache root/var/cache/ccache
-	sudo cp /etc/ccache.conf root/etc/
+	[ -f /etc/ccache.conf ] && sudo cp /etc/ccache.conf root/etc/
 	sudo chroot root apt-get -y install ccache
 fi
 
