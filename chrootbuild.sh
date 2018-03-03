@@ -9,6 +9,9 @@ DELETE_TMP=0
 
 STARTDIR=$PWD
 
+[ ! -f $1 ] && echo "File $1 not exists!" && exit 1
+[ ! "$1x" = "x" ] && BATCHFILE=$(realpath $1)
+
 [ ! -d $TMPDIR ] && mkdir $TMPDIR
 cd $TMPDIR
 
@@ -50,7 +53,7 @@ fi
 
 if [ ! "x$1" = "x" ]
 then
-	sudo cp ../$1 root/home/pi/build.sh
+	sudo cp -p $BATCHFILE root/home/pi/build.sh
 	sudo chmod +x root/home/pi/build.sh
 	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/build.sh" 2>&1
 	sudo rm root/home/pi/build.sh
