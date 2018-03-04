@@ -356,7 +356,10 @@ sudo chmod 0755 /usr/local/bin/alsaequal.bin
 sudo chown mpd:audio /usr/local/bin/alsaequal.bin
 sudo rm /usr/share/alsa/alsa.conf.d/equal.conf
 
+su - mpd -c "/usr/local/bin/mpd --no-daemon /etc/mpd.conf" &
+MPCPID=$!
 mpc enable only 1
+kill $MPCPID
 
 echo //////////////////////////////////////////////////////////////
 echo 
