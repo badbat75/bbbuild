@@ -78,9 +78,9 @@ echo //////////////////////////////////////////////////////////////
 
 echo  First lets make some basic optimizations
 
-sudo dphys-swapfile swapoff
+#sudo dphys-swapfile swapoff
 sudo update-rc.d dphys-swapfile remove
-sudo rm /var/swap
+#sudo rm /var/swap
 sudo systemctl disable cron.service
 sudo systemctl enable rpcbind
 sudo apt-get -y purge triggerhappy
