@@ -51,7 +51,7 @@ then
 	sudo chroot root apt-get -y install ccache
 fi
 
-sudo cat <<EOF | sudo tee root/home/pi/run.sh
+cat <<EOF | tee root/home/pi/run.sh
 #!/bin/bash
 
 NPROC=\$(nproc)
@@ -75,10 +75,10 @@ EOF
 
 if [ ! "x$1" = "x" ]
 then
-	sudo cat $BATCHFILE | sudo tee --append root/home/pi/run.sh
-	sudo chmod +x root/home/pi/run.sh
+	cat $BATCHFILE | sudo tee --append root/home/pi/run.sh
+	chmod +x root/home/pi/run.sh
 	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1
-	sudo rm root/home/pi/run.sh
+	rm root/home/pi/run.sh
 else
 	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE bash"
 fi
