@@ -72,11 +72,11 @@ echo "g++: "$CPP" "\$(which g++)
 
 sleep 5
 EOF
+chmod +x root/home/pi/run.sh
 
 if [ ! "x$1" = "x" ]
 then
 	cat $BATCHFILE | sudo tee --append root/home/pi/run.sh
-	chmod +x root/home/pi/run.sh
 	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1
 	rm root/home/pi/run.sh
 else
