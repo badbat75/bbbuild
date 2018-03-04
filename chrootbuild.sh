@@ -47,7 +47,7 @@ then
 	sudo mkdir root/var/cache/ccache
 	sudo chmod 777 root/var/cache/ccache
 	sudo mount --bind /var/cache/ccache root/var/cache/ccache
-	[ -f /etc/ccache.conf ] && sudo cp /etc/ccache.conf root/etc/
+	echo "cache_dir = /var/cache/ccache" | sudo tee --append root/etc/ccache.conf
 	sudo chroot root apt-get -y install ccache
 fi
 
@@ -64,6 +64,7 @@ fi
 if [ $ENABLE_CCACHE -eq 1 ]
 then
 	sudo chroot root apt-get -y purge ccache
+	sudo rm -f root/etc/ccache.conf
 	sudo umount root/var/cache/ccache
 	sudo rm -r root/var/cache/ccache
 fi
