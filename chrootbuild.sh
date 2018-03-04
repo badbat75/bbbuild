@@ -48,7 +48,7 @@ then
 	sudo chmod 777 root/var/cache/ccache
 	sudo mount --bind /var/cache/ccache root/var/cache/ccache
 	[ -f /etc/ccache.conf ] && sudo cp /etc/ccache.conf root/etc/
-	sudo chroot root apt-get -y install ccache
+	sudo chroot root apt-get -y install distcc
 fi
 
 if [ ! "x$1" = "x" ]
@@ -63,7 +63,7 @@ fi
 
 if [ $ENABLE_CCACHE -eq 1 ]
 then
-	sudo apt-get -y purge ccache
+	sudo apt-get -y purge distcc
 	sudo umount root/var/cache/ccache
 	sudo rm -r root/var/cache/ccache
 fi
