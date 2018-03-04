@@ -51,7 +51,7 @@ then
 	sudo chroot root apt-get -y install ccache
 fi
 
-sudo cat | sudo tee root/home/pi/run.sh <<EOF
+sudo cat <<EOF | sudo tee root/home/pi/run.sh
 #!/bin/bash
 
 NPROC=\$(nproc)
