@@ -51,12 +51,34 @@ then
 	sudo chroot root apt-get -y install ccache
 fi
 
+sudo cat | sudo tee root/home/pi/run.sh <<EOF
+#!/bin/bash
+
+NPROC=\$(nproc)
+BUILDHOSTNAME=\$(hostname)
+
+echo "Moode Release: "\$MOODEREL
+echo "Is CCACHE enabled: "\$ENABLE_CCACHE
+
+if [ \$ENABLE_CCACHE -eq 1 ]
+then
+#        export CC="ccache gcc"
+#        export CPP="ccache g++"
+	 export PATH=/usr/lib/ccache:\$PATH
+fi
+
+echo "gcc: "$CC" "\$(which gcc)
+echo "g++: "$CPP" "\$(which g++)
+
+sleep 5
+EOF
+
 if [ ! "x$1" = "x" ]
 then
-	sudo cp -p $BATCHFILE root/home/pi/build.sh
-	sudo chmod +x root/home/pi/build.sh
-	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/build.sh" 2>&1
-	sudo rm root/home/pi/build.sh
+	sudo cat $BATCHFILE | sudo tee --append root/home/pi/run.sh
+	sudo chmod +x root/home/pi/run.sh
+	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1
+	sudo rm root/home/pi/run.sh
 else
 	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE bash"
 fi

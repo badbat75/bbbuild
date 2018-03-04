@@ -1,23 +1,3 @@
-#!/bin/bash
-
-NPROC=$(nproc)
-BUILDHOSTNAME=$(hostname)
-
-echo "Moode Release: "$MOODEREL
-echo "Is CCACHE enabled: "$ENABLE_CCACHE
-
-if [ $ENABLE_CCACHE -eq 1 ]
-then
-#        export CC="ccache gcc"
-#        export CPP="ccache g++"
-	 export PATH=/usr/lib/ccache:$PATH
-fi
-
-echo "gcc: "$CC" "$(which gcc)
-echo "g++: "$CPP" "$(which g++)
-
-sleep 5
-
 ################################################################
 #
 # Build Recipe v2.3, 2018-01-26
