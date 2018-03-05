@@ -3,6 +3,7 @@
 # Static variables
 [ "x$MOODE_REL" = "x" ] && MOODE_REL=r40
 [ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
+[ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 [ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
 [ "x$IMG_SIZE" = "x" ] && IMG_SIZE=3G
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
@@ -12,7 +13,7 @@
 
 # Dynamic variables
 MOODENAME=$(date +%Y-%m-%d)-moode-$MOODE_REL
-STARTDIR=$PWD
+STARTDIR=$PWD   
 
 # Check launch parameters (file)
 if [ ! "$1x" = "x" ]
@@ -31,14 +32,14 @@ cd $TMP_DIR
 [ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT
 
 # Download the image
-ZIPNAME=$(basename $(wget -nc -q -S --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 # Unzip the image
 unzip -n $ZIPNAME
 # Retrieve the image name
 IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
-# Extend the image to $IMG_SIZE
+# Extend the image size to $IMG_SIZE
 truncate -s $IMG_SIZE $IMGNAME
-# Repartition the image
+# Expand root partition in the image
 sfdisk -d $IMGNAME | sed '$s/ size.*,//' | sfdisk $IMGNAME
 # Create loopback devices for the image and its partitions
 sudo losetup -f -P $IMGNAME
