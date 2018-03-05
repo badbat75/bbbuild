@@ -1,57 +1,76 @@
 #!/bin/bash
 
-MOODEREL=r40
-MOODENAME=$(date +%Y-%m-%d)-moode-$MOODEREL
-TMPDIR=/tmp/moode
-ENABLE_CCACHE=1
-CREATE_ZIP=0
-DELETE_TMP=0
+# Static variables
+[ "x$MOODEREL" = "x" ] && MOODEREL=r40
+[ "x$TMPDIR" = "x" ] && TMPDIR=/tmp/moode
+[ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
+[ "x$IMG_SIZE" = "x" ] && IMG_SIZE=3G
+[ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
+[ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
+[ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=0
+[ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 
+# Dynamic variables
+MOODENAME=$(date +%Y-%m-%d)-moode-$MOODEREL
 STARTDIR=$PWD
 
-[ ! -f $1 ] && echo "File $1 not exists!" && exit 1
-[ ! "$1x" = "x" ] && BATCHFILE=$(realpath $1)
+
+if [ ! "$1x" = "x" ]
+then
+	BATCHFILE=$(realpath $1)
+	[ ! -f $1 ] && echo "File $1 not exists!" && exit 1
+fi
 
 [ ! -d $TMPDIR ] && mkdir $TMPDIR
 cd $TMPDIR
 
+# Download the image
 ZIPNAME=$(basename $(wget -nc -q -S --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+# Unzip the image
 unzip -n $ZIPNAME
+# Retrieve the image name
 IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
-
-truncate -s 3G $IMGNAME
+# Extend the image to $IMG_SIZE
+truncate -s $IMG_SIZE $IMGNAME
+# Repartition the image
 sfdisk -d $IMGNAME | sed '$s/ size.*,//' | sfdisk $IMGNAME
-
+# Create loopback devices for the image and its partitions
 sudo losetup -f -P $IMGNAME
 LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
-
+# Check the root partition
 sudo e2fsck -f $LOOPDEV"p2"
+# Resize the root partition
 sudo resize2fs $LOOPDEV"p2"
 
-[ ! -d root ] && mkdir root
+[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT
 
-if [ $ENABLE_CCACHE -eq 1 ] && [ ! -d /var/cache/ccache ]
-then
-	sudo mkdir /var/cache/ccache
-	sudo chown root:root /var/cache/ccache
-	sudo chmod 777 /var/cache/ccache
-fi
+# Mount the image filesystems
+sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT
+sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot
+sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts
+sudo mount -t proc /proc $IMG_ROOT/proc
 
-sudo mount -t ext4 $LOOPDEV"p2" root
-sudo mount -t vfat $LOOPDEV"p1" root/boot
-sudo mount -t devpts /dev/pts root/dev/pts
-sudo mount -t proc /proc root/proc
- 
+# Create CCACHE environment if set
 if [ $ENABLE_CCACHE -eq 1 ]
 then
-	sudo mkdir root/var/cache/ccache
-	sudo chmod 777 root/var/cache/ccache
-	sudo mount --bind /var/cache/ccache root/var/cache/ccache
-	echo "cache_dir = /var/cache/ccache" | sudo tee --append root/etc/ccache.conf
+	if [ ! -d $CCACHE_DIR ]
+	then
+		sudo mkdir $CCACHE_DIR
+		sudo chown root:root $CCACHE_DIR
+		sudo chmod 777 $CCACHE_DIR
+	fi
+	if [ ! -d $IMG_ROOT$CCACHE_DIR ]
+	then
+		sudo mkdir $IMG_ROOT$CCACHE_DIR
+		sudo chmod 777 $IMG_ROOT$CCACHE_DIR
+		sudo mount --bind $CCACHE_DIR $IMG_ROOT$CCACHE_DIR
+	fi
+	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $IMG_ROOT/etc/ccache.conf
 	sudo chroot root apt-get -y install ccache
 fi
 
-cat <<EOF | tee root/home/pi/run.sh
+# Add header to run.sh in the image
+cat <<EOF > $IMG_ROOT/home/pi/run.sh
 #!/bin/bash
 
 NPROC=\$(nproc)
@@ -62,43 +81,47 @@ echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 
 if [ \$ENABLE_CCACHE -eq 1 ]
 then
-#        export CC="ccache gcc"
-#        export CPP="ccache g++"
 	 export PATH=/usr/lib/ccache:\$PATH
 fi
 
+echo ""
 echo "gcc: "$CC" "\$(which gcc)
 echo "g++: "$CPP" "\$(which g++)
-
-sleep 5
+echo ""
 EOF
-chmod +x root/home/pi/run.sh
+chmod +x $IMG_ROOT/home/pi/run.sh
 
+# Run the batch in chrooted environment
 if [ ! "x$1" = "x" ]
 then
-	cat $BATCHFILE | sudo tee --append root/home/pi/run.sh
-	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1
-	rm root/home/pi/run.sh
+	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
+	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1 > $BATCHFILE.log
+	rm $IMG_ROOT/home/pi/run.sh
 else
 	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE bash"
 fi
 
+# Remove CCACHE environment
 if [ $ENABLE_CCACHE -eq 1 ]
 then
 	sudo chroot root apt-get -y purge ccache
-	sudo rm -f root/etc/ccache.conf
-	sudo umount root/var/cache/ccache
-	sudo rm -r root/var/cache/ccache
+	sudo rm -f $IMG_ROOT/etc/ccache.conf
+	sudo umount $IMG_ROOT$CCACHE_DIR
+	sudo rm -r $IMG_ROOT$CCACHE_DIR
 fi
 
-sudo umount root/proc
-sudo umount root/dev/pts
-sudo umount root/boot
-sudo umount root
+# Unmount everything
+sudo umount $IMG_ROOT/proc
+sudo umount $IMG_ROOT/dev/pts
+sudo umount $IMG_ROOT/boot
+sudo umount $IMG_ROOT
+# Delete the loopback devices
 sudo losetup -D
 
+# Rename the image
 mv $IMGNAME $MOODENAME".img"
 
+# ZIP the image if set
 if [ $CREATE_ZIP -eq 1 ]
 then
 	zip $MOODENAME".zip" $MOODENAME".img"
@@ -108,6 +131,7 @@ else
 	mv $MOODENAME".img" $STARTDIR/
 fi
 
+# Delete TMP directory
 [ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMPDIR
 
 cd $STARTDIR
