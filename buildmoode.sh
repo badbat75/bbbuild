@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Static variables
-[ "x$MOODEREL" = "x" ] && MOODEREL=r40
-[ "x$TMPDIR" = "x" ] && TMPDIR=/tmp/moode
+[ "x$MOODE_REL" = "x" ] && MOODE_REL=r40
+[ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
 [ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
 [ "x$IMG_SIZE" = "x" ] && IMG_SIZE=3G
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
@@ -11,7 +11,7 @@
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 
 # Dynamic variables
-MOODENAME=$(date +%Y-%m-%d)-moode-$MOODEREL
+MOODENAME=$(date +%Y-%m-%d)-moode-$MOODE_REL
 STARTDIR=$PWD
 
 # Check launch parameters (file)
@@ -25,8 +25,10 @@ then
 	fi
 fi
 
-[ ! -d $TMPDIR ] && mkdir $TMPDIR
-cd $TMPDIR
+# Prepare directories
+[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
+cd $TMP_DIR
+[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT
 
 # Download the image
 ZIPNAME=$(basename $(wget -nc -q -S --content-disposition https://downloads.raspberrypi.org/raspbian_lite_latest 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
@@ -45,8 +47,6 @@ LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
 sudo e2fsck -f $LOOPDEV"p2"
 # Resize the root partition
 sudo resize2fs $LOOPDEV"p2"
-
-[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT
 
 # Mount the image filesystems
 sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT
@@ -80,7 +80,7 @@ cat <<EOF > $IMG_ROOT/home/pi/run.sh
 NPROC=\$(nproc)
 BUILDHOSTNAME=\$(hostname)
 
-echo "Moode Release: "\$MOODEREL
+echo "Moode Release: "\$MOODE_REL
 echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 
 if [ \$ENABLE_CCACHE -eq 1 ]
@@ -99,10 +99,10 @@ chmod +x $IMG_ROOT/home/pi/run.sh
 if [ ! "x$1" = "x" ]
 then
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
-	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1 > $BATCHFILE.log
+	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1 > $BATCHFILE.log
 	rm $IMG_ROOT/home/pi/run.sh
 else
-	sudo chroot root su - pi -c "MOODEREL=$MOODEREL ENABLE_CCACHE=$ENABLE_CCACHE bash"
+	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE bash"
 fi
 
 # Remove CCACHE environment
@@ -136,6 +136,6 @@ else
 fi
 
 # Delete TMP directory
-[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMPDIR
+[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR
 
 cd $STARTDIR

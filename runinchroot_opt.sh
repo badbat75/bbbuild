@@ -69,8 +69,8 @@ echo  moOde 4.0
 echo 
 
 cd ~
-wget http://moodeaudio.org/downloads/prod/rel-stretch-$MOODEREL.zip
-sudo unzip ./rel-stretch-$MOODEREL.zip
+wget http://moodeaudio.org/downloads/prod/rel-stretch-$MOODE_REL.zip
+sudo unzip ./rel-stretch-$MOODE_REL.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
