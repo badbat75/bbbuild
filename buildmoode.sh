@@ -14,11 +14,15 @@
 MOODENAME=$(date +%Y-%m-%d)-moode-$MOODEREL
 STARTDIR=$PWD
 
-
+# Check launch parameters (file)
 if [ ! "$1x" = "x" ]
 then
 	BATCHFILE=$(realpath $1)
-	[ ! -f $1 ] && echo "File $1 not exists!" && exit 1
+	if [ ! -f $1 ]
+	then
+		echo "File $1 not exists!"
+		exit 1
+	fi
 fi
 
 [ ! -d $TMPDIR ] && mkdir $TMPDIR
