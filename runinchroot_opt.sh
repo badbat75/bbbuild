@@ -369,17 +369,17 @@ echo //////////////////////////////////////////////////////////////
 
 echo NOTE: This is optional but highly recommended for performance/reliability
 
-#cat <<EOF | sudo -i
-#echo "/var/local/moode.sqsh   /var/www        squashfs        ro,defaults     0       0" >> /etc/fstab
-#logout
-#EOF
-
-#cd ~
-#sudo rm /var/local/moode.sqsh
-#sudo mksquashfs /var/www /var/local/moode.sqsh
-
-#sudo rm -rf /var/www/*
-#sync
+if [ $ENABLE_SQUASHFS -eq 1 ]
+then
+    cat <<EOF | sudo -i
+echo "/var/local/moode.sqsh   /var/www        squashfs        ro,defaults     0       0" >> /etc/fstab
+logout
+EOF
+    cd ~
+    sudo rm /var/local/moode.sqsh
+    sudo mksquashfs /var/www /var/local/moode.sqsh
+    sudo rm -rf /var/www/*
+fi
 
 echo //////////////////////////////////////////////////////////////
 echo 

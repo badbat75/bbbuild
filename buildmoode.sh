@@ -6,6 +6,7 @@
 [ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 [ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
 [ "x$IMG_SIZE" = "x" ] && IMG_SIZE=3G
+[ "x$ENABLE_SQUASHFS" = "x" ] && ENABLE_SQUASHFS=1
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
 [ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=0
@@ -121,7 +122,7 @@ if [ ! "x$1" = "x" ]
 then
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
-	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" > $BATCHFILE.log 2>&1
+	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh" > $BATCHFILE.log 2>&1
 	rm $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
 	echo "Done."
 else
