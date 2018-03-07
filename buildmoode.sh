@@ -145,10 +145,7 @@ fi
 
 # Unmount everything
 echo -n "Unmount all partitions..."
-sudo umount $IMG_ROOT/proc >> $STARTDIR/$0.log
-sudo umount $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
-sudo umount $IMG_ROOT/boot >> $STARTDIR/$0.log
-sudo umount $IMG_ROOT >> $STARTDIR/$0.log
+sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/boot $IMG_ROOT >> $STARTDIR/$0.log
 echo "Done."
 # Delete the loopback devices
 echo -n "Delete loopback device..."
