@@ -68,6 +68,7 @@ echo "Done."
 echo -n "Mounting all the partitions in $IMG_ROOT..."
 sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log
 sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot >> $STARTDIR/$0.log
+sudo mount -t tmpfs /run $IMG_ROOT/run >> $STARTDIR/$0.log
 sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
 sudo mount -t proc /proc $IMG_ROOT/proc >> $STARTDIR/$0.log
 echo "Done."
@@ -145,7 +146,7 @@ fi
 
 # Unmount everything
 echo -n "Unmount all partitions..."
-sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/boot $IMG_ROOT >> $STARTDIR/$0.log
+sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/run $IMG_ROOT/boot $IMG_ROOT >> $STARTDIR/$0.log
 echo "Done."
 # Delete the loopback devices
 echo -n "Delete loopback device..."
