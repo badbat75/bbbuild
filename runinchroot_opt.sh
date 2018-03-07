@@ -379,6 +379,7 @@ EOF
     sudo rm /var/local/moode.sqsh
     sudo mksquashfs /var/www /var/local/moode.sqsh
     sudo rm -rf /var/www/*
+    sudo mount /var/local/moode.sqsh /var/www 
 fi
 
 echo //////////////////////////////////////////////////////////////
@@ -635,4 +636,5 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo /var/www/command/util.sh clear-syslogs
 
+[ $ENABLE_SQUASHFS -eq 1 ] && umount /var/www
 sudo hostname $BUILDHOSTNAME
