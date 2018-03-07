@@ -87,7 +87,7 @@ then
 		sudo chmod 777 $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
 		sudo mount --bind $CCACHE_DIR $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
 	fi
-	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $IMG_ROOT/etc/ccache.conf > /dev/null
+	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $IMG_ROOT/etc/ccache.conf >> $STARTDIR/$0.log
 	sudo chroot root apt-get -y install ccache >> $STARTDIR/$0.log
 	echo "Done."
 fi
