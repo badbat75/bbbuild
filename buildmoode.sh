@@ -102,7 +102,7 @@ NPROC=\$(nproc)
 BUILDHOSTNAME=\$(hostname)
 
 echo "Moode Release: "\$MOODE_REL
-echo "Is SQUASHFS enabled: "\$SQUASHFS_ENABLE
+echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
 echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 
 if [ \$ENABLE_CCACHE -eq 1 ]
@@ -123,12 +123,11 @@ if [ ! "x$1" = "x" ]
 then
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
-#	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh" > $BATCHFILE.log 2>&1
-	echo "echo MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh | sudo -i -u pi" | sudo chroot root > $BATCHFILE.log 2>&1
+	sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh > $BATCHFILE.log 2>&1
 	echo "Done."
 else
 	echo "Interactive chroot mode. Press CTRL+Z or type EXIT to close interactive chroot mode."
-	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
+	sudo chroot $IMG_ROOT su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 fi
 rm $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
