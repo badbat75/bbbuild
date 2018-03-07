@@ -102,6 +102,7 @@ NPROC=\$(nproc)
 BUILDHOSTNAME=\$(hostname)
 
 echo "Moode Release: "\$MOODE_REL
+echo "Is SQUASHFS enabled: "\$SQUASHFS_ENABLE
 echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 
 if [ \$ENABLE_CCACHE -eq 1 ]
