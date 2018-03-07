@@ -27,54 +27,73 @@ then
 fi
 
 # Prepare directories
-[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
+[ ! -d $TMP_DIR ] && mkdir $TMP_DIR >> $STARTDIR/$0.log
 cd $TMP_DIR
-[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT
+[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT >> $STARTDIR/$0.log
 
 # Download the image
+echo -n "Downloading image from $IMG_URL..."
 ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+echo "Done."
 # Unzip the image
-unzip -n $ZIPNAME
+echo -n "Unzip the image $ZIPNAME..."
+unzip -n $ZIPNAME > $STARTDIR/$0.log
+echo "Done."
 # Retrieve the image name
 IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
 # Extend the image size to $IMG_SIZE
-truncate -s $IMG_SIZE $IMGNAME
+echo -n "Extend image size to $IMG_SIZE..."
+truncate -s $IMG_SIZE $IMGNAME >> $STARTDIR/$0.log
+echo "Done."
 # Expand root partition in the image
-sfdisk -d $IMGNAME | sed '$s/ size.*,//' | sfdisk $IMGNAME
+echo -n "Expand root partition..."
+sfdisk -d $IMGNAME | sed '$s/ size.*,//' | sfdisk $IMGNAME >> $STARTDIR/$0.log
+echo "Done."
 # Create loopback devices for the image and its partitions
-sudo losetup -f -P $IMGNAME
+echo -n "Creating loop devices..."
+sudo losetup -f -P $IMGNAME >> $STARTDIR/$0.log
 LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
+echo "Done."
 # Check the root partition
-sudo e2fsck -f $LOOPDEV"p2"
+echo -n "Check root filesystems..."
+sudo e2fsck -f $LOOPDEV"p2" >> $STARTDIR/$0.log 
+echo "Done."
 # Resize the root partition
-sudo resize2fs $LOOPDEV"p2"
+echo -n "Resize root partition..."
+sudo resize2fs $LOOPDEV"p2" >> $STARTDIR/$0.log
+echo "Done."
 
 # Mount the image filesystems
-sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT
-sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot
-sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts
-sudo mount -t proc /proc $IMG_ROOT/proc
+echo -n "Mounting all the partitions in $IMG_ROOT..."
+sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log
+sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot >> $STARTDIR/$0.log
+sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
+sudo mount -t proc /proc $IMG_ROOT/proc >> $STARTDIR/$0.log
+echo "Done."
 
 # Create CCACHE environment if set
 if [ $ENABLE_CCACHE -eq 1 ]
 then
+	echo -n "Create CCACHE environment..."
 	if [ ! -d $CCACHE_DIR ]
 	then
-		sudo mkdir $CCACHE_DIR
-		sudo chown root:root $CCACHE_DIR
-		sudo chmod 777 $CCACHE_DIR
+		sudo mkdir $CCACHE_DIR >> $STARTDIR/$0.log
+		sudo chown root:root $CCACHE_DIR >> $STARTDIR/$0.log
+		sudo chmod 777 $CCACHE_DIR >> $STARTDIR/$0.log
 	fi
 	if [ ! -d $IMG_ROOT$CCACHE_DIR ]
 	then
-		sudo mkdir $IMG_ROOT$CCACHE_DIR
-		sudo chmod 777 $IMG_ROOT$CCACHE_DIR
-		sudo mount --bind $CCACHE_DIR $IMG_ROOT$CCACHE_DIR
+		sudo mkdir $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
+		sudo chmod 777 $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
+		sudo mount --bind $CCACHE_DIR $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
 	fi
 	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $IMG_ROOT/etc/ccache.conf
-	sudo chroot root apt-get -y install ccache
+	sudo chroot root apt-get -y install ccache >> $STARTDIR/$0.log
+	echo "Done."
 fi
 
 # Add header to run.sh in the image
+echo -n "Add header to run.sh..."
 cat <<EOF > $IMG_ROOT/home/pi/run.sh
 #!/bin/bash
 
@@ -94,14 +113,17 @@ echo "gcc: "$CC" "\$(which gcc)
 echo "g++: "$CPP" "\$(which g++)
 echo ""
 EOF
-chmod +x $IMG_ROOT/home/pi/run.sh
+chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
+echo "Done."
 
 # Run the batch in chrooted environment
 if [ ! "x$1" = "x" ]
 then
-	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
+	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
+	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
 	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1 > $BATCHFILE.log
-	rm $IMG_ROOT/home/pi/run.sh
+	rm $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
+	echo "Done."
 else
 	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE bash"
 fi
@@ -109,19 +131,25 @@ fi
 # Remove CCACHE environment
 if [ $ENABLE_CCACHE -eq 1 ]
 then
+	echo -n "Clean CCACHE environment"...
 	sudo chroot root apt-get -y purge ccache
-	sudo rm -f $IMG_ROOT/etc/ccache.conf
-	sudo umount $IMG_ROOT$CCACHE_DIR
-	sudo rm -r $IMG_ROOT$CCACHE_DIR
+	sudo rm -f $IMG_ROOT/etc/ccache.conf >> $STARTDIR/$0.log
+	sudo umount $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
+	sudo rm -r $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
+	echo "Done."
 fi
 
 # Unmount everything
-sudo umount $IMG_ROOT/proc
-sudo umount $IMG_ROOT/dev/pts
-sudo umount $IMG_ROOT/boot
-sudo umount $IMG_ROOT
+echo -n "Unmount all partitions..."
+sudo umount $IMG_ROOT/proc >> $STARTDIR/$0.log
+sudo umount $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
+sudo umount $IMG_ROOT/boot >> $STARTDIR/$0.log
+sudo umount $IMG_ROOT >> $STARTDIR/$0.log
+echo "Done."
 # Delete the loopback devices
-sudo losetup -D
+echo -n "Delete loopback device..."
+sudo losetup -D >> $STARTDIR/$0.log
+echo "Done."
 
 # Rename the image
 mv $IMGNAME $MOODENAME".img"
@@ -129,14 +157,17 @@ mv $IMGNAME $MOODENAME".img"
 # ZIP the image if set
 if [ $CREATE_ZIP -eq 1 ]
 then
-	zip $MOODENAME".zip" $MOODENAME".img"
-	rm $MOODENAME".img"
-	mv $MOODENAME".zip" $STARTDIR/
+	echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
+	zip $STARTDIR/$MOODENAME".zip" $MOODENAME".img" >> $STARTDIR/$0.log
+	rm $MOODENAME".img" >> $STARTDIR/$0.log
+	echo "Done."
 else
-	mv $MOODENAME".img" $STARTDIR/
+	echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
+	mv $MOODENAME".img" $STARTDIR/ >> $STARTDIR/$0.log
+	echo "Done."
 fi
 
 # Delete TMP directory
-[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR
+[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR >> $STARTDIR/$0.log
 
 cd $STARTDIR
