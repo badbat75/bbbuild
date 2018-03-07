@@ -132,7 +132,7 @@ fi
 if [ $ENABLE_CCACHE -eq 1 ]
 then
 	echo -n "Clean CCACHE environment"...
-	sudo chroot root apt-get -y purge ccache
+	sudo chroot root apt-get -y purge ccache >> $STARTDIR/$0.log
 	sudo rm -f $IMG_ROOT/etc/ccache.conf >> $STARTDIR/$0.log
 	sudo umount $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
 	sudo rm -r $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
