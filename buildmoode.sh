@@ -121,7 +121,7 @@ if [ ! "x$1" = "x" ]
 then
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
-	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" 2>&1 > $BATCHFILE.log
+	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE /home/pi/run.sh" > $BATCHFILE.log 2>&1
 	rm $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
 	echo "Done."
 else
