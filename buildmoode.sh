@@ -123,13 +123,12 @@ then
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
 #	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh" > $BATCHFILE.log 2>&1
-	cat <<EOF | sudo chroot root | sudo -i -u pi > $BATCHFILE.log 2>&1
-MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh
+	echo "echo MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh | sudo -i -u pi" | sudo chroot root > $BATCHFILE.log 2>&1
 EOF 
 	echo "Done."
 else
 	echo "Interactive chroot mode. Press CTRL+Z or type EXIT to close interactive chroot mode."
-	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE bash"
+	sudo chroot root su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 fi
 rm $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
