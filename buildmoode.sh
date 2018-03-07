@@ -56,11 +56,11 @@ LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
 echo "Done."
 # Check the root partition
 echo -n "Check root filesystems..."
-sudo e2fsck -f $LOOPDEV"p2" >> $STARTDIR/$0.log 
+sudo e2fsck -f $LOOPDEV"p2"
 echo "Done."
 # Resize the root partition
 echo -n "Resize root partition..."
-sudo resize2fs $LOOPDEV"p2" >> $STARTDIR/$0.log
+sudo resize2fs $LOOPDEV"p2"
 echo "Done."
 
 # Mount the image filesystems
