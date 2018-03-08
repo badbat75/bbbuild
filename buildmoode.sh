@@ -47,7 +47,7 @@ then
 	# Retrieve the image name
 	IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
 else
-	IMGNAME=$(ls *.img)
+	IMGNAME=$(ls *.img) > /dev/null 2>&1
 	[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
 	IMGNAME=$(echo $IMGNAME | head -n1 )
 fi
