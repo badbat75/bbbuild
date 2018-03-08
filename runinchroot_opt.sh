@@ -356,10 +356,11 @@ sudo chmod 0755 /usr/local/bin/alsaequal.bin
 sudo chown mpd:audio /usr/local/bin/alsaequal.bin
 sudo rm /usr/share/alsa/alsa.conf.d/equal.conf
 
-sudo /usr/local/bin/mpd --no-daemon /etc/mpd.conf &
-MPCPID=$!
+sudo mkdir /var/run/mpd
+sudo chown mpd:audio /var/run/mpd
+sudo /usr/local/bin/mpd /etc/mpd.conf
 mpc enable only 1
-kill $MPCPID
+sudo mpd --kill /etc/mpd.conf
 
 if [ $ENABLE_SQUASHFS -eq 1 ]
 then
