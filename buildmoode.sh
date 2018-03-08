@@ -124,8 +124,8 @@ then
 fi
 
 echo ""
-echo "gcc: "$CC" "\$(which gcc)
-echo "g++: "$CPP" "\$(which g++)
+echo "gcc: "\$CC" "\$(which gcc)
+echo "g++: "\$CPP" "\$(which g++)
 echo ""
 EOF
 chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
