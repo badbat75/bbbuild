@@ -119,8 +119,8 @@ echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 if [ \$ENABLE_CCACHE -eq 1 ]
 then
 	 export PATH=/usr/lib/ccache:\$PATH
-	 export CC=/usr/lib/ccache/gcc
-	 export CPP=/usr/lib/ccache/g++
+#	 export CC=/usr/lib/ccache/gcc
+#	 export CPP=/usr/lib/ccache/g++
 fi
 
 echo ""
