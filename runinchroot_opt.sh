@@ -591,7 +591,12 @@ echo //////////////////////////////////////////////////////////////
 echo NOTE: This component enables access to Google Play Music service via UPnP renderer.
 echo       If its not installed, the Google Play section in UPnP config screen will not be present.
 
-sudo pip install gmusicapi
+if [ $CCACHE_ENABLED -eq 1 ]
+then 
+    sudo CC="ccache gcc" pip install gmusicapi
+else
+    sudo pip install gmusicapi
+fi
 
 echo //////////////////////////////////////////////////////////////
 echo 
