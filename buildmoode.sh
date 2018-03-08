@@ -11,6 +11,7 @@
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
 [ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=0
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
+[ "x$DEV_MODE" = "x" ] && DEV_MODE=0
 
 # Dynamic variables
 MOODENAME=$(date +%Y-%m-%d)-moode-$MOODE_REL
@@ -32,16 +33,25 @@ fi
 cd $TMP_DIR
 [ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT >> $STARTDIR/$0.log
 
-# Download the image
-echo -n "Downloading image from $IMG_URL..."
-ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
-echo "Done."
-# Unzip the image
-echo -n "Unzip the image $ZIPNAME..."
-unzip -n $ZIPNAME > $STARTDIR/$0.log
-echo "Done."
-# Retrieve the image name
-IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
+# In DEV mode, there's no download and unzip, the existing img file is used
+if [ $DEV_MODE -eq 0 ]
+then
+	# Download the image
+	echo -n "Downloading image from $IMG_URL..."
+	ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+	echo "Done."
+	# Unzip the image
+	echo -n "Unzip the image $ZIPNAME..."
+	unzip -n $ZIPNAME > $STARTDIR/$0.log
+	echo "Done."
+	# Retrieve the image name
+	IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
+else
+	IMGNAME=$(ls *.img)
+	[ ! $? -eq 0 ] && exit $?
+	IMGNAME=$(echo $IMGNAME | head -n1 )
+fi
+
 # Extend the image size to $IMG_SIZE
 echo -n "Extend image size to $IMG_SIZE..."
 truncate -s $IMG_SIZE $IMGNAME >> $STARTDIR/$0.log
@@ -153,23 +163,27 @@ echo -n "Delete loopback device..."
 sudo losetup -D >> $STARTDIR/$0.log
 echo "Done."
 
-# Rename the image
-mv $IMGNAME $MOODENAME".img"
-
-# ZIP the image if set
-if [ $CREATE_ZIP -eq 1 ]
+# In DEV mode there's no rename, move and zip for the image 
+if [ $DEV_MODE -eq 0 ]
 then
-	echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
-	zip $STARTDIR/$MOODENAME".zip" $MOODENAME".img" >> $STARTDIR/$0.log
-	rm $MOODENAME".img" >> $STARTDIR/$0.log
-	echo "Done."
-else
-	echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
-	mv $MOODENAME".img" $STARTDIR/ >> $STARTDIR/$0.log
-	echo "Done."
-fi
+	# Rename the image
+	mv $IMGNAME $MOODENAME".img"
 
-# Delete TMP directory
-[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR >> $STARTDIR/$0.log
+	# ZIP the image if set
+	if [ $CREATE_ZIP -eq 1 ]
+	then
+		echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
+		zip $STARTDIR/$MOODENAME".zip" $MOODENAME".img" >> $STARTDIR/$0.log
+		rm $MOODENAME".img" >> $STARTDIR/$0.log
+		echo "Done."
+	else
+		echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
+		mv $MOODENAME".img" $STARTDIR/ >> $STARTDIR/$0.log
+		echo "Done."
+	fi
+
+	# Delete TMP directory
+	[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR >> $STARTDIR/$0.log
+fi
 
 cd $STARTDIR
