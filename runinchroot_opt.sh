@@ -636,5 +636,5 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo /var/www/command/util.sh clear-syslogs
 
-[ $ENABLE_SQUASHFS -eq 1 ] && umount /var/www
+[ $ENABLE_SQUASHFS -eq 1 ] && sudo umount /var/www
 sudo hostname $BUILDHOSTNAME
