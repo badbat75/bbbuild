@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Static variables
-[ "x$MOODE_REL" = "x" ] && MOODE_REL=r40
+[ "x$MOODE_REL" = "x" ] && MOODE_REL=r41
 [ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
 [ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 [ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
