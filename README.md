@@ -1,5 +1,5 @@
 # rpi_moode_build
-Release version 1.0
+Release version 1.1
 
 This project aim to have a build script that build Moode on a vanilla raspbian
 generating an image file.
@@ -15,7 +15,7 @@ Where:
 Environment variables:
 ```
 MOODE_REL
-    Default: r40
+    Default: r41
     Is the version of the moode package.
 TMP_DIR
     Default: /tmp/moode
