@@ -77,6 +77,7 @@ sudo apt-get -y purge triggerhappy
 sudo apt-get update
 sudo apt-get -y upgrade
 
+sudo apt-get update
 sudo apt-get -y install \
 rpi-update php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
 dnsmasq hostapd \
@@ -678,7 +679,7 @@ echo //////////////////////////////////////////////////////////////
 echo NOTE: This component enables access to Google Play Music service via UPnP renderer.
 echo       If its not installed, the Google Play section in UPnP config screen will not be present.
 
-if [ $CCACHE_ENABLED -eq 1 ]
+if [ $ENABLE_CCACHE -eq 1 ]
 then 
     sudo CC="ccache gcc" pip install gmusicapi
 else
