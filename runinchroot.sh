@@ -642,6 +642,7 @@ echo  Upmpdcli
 cp ./rel-stretch/other/upmpdcli/upmpdcli-code-1.2.16.tar.gz ./
 tar xfz ./upmpdcli-code-1.2.16.tar.gz 
 cd upmpdcli-code
+./autogen.sh
 ./configure --prefix=/usr --sysconfdir=/etc
 make -j$NPROC
 sudo make install
