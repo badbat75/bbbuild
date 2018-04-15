@@ -639,15 +639,15 @@ rm libupnpp-0.16.0.tar.gz
 
 echo  Upmpdcli
 
-cp ./rel-stretch/other/upmpdcli/upmpdcli-1.2.16.tar.gz ./
-tar xfz ./upmpdcli-1.2.16.tar.gz 
-cd upmpdcli-1.2.16
+cp ./rel-stretch/other/upmpdcli/upmpdcli-code-1.2.16.tar.gz ./
+tar xfz ./upmpdcli-code-1.2.16.tar.gz 
+cd upmpdcli-code
 ./configure --prefix=/usr --sysconfdir=/etc
 make -j$NPROC
 sudo make install
 cd ~
-rm -rf ./upmpdcli-1.2.16
-rm upmpdcli-1.2.16.tar.gz
+rm -rf ./upmpdcli-code
+rm upmpdcli-code-1.2.16.tar.gz
 
 sudo useradd upmpdcli
 sudo cp ./rel-stretch/lib/systemd/system/upmpdcli.service /lib/systemd/system

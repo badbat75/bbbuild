@@ -58,7 +58,9 @@ truncate -s $IMG_SIZE $IMGNAME >> $STARTDIR/$0.log
 echo "Done."
 # Expand root partition in the image
 echo -n "Expand root partition..."
-sfdisk -d $IMGNAME | sed '$s/ size.*,//' | sfdisk $IMGNAME >> $STARTDIR/$0.log 2>&1
+PARTINFO=$(sfdisk -d $IMGNAME | tail -n1)
+sfdisk --delete $IMGNAME 2
+echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $IMGNAME >> $STARTDIR/$0.log 2>&1
 echo "Done."
 # Create loopback devices for the image and its partitions
 echo -n "Creating loop devices..."
