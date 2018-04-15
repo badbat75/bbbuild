@@ -9,7 +9,7 @@
 [ "x$ENABLE_SQUASHFS" = "x" ] && ENABLE_SQUASHFS=1
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
-[ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=0
+[ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=1
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
 

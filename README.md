@@ -39,8 +39,8 @@ CCACHE_DIR
     Default: /var/cache/ccache
     Set the CCACHE directory
 CREATE_ZIP
-    Default: 0
-    Set to 1 to enable it. ZIP the image at the end of the build
+    Default: 1
+    Set to 0 to disable it. ZIP the image at the end of the build
 DELETE_TMP
     Default: 0
     Set to 1 to enable it. Delete everything after the build
