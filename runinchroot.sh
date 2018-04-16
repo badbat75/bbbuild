@@ -724,6 +724,19 @@ sudo rm -rf ./piano-firmware-master
 
 echo //////////////////////////////////////////////////////////////
 echo 
+echo  COMPONENT 10 - Broadcom Bluetooth devices firmwares
+echo 
+echo //////////////////////////////////////////////////////////////
+
+cd ~
+wget https://github.com/winterheart/broadcom-bt-firmware/archive/master.zip
+sudo unzip master.zip 
+sudo rm ./master.zip
+sudo cp -r ./broadcom-bt-firmware/brcm /lib/firmware/brcm
+sudo rm -rf ./broadcom-bt-firmware
+
+echo //////////////////////////////////////////////////////////////
+echo 
 echo  FINAL - Clean up
 echo 
 echo //////////////////////////////////////////////////////////////
