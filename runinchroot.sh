@@ -82,7 +82,7 @@ sudo apt-get -y install \
 rpi-update php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
 dnsmasq hostapd \
 \
-bluez bluez-firmware pi-bluetooth \
+bluez-firmware pi-bluetooth \
 dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev \
 \
