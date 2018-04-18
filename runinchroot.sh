@@ -744,8 +744,8 @@ cd ~
 wget https://github.com/winterheart/broadcom-bt-firmware/archive/master.zip
 sudo unzip master.zip 
 sudo rm ./master.zip
-sudo cp -r ./broadcom-bt-firmware/brcm /lib/firmware/brcm
-sudo rm -rf ./broadcom-bt-firmware
+sudo cp -r ./broadcom-bt-firmware-master/brcm /lib/firmware/brcm
+sudo rm -rf ./broadcom-bt-firmware-master
 
 echo //////////////////////////////////////////////////////////////
 echo 
