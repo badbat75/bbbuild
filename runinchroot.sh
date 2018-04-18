@@ -174,11 +174,23 @@ sudo systemctl disable dnsmasq
 
 echo  Install Bluetooth
 
+# Install from Raspbian repository
+#sudo apt-get install bluez
+
 # Compile bluez
 cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
 tar xvf bluez-5.49.tar.xz
 cd bluez-5.49
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library
+./configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-library \
+    --enable-static \
+	--enable-debug \
+	--enable-threads \
+	--enable-sixaxis \
+	--enable-experimental
 make -j$NPROC
 sudo make install
 cd ~
