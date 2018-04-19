@@ -187,9 +187,14 @@ cd bluez-5.49
     --sysconfdir=/etc \
     --localstatedir=/var \
     --enable-library \
-    --enable-static \
-	--enable-threads \
-	--enable-experimental
+    --enable-threads \
+    --enable-experimental \
+    --enable-manpages \
+    --disable-cups \
+    --disable-hid \
+    --disable-hog \
+    --disable-network \
+    --disable-obex
 make -j$NPROC
 sudo make install
 cd ~
