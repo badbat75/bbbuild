@@ -84,7 +84,7 @@ dnsmasq hostapd \
 \
 bluez-firmware pi-bluetooth \
 dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
-libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev \
+libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev libdbus-1-dev\
 \
 libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcdio-paranoia-dev libiso9660-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
 autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev avahi-daemon libavahi-client-dev libssl-dev libsoxr-dev \
@@ -174,11 +174,12 @@ sudo systemctl disable dnsmasq
 
 echo  Install Bluetooth
 
-# Install from Raspbian repository
-#sudo apt-get install bluez
+# Remove current bluez installation
+sudo apt-get -y purge bluez
 
 # Compile bluez
-cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
+wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
+#cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
 tar xvf bluez-5.49.tar.xz
 cd bluez-5.49
 ./configure \
