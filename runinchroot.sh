@@ -187,9 +187,7 @@ cd bluez-5.49
     --localstatedir=/var \
     --enable-library \
     --enable-static \
-	--enable-debug \
 	--enable-threads \
-	--enable-sixaxis \
 	--enable-experimental
 make -j$NPROC
 sudo make install
