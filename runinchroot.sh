@@ -175,33 +175,33 @@ sudo systemctl disable dnsmasq
 echo  Install Bluetooth
 
 # Remove current bluez installation
-sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
+#sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
 
 # Compile bluez
-wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
+#wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
 #cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
-tar xvf bluez-5.49.tar.xz
-cd bluez-5.49
+#tar xvf bluez-5.49.tar.xz
+#cd bluez-5.49
 #wget https://github.com/badbat75/rpi_moode_build/raw/development/binaries/disable-obex.patch
 #patch < disable-obex.patch
-./configure \
-    --prefix=/usr \
-    --libdir=/usr/lib/arm-linux-gnueabihf \
-    --sysconfdir=/etc \
-    --localstatedir=/var \
-    --enable-library \
-    --enable-threads \
-    --enable-experimental \
-    --enable-manpages \
-    --disable-cups \
-    --disable-hid \
-    --disable-hog \
-    --disable-network \
-    --disable-obex
-make
-sudo make install
-cd ~
-rm -rf ./bluez-5.49*
+#./configure \
+#    --prefix=/usr \
+#    --libdir=/usr/lib/arm-linux-gnueabihf \
+#    --sysconfdir=/etc \
+#    --localstatedir=/var \
+#    --enable-library \
+#    --enable-threads \
+#    --enable-experimental \
+#    --enable-manpages \
+#    --disable-cups \
+#    --disable-hid \
+#    --disable-hog \
+#    --disable-network \
+#    --disable-obex
+#make
+#sudo make install
+#cd ~
+#rm -rf ./bluez-5.49*
 
 # Delete symlink and bin for old bluetoothd
 #sudo rm /usr/sbin/bluetoothd
@@ -212,12 +212,12 @@ rm -rf ./bluez-5.49*
 echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
-git clone https://github.com/Arkq/bluez-alsa.git
+git clone -b v1.2.0 --single-branch https://github.com/Arkq/bluez-alsa.git
 cd bluez-alsa
 autoreconf --install
 mkdir build
 cd build
-../configure --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure --disable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
 make
 sudo make install
 cd ~
