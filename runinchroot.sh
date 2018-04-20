@@ -182,8 +182,8 @@ wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
 #cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
 tar xvf bluez-5.49.tar.xz
 cd bluez-5.49
-wget https://github.com/badbat75/rpi_moode_build/raw/development/binaries/disable-obex.patch
-patch < disable-obex.patch
+#wget https://github.com/badbat75/rpi_moode_build/raw/development/binaries/disable-obex.patch
+#patch < disable-obex.patch
 ./configure \
     --prefix=/usr \
     --libdir=/usr/lib/arm-linux-gnueabihf \
