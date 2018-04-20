@@ -125,10 +125,14 @@ then
 #	 export CPP=/usr/lib/ccache/g++
 fi
 
+export CFLAGS="-O3"
+export MAKEFLAGS="-j\$NPROC"
+
 echo ""
-echo "gcc: "\$CC" "\$(which gcc)
-echo "g++: "\$CPP" "\$(which g++)
-echo ""
+echo "CC: "\$CC" "\$(which gcc)
+echo "CFLAGS: "\$CFLAGS
+echo "C++: "\$CPP" "\$(which g++)
+echo "MAKEFLAGS: "\$MAKEFLAGS
 EOF
 chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
 echo "Done."

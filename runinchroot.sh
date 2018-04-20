@@ -184,7 +184,7 @@ tar xvf bluez-5.49.tar.xz
 cd bluez-5.49
 wget https://github.com/badbat75/rpi_moode_build/raw/development/binaries/disable-obex.patch
 patch < disable-obex.patch
-CFLAGS="-O3" ./configure \
+./configure \
     --prefix=/usr \
     --libdir=/usr/lib/arm-linux-gnueabihf \
     --sysconfdir=/etc \
@@ -198,7 +198,7 @@ CFLAGS="-O3" ./configure \
     --disable-hog \
     --disable-network \
     --disable-obex
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./bluez-5.49*
@@ -217,8 +217,8 @@ cd bluez-alsa
 autoreconf --install
 mkdir build
 cd build
-CFLAGS="-O3" ../configure --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
-make -j$NPROC
+../configure --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+make
 sudo make install
 cd ~
 rm -rf /tmp/bluez-alsa
@@ -309,7 +309,7 @@ echo  Configure compile options.
 
 echo  Compile and install.
 
-make -j$NPROC
+make
 sudo make install
 sudo strip --strip-unneeded /usr/local/bin/mpd
 cd ~
@@ -567,7 +567,7 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo git clone https://github.com/Joshkunz/ashuffle.git
 cd ashuffle
-sudo make -j$NPROC
+sudo make
 cd ~
 sudo cp ./ashuffle/ashuffle /usr/local/bin
 sudo rm -rf ./ashuffle
@@ -581,7 +581,7 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo git clone https://github.com/hrkfdn/mpdas
 cd mpdas
-sudo make -j$NPROC
+sudo make
 sudo cp ./mpdas /usr/local/bin
 cd ~/
 sudo rm -rf ./mpdas
@@ -599,7 +599,7 @@ git clone https://github.com/mikebrady/shairport-sync.git
 cd shairport-sync
 autoreconf -i -f
 ./configure --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-metadata --with-stdout --with-systemd
-make -j$NPROC
+make
 sudo make install
 sudo systemctl disable shairport-sync
 cd ~
@@ -618,7 +618,7 @@ git clone https://github.com/ralph-irving/squeezelite $BASE
 pushd $BASE
 export CFLAGS="-O3 -march=native -mcpu=native -DDSD -DRESAMPLE -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
 cat ./scripts/squeezelite-ralphy-dsd.patch | patch -p 0
-make -j$NPROC
+make
 sudo cp ./squeezelite /usr/local/bin/
 popd
 rm -rf $BASE
@@ -638,7 +638,7 @@ cp ./rel-stretch/other/upmpdcli/libupnp-1.6.20.jfd5.tar.gz ./
 tar xfz ./libupnp-1.6.20.jfd5.tar.gz
 cd libupnp-1.6.20.jfd5
 ./configure --prefix=/usr --sysconfdir=/etc
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./libupnp-1.6.20.jfd5
@@ -650,7 +650,7 @@ cp ./rel-stretch/other/upmpdcli/libupnpp-0.16.0.tar.gz ./
 tar xfz ./libupnpp-0.16.0.tar.gz
 cd libupnpp-0.16.0
 ./configure --prefix=/usr --sysconfdir=/etc
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./libupnpp-0.16.0
@@ -663,7 +663,7 @@ tar xfz ./upmpdcli-code-1.2.16.tar.gz
 cd upmpdcli-code
 ./autogen.sh
 ./configure --prefix=/usr --sysconfdir=/etc
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./upmpdcli-code
@@ -685,7 +685,7 @@ cp -r ./rel-stretch/other/libupnppsamples-code/ ./
 cd libupnppsamples-code
 ./autogen.sh
 ./configure
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./libupnppsamples-code
