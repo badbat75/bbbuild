@@ -185,8 +185,8 @@ then
 	if [ $CREATE_ZIP -eq 1 ]
 	then
 		echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
-		xz -T0 $STARTDIR/$MOODENAME".img" >> $STARTDIR/$0.log
-		mv $STARTDIR/$MOODENAME".img.xz" $STARTDIR/ >> $STARTDIR/$0.log
+		xz -T0 $MOODENAME".img" >> $STARTDIR/$0.log
+		mv $MOODENAME".img.xz" $STARTDIR/ >> $STARTDIR/$0.log
 		echo "Done."
 	else
 		echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
