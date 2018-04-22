@@ -701,7 +701,7 @@ echo       If its not installed, the Google Play section in UPnP config screen w
 
 if [ $ENABLE_CCACHE -eq 1 ]
 then 
-    sudo CC="ccache gcc" pip install gmusicapi
+    sudo CC="ccache gcc" CPP="ccache g++" pip install gmusicapi
 else
     sudo pip install gmusicapi
 fi
