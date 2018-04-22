@@ -128,13 +128,15 @@ then
 fi
 
 export CFLAGS="-O3"
+export CPPFLAGS="-O3"
 export MAKEFLAGS="-j\$NPROC"
 
 echo ""
-echo "CC: "\$CC" "\$(which gcc)
-echo "CFLAGS: "\$CFLAGS
+echo "C: "\$CC" "\$(which gcc)
+echo "C flags: "\$CFLAGS
 echo "C++: "\$CPP" "\$(which g++)
-echo "MAKEFLAGS: "\$MAKEFLAGS
+echo "C++ flags: "\$CPPFLAGS
+echo "MAKE flags: "\$MAKEFLAGS
 EOF
 chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
 echo "Done."
