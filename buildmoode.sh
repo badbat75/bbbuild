@@ -111,6 +111,8 @@ echo -n "Add header to run.sh..."
 cat <<EOF > $IMG_ROOT/home/pi/run.sh
 #!/bin/bash
 
+set -v
+
 NPROC=\$(nproc)
 BUILDHOSTNAME=\$(hostname)
 
