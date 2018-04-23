@@ -1,66 +1,66 @@
---- bluez.c     2018-04-23 09:30:59.638814600 +0000
-+++ bluez.c.patched     2018-04-23 09:37:57.997938800 +0000
+--- bluez.c.orig	2018-04-23 12:26:29.491953400 +0000
++++ bluez.c	2018-04-23 12:29:23.432551300 +0000
 @@ -386,15 +386,6 @@
-
-                }
-                else if (strcmp(key, "Delay") == 0) {
+ 
+ 		}
+ 		else if (strcmp(key, "Delay") == 0) {
 -
--                       if (!g_variant_is_of_type(value, G_VARIANT_TYPE_UINT16)) {
--                               error("Invalid argument type for %s: %s != %s", key,
--                                               g_variant_get_type_string(value), "q");
--                               goto fail;
--                       }
+-			if (!g_variant_is_of_type(value, G_VARIANT_TYPE_UINT16)) {
+-				error("Invalid argument type for %s: %s != %s", key,
+-						g_variant_get_type_string(value), "q");
+-				goto fail;
+-			}
 -
--                       g_variant_get(value, "q", &delay);
+-			g_variant_get(value, "q", &delay);
 -
-                }
-                else if (strcmp(key, "Volume") == 0) {
-
+ 		}
+ 		else if (strcmp(key, "Volume") == 0) {
+ 
 @@ -404,9 +395,11 @@
-                                goto fail;
-                        }
-
--                       /* received volume is in range [0, 127]*/
-                        g_variant_get(value, "q", &volume);
-
+ 				goto fail;
+ 			}
+ 
+-			/* received volume is in range [0, 127]*/
+ 			g_variant_get(value, "q", &volume);
+ 
 +                        /* scale volume from 0 to 100 */
 +                        volume = volume * 100 / 127;
 +
-                }
-
-                g_variant_unref(value);
+ 		}
+ 
+ 		g_variant_unref(value);
 @@ -1053,34 +1046,6 @@
-                        transport_set_state_from_string(t, state);
-
-                }
--               else if (strcmp(key, "Delay") == 0) {
+ 			transport_set_state_from_string(t, state);
+ 
+ 		}
+-		else if (strcmp(key, "Delay") == 0) {
 -
--                       if (!g_variant_is_of_type(value, G_VARIANT_TYPE_UINT16)) {
--                               error("Invalid argument type for %s: %s != %s", key,
--                                               g_variant_get_type_string(value), "q");
--                               goto fail;
--                       }
+-			if (!g_variant_is_of_type(value, G_VARIANT_TYPE_UINT16)) {
+-				error("Invalid argument type for %s: %s != %s", key,
+-						g_variant_get_type_string(value), "q");
+-				goto fail;
+-			}
 -
--                       g_variant_get(value, "q", &t->a2dp.delay);
+-			g_variant_get(value, "q", &t->a2dp.delay);
 -
--               }
--               else if (strcmp(key, "Volume") == 0) {
+-		}
+-		else if (strcmp(key, "Volume") == 0) {
 -
--                       if (!g_variant_is_of_type(value, G_VARIANT_TYPE_UINT16)) {
--                               error("Invalid argument type for %s: %s != %s", key,
--                                               g_variant_get_type_string(value), "q");
--                               goto fail;
--                       }
+-			if (!g_variant_is_of_type(value, G_VARIANT_TYPE_UINT16)) {
+-				error("Invalid argument type for %s: %s != %s", key,
+-						g_variant_get_type_string(value), "q");
+-				goto fail;
+-			}
 -
--                       uint16_t volume;
+-			uint16_t volume;
 -
--                       /* received volume is in range [0, 127]*/
--                       g_variant_get(value, "q", &volume);
+-			/* received volume is in range [0, 127]*/
+-			g_variant_get(value, "q", &volume);
 -
--                       t->a2dp.ch1_volume = volume;
--                       t->a2dp.ch2_volume = volume;
+-			t->a2dp.ch1_volume = volume;
+-			t->a2dp.ch2_volume = volume;
 -
--               }
-
-                g_variant_unref(value);
-                value = NULL;
+-		}
+ 
+ 		g_variant_unref(value);
+ 		value = NULL;

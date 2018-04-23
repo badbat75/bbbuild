@@ -213,9 +213,9 @@ echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
 git clone -b v1.2.0 --single-branch https://github.com/Arkq/bluez-alsa.git
-wget https://github.com/badbat75/rpi_moode_build/blob/development/binaries/volume-issue.patch
+wget https://raw.githubusercontent.com/badbat75/rpi_moode_build/development/binaries/volume-issue.patch
 cd bluez-alsa
-patch src/bluez.c < volume-issue.patch
+patch src/bluez.c < ../volume-issue.patch
 autoreconf --install
 mkdir build
 cd build
