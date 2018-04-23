@@ -10,6 +10,7 @@
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
 [ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=1
+[ "x$ZIP_FORMAT" = "x" ] && ZIP_FORMAT=ZIP
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
 
@@ -78,7 +79,7 @@ echo "Done."
 
 # Mount the image filesystems
 echo -n "Mounting all the partitions in $IMG_ROOT..."
-sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log
+sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log 
 sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot >> $STARTDIR/$0.log
 sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $IMG_ROOT/run >> $STARTDIR/$0.log
 sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
@@ -185,8 +186,17 @@ then
 	if [ $CREATE_ZIP -eq 1 ]
 	then
 		echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
-		xz -T0 $MOODENAME".img" >> $STARTDIR/$0.log
-		mv $MOODENAME".img.xz" $STARTDIR/ >> $STARTDIR/$0.log
+		case $ZIP_FORMAT in
+		ZIP)
+			zip $STARTDIR/$MOODENAME".img.zip" $MOODENAME".img" >> $STARTDIR/$0.log &&
+			rm -f $MOODENAME".img" >> $STARTDIR/$0.log
+			;;
+		XZ)	xz -T0 $MOODENAME".img" >> $STARTDIR/$0.log &&
+			mv $MOODENAME".img.xz" $STARTDIR/ >> $STARTDIR/$0.log
+			;;
+		*)
+			echo "Compression $ZIP_FORMAT not supported."
+		esac
 		echo "Done."
 	else
 		echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
