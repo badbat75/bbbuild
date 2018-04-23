@@ -124,19 +124,19 @@ echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 if [ \$ENABLE_CCACHE -eq 1 ]
 then
 	 export PATH=/usr/lib/ccache:\$PATH
-#	 export CC=/usr/lib/ccache/gcc
-#	 export CPP=/usr/lib/ccache/g++
+	 export CC="ccache gcc"
+	 export CXX="ccache g++"
 fi
 
 export CFLAGS="-O3"
-export CPPFLAGS="-O3"
+export CXXFLAGS="-O3"
 export MAKEFLAGS="-j\$NPROC"
 
 echo ""
 echo "C: "\$CC" "\$(which gcc)
 echo "C flags: "\$CFLAGS
-echo "C++: "\$CPP" "\$(which g++)
-echo "C++ flags: "\$CPPFLAGS
+echo "C++: "\$CXX" "\$(which g++)
+echo "C++ flags: "\$CXXFLAGS
 echo "MAKE flags: "\$MAKEFLAGS
 EOF
 chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
