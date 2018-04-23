@@ -209,9 +209,9 @@ echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
 git clone -b v1.2.0 --single-branch https://github.com/Arkq/bluez-alsa.git
-wget https://raw.githubusercontent.com/badbat75/rpi_moode_build/development/binaries/volume-issue.patch
+#wget https://raw.githubusercontent.com/badbat75/rpi_moode_build/development/binaries/volume-issue.patch
 cd bluez-alsa
-patch src/bluez.c < ../volume-issue.patch
+#patch src/bluez.c < ../volume-issue.patch
 autoreconf --install
 mkdir build
 cd build
@@ -220,7 +220,7 @@ make
 sudo make install
 cd ~
 rm -rf /tmp/bluez-alsa
-rm -f volume-issue.patch
+#rm -f volume-issue.patch
 
 echo  Services are started by moOde Worker so lets disable them here.
 
