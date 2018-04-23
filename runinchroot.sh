@@ -224,6 +224,7 @@ make
 sudo make install
 cd ~
 rm -rf /tmp/bluez-alsa
+rm -f volume-issue.patch
 
 echo  Services are started by moOde Worker so lets disable them here.
 
