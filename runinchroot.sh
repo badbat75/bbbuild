@@ -189,6 +189,7 @@ cd bluez-5.49
     --localstatedir=/var \
     --enable-library \
     --enable-manpages \
+    --enable-experimental \
     --disable-cups \
     --disable-hid \
     --disable-hog \
@@ -198,6 +199,12 @@ make
 sudo make install
 cd ~
 rm -rf ./bluez-5.49*
+
+git clone https://github.com/RPi-Distro/pi-bluetooth
+sudo cp pi-bluetooth/usr/bin/btuart /usr/bin/
+sudo cp pi-bluetooth/debian/pi-bluetooth.hciuart.service /etc/systemd/system/hciuart.service
+sudo systemctl daemon-reload
+rm -rf pi-bluetooth
 
 # Delete symlink and bin for old bluetoothd
 #sudo rm /usr/sbin/bluetoothd
