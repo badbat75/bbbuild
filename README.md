@@ -10,7 +10,7 @@ rpi_moode_build [batchfile]
 ```
 Where:
 
-* *batchfile* is the file to be executed in chrooted environment. *runinchroot* is the batch file generated from the official moode build. If not specified a shell will be opened in the chrooted environment.
+* *batchfile* is the file to be executed in chrooted environment. **runinchroot.sh** is the batch file generated from the official moode build. If not specified a shell will be opened in the chrooted environment.
 
 Environment variables:
 ```
