@@ -175,7 +175,7 @@ sudo systemctl disable dnsmasq
 echo  Install Bluetooth
 
 # Remove current bluez installation
-sudo apt-get -y remove bluez libbluetooth-dev libbluetooth3
+sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
 
 # Compile bluez
 wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
