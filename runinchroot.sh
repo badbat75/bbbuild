@@ -189,6 +189,7 @@ cd bluez-5.49
     --localstatedir=/var \
     --enable-library \
     --enable-manpages \
+    --enable-deprecated \
     --disable-cups \
     --disable-hid \
     --disable-hog \
