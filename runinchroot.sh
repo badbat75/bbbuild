@@ -79,17 +79,17 @@ sudo apt-get -y upgrade
 
 sudo apt-get update
 sudo apt-get -y install \
-rpi-update php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
+php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
 dnsmasq hostapd \
 \
-bluez-firmware dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
+dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev libdbus-1-dev \
 libbsd-dev libncurses5-dev libsndfile1-dev \
 \
 libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcdio-paranoia-dev libiso9660-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
-autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev avahi-daemon libavahi-client-dev libssl-dev libsoxr-dev \
+autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi-client-dev libssl-dev libsoxr-dev \
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
-xinit xorg lsb-release xserver-xorg-legacy chromium-browser libgtk-3-0
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
 
 sudo apt-get clean
 
