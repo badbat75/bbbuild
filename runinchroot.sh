@@ -82,7 +82,7 @@ sudo apt-get -y install \
 rpi-update php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
 dnsmasq hostapd \
 \
-bluez-firmware pi-bluetooth \
+bluez-firmware libbsd-dev ncurses-dev \
 dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev libdbus-1-dev \
 \
@@ -215,14 +215,15 @@ rm -rf pi-bluetooth
 echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
-git clone -b v1.2.0 --single-branch https://github.com/Arkq/bluez-alsa.git
+#git clone -b v1.2.0 --single-branch https://github.com/Arkq/bluez-alsa.git
+git clone --single-branch https://github.com/Arkq/bluez-alsa.git
 #wget https://raw.githubusercontent.com/badbat75/rpi_moode_build/development/binaries/volume-issue.patch
 cd bluez-alsa
 #patch src/bluez.c < ../volume-issue.patch
 autoreconf --install
 mkdir build
 cd build
-../configure --disable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure --enable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
 make
 sudo make install
 cd ~
@@ -420,6 +421,7 @@ sudo chmod 0644 /lib/systemd/system/mpd.socket
 sudo chmod 0666 /etc/bluealsaaplay.conf
 sudo chmod 0644 /etc/systemd/system/bluealsa-aplay@.service
 sudo chmod 0644 /etc/systemd/system/bluealsa.service
+sed -i 's|^/usr/bin/bluealsa|/usr/bin/bluealsa -a2dp-sink|g' bluealsa.service # To be removed when solved in moode mainstream code
 sudo chmod 0644 /lib/systemd/system/bluetooth.service
 sudo chmod 0755 /usr/local/bin/a2dp-autoconnect
 # Rotenc
@@ -618,16 +620,13 @@ echo  COMPONENT 5 - Squeezelite
 echo 
 echo //////////////////////////////////////////////////////////////
 
-BASE=/tmp/squeezelite
-git clone https://github.com/ralph-irving/squeezelite $BASE
-
-pushd $BASE
-export CFLAGS="-O3 -march=native -mcpu=native -DDSD -DRESAMPLE -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
+git clone https://github.com/ralph-irving/squeezelite /tmp/squeezelite
+pushd /tmp/squeezelite
 cat ./scripts/squeezelite-ralphy-dsd.patch | patch -p 0
-make
+make CFLAGS="-O3 -march=native -mcpu=native -DDSD -DRESAMPLE -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
 sudo cp ./squeezelite /usr/local/bin/
 popd
-rm -rf $BASE
+rm -rf /tmp/squeezelite
 
 echo //////////////////////////////////////////////////////////////
 echo 
