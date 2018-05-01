@@ -84,7 +84,7 @@ sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot >> $STARTDIR/$0.log
 sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $IMG_ROOT/run >> $STARTDIR/$0.log
 sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
 sudo mount -t proc /proc $IMG_ROOT/proc >> $STARTDIR/$0.log
-mkdir $IMG_ROOT/mnt/resources
+sudo mkdir $IMG_ROOT/mnt/resources
 sudo mount --bind $STARTDIR/resources $IMG_ROOT/mnt/resources
 echo "Done."
 
@@ -172,7 +172,7 @@ fi
 # Unmount everything
 echo -n "Unmount all partitions..."
 sudo umount $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
-rmdir $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
+sudo rmdir $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
 sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/run $IMG_ROOT/boot $IMG_ROOT >> $STARTDIR/$0.log
 
 echo "Done."
