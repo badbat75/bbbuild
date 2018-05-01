@@ -185,6 +185,7 @@ cd bluez-5.49
 ./configure \
     --prefix=/usr \
     --libdir=/usr/lib/arm-linux-gnueabihf \
+    --libexecdir=/usr/sbin \
     --sysconfdir=/etc \
     --localstatedir=/var \
     --enable-library \
@@ -200,17 +201,17 @@ sudo make install
 cd ~
 rm -rf ./bluez-5.49*
 
-git clone https://github.com/RPi-Distro/pi-bluetooth
-sudo cp pi-bluetooth/usr/bin/btuart /usr/bin/
-sudo cp pi-bluetooth/debian/pi-bluetooth.hciuart.service /etc/systemd/system/hciuart.service
-sudo systemctl daemon-reload
-rm -rf pi-bluetooth
-
 # Delete symlink and bin for old bluetoothd
 #sudo rm /usr/sbin/bluetoothd
 #sudo rm -rf /usr/lib/bluetooth
 # Create symlink for new bluetoothd
 #sudo ln -s /usr/libexec/bluetooth/bluetoothd /usr/sbin/bluetoothd
+
+git clone https://github.com/RPi-Distro/pi-bluetooth
+sudo cp pi-bluetooth/usr/bin/btuart /usr/bin/
+sudo cp pi-bluetooth/debian/pi-bluetooth.hciuart.service /etc/systemd/system/hciuart.service
+sudo systemctl daemon-reload
+rm -rf pi-bluetooth
 
 echo NOTE: Ignore warnings from autoreconf and configure
 
