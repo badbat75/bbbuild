@@ -162,7 +162,7 @@ sudo systemctl disable shellinabox
 
 echo //////////////////////////////////////////////////////////////
 echo 
-echo  STEP 4 - Install enhanced networking
+echo  STEP 4 - Install enhanced networking and bluetooth stack
 echo 
 echo //////////////////////////////////////////////////////////////
 
@@ -215,20 +215,27 @@ rm -rf pi-bluetooth
 echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
-#git clone -b v1.2.0 --single-branch https://github.com/Arkq/bluez-alsa.git
-git clone --single-branch https://github.com/Arkq/bluez-alsa.git
-#wget https://raw.githubusercontent.com/badbat75/rpi_moode_build/development/binaries/volume-issue.patch
-cd bluez-alsa
-#patch src/bluez.c < ../volume-issue.patch
+git clone --single-branch https://github.com/Arkq/openaptx
+cd openaptx
 autoreconf --install
 mkdir build
 cd build
-../configure --enable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install
+
+cd /tmp
+git clone --single-branch https://github.com/Arkq/bluez-alsa.git
+cd bluez-alsa
+autoreconf --install
+mkdir build
+cd build
+../configure --enable-hcitop --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
 make
 sudo make install
 cd ~
+rm -rf /tmp/openaptx
 rm -rf /tmp/bluez-alsa
-#rm -f volume-issue.patch
 
 echo  Services are started by moOde Worker so lets disable them here.
 
