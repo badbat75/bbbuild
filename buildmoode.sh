@@ -152,7 +152,7 @@ then
 	sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh > $BATCHFILE.log 2>&1
 	echo "Done."
 else
-	echo "Interactive chroot mode. Press CTRL+Z or type EXIT to close interactive chroot mode."
+	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
 	sudo chroot $IMG_ROOT su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 fi

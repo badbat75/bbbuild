@@ -1,8 +1,7 @@
 # rpi_moode_build
 Release version 1.1
 
-This project aim to have a build script that build Moode on a vanilla raspbian
-generating an image file.
+This project aims to build Moode on a vanilla raspbian with the maximum efficiency on compilation and execution, generating an image file to be installed on an SD card.
 
 Usage:
 ```
@@ -10,7 +9,7 @@ rpi_moode_build [batchfile]
 ```
 Where:
 
-* *batchfile* is the file to be executed in chrooted environment
+* *batchfile* is the file to be executed in chrooted environment. **runinchroot.sh** is the batch file generated from the official moode build. If not specified a shell will be opened in the chrooted environment.
 
 Environment variables:
 ```
@@ -41,6 +40,9 @@ CCACHE_DIR
 CREATE_ZIP
     Default: 1
     Set to 0 to disable it. ZIP the image at the end of the build
+ZIP_FORMAT
+    Default: ZIP
+    Set to XZ to use LZMA compression or ZIP to use ZIP compression
 DELETE_TMP
     Default: 0
     Set to 1 to enable it. Delete everything after the build
