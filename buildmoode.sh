@@ -29,6 +29,9 @@ then
 	fi
 fi
 
+echo -n "Start date: " >> $STARTDIR/$0.log
+date >> $STARTDIR/$0.log
+
 # Prepare directories
 [ ! -d $TMP_DIR ] && mkdir $TMP_DIR >> $STARTDIR/$0.log
 cd $TMP_DIR
@@ -212,5 +215,8 @@ then
 	# Delete TMP directory
 	[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR >> $STARTDIR/$0.log
 fi
+
+echo -n "End date: " >> $STARTDIR/$0.log
+date >> $STARTDIR/$0.log
 
 cd $STARTDIR
