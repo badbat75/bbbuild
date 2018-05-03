@@ -182,6 +182,7 @@ wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
 #cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
 tar xvf bluez-5.49.tar.xz
 cd bluez-5.49
+patch < /mnt/resources/bluetoothd_path.patch
 ./configure \
     --prefix=/usr \
     --libdir=/usr/lib/arm-linux-gnueabihf \

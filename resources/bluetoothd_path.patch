@@ -1,0 +1,11 @@
+--- Makefile.am	2018-03-10 15:37:07.000000000 +0000
++++ Makefile.am.patched	2018-05-03 19:49:34.245190828 +0000
+@@ -19,7 +19,7 @@
+ 
+ EXTRA_DIST =
+ 
+-libexecdir = @libexecdir@/bluetooth
++libexecdir = @libexecdir@
+ 
+ libexec_PROGRAMS =
+ 
