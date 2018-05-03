@@ -771,7 +771,7 @@ echo //////////////////////////////////////////////////////////////
 
 cd ~
 sudo /var/www/command/util.sh clear-syslogs
-sudo apt-get autoremove
+#sudo apt-get autoremove
 
 [ $ENABLE_SQUASHFS -eq 1 ] && sudo umount /var/www
 sudo hostname $BUILDHOSTNAME
