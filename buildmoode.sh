@@ -29,6 +29,9 @@ then
 	fi
 fi
 
+echo -n "Start date: " >> $STARTDIR/$0.log
+date >> $STARTDIR/$0.log
+
 # Prepare directories
 [ ! -d $TMP_DIR ] && mkdir $TMP_DIR >> $STARTDIR/$0.log
 cd $TMP_DIR
@@ -149,7 +152,7 @@ if [ ! "x$1" = "x" ]
 then
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
-	sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh > $BATCHFILE.log 2>&1
+	time sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh > $BATCHFILE.log 2>&1
 	echo "Done."
 else
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
@@ -212,5 +215,8 @@ then
 	# Delete TMP directory
 	[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR >> $STARTDIR/$0.log
 fi
+
+echo -n "End date: " >> $STARTDIR/$0.log
+date >> $STARTDIR/$0.log
 
 cd $STARTDIR

@@ -182,6 +182,7 @@ wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
 #cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
 tar xvf bluez-5.49.tar.xz
 cd bluez-5.49
+patch < /mnt/resources/bluetoothd_path_in.patch
 ./configure \
     --prefix=/usr \
     --libdir=/usr/lib/arm-linux-gnueabihf \
@@ -770,7 +771,7 @@ echo //////////////////////////////////////////////////////////////
 
 cd ~
 sudo /var/www/command/util.sh clear-syslogs
-sudo apt-get autoremove
+#sudo apt-get autoremove
 
 [ $ENABLE_SQUASHFS -eq 1 ] && sudo umount /var/www
 sudo hostname $BUILDHOSTNAME
