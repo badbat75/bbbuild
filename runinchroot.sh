@@ -1,12 +1,102 @@
 ################################################################
 #
-# Build Recipe v2.3, 2018-01-26
+# Build Recipe v2.4, 2018-04-02
 #
-# moOde 4.0
+# moOde 4.1
+#
+# These instructions are written for Linux Enthusiasts
+# and System Integrators and provide a recipe for making
+# a custom OS for running moOde audio player.
+#
+# NOTE: This recipe is based on Stretch Lite 2017-11-29
+# 
+# Unless otherwise noted or if a command requires user
+# interaction, groups of commands can be run in batch.
+#
+# Changes:
+#
+# v2.4: Set permissions for localui.service in STEP 8
+#       Specify Linux kernel by Git hash in STEP 11
+#       Add echo "y" to rpi-update in STEP 11, reqd for prompt in 4.14.y branch
+#       Add apt-get clean to STEP 11
+#       Bump to MPD 0.20.18 in STEP 6
+#       Bump to upmpdcli-code-1.2.16 in COMPONENT 6 for Tidal fixes
+#       Bump to Bluetooth 5.49 in STEP 4
+#       Use local libupnppsamples-code sources in COMPONENT 6
+#       Remove djmount in COMPONENT 1 and /mnt/UPNP in STEP 7
+#       Set time zone to America/Detroit in STEP 2
+#       Add second apt-get update in STEP 3 for robustness
+# v2.3: Add sudo for cp pre-compiled MPD binary in STEP 6
+#       Bump to shairport-sync 3.1.7
+#		Reset dir permissions for var local in STEP 8
+#       Update emerald theme settings in STEP 8
+#       Remove page zoom setting from localui in COMPONENT 8
+#		Use single squeezelite binary in COMPONENT 5
+# v2.2: Reestablish musicroot symlink in STEP 7
+#       Remove sudo from make for squeezelite
+#       Add instructions for wpa_supplicant file
+#       Bump to Raspbian Stretch Lite 2017-11-29
+# v2.1: Chg poweroff to reboot in STEP 2
+#       Should be /var/log/mpd/log in STEP 6
+# v2.0: Add COMPONENT 8 Local UI display
+#       Add COMPONENT 9 Allo Piano 2.1 firmware
+#       Update STEP 8 with xinitrc
+#       Add avahi-utils to STEP 3 core packages
+#       Remove -j $(nproc --all) for compiles
+#       Add 0644 to /etc/upmpdcli.conf in COMPONENT 6 number 4
+# v1.9: Fixes for COMPONENT 6 number 4
+#       Remove -j arg from make (it causes segfault)
+#       Fix typo in ./configure: /etcmake -> /etc
+# v1.8: Add / to dev/null in STEP 9
+#       Remove bluealsa.servide disable in STEP 4
+# v1.7: Fix step numbering
+#       Gmusicapi is optional install (COMPONENT 7)
+#       Squeezelite compile for native DSD support
+#       Use make -j $(nproc --all) for certain compiles
+#       Use amixer instead of alsamixer in STEP 9
+#       Add reference to win32diskimager to Appendix
+#       Add version suffix to rel-stretch zipfile
+#       Adjust rel-stretch-ver.zip download path 
+# v1.6: Add additional dev libs for gmusicapi
+#       Fix typo in STEP 2, wrong r40b_
+# v1.5: Fix various typos
+# v1.4: Remove odd binary chars at end of some lines
+# v1.3: Added WiFi config to STEP 1
+# v1.2: Simplified method for STEPS 1,2
+#       Bump to MPD 0.20.11
+# v1.1: echo "pi:moodeaudio" | sudo chpasswd in STEP 2
+#       Set 0755 permissions on /var/local/www in STEP 7
+#       Remove templatesw# fatfinger dir in STEP 7
 #
 # (C) Tim Curtis 2017 http://moodeaudio.org
 #
 ################################################################
+
+sudo apt-get -y purge triggerhappy
+
+sudo apt-get update
+sudo apt-get -y upgrade
+
+sudo apt-get update
+sudo apt-get -y install \
+php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
+dnsmasq hostapd \
+\
+dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
+libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev libdbus-1-dev \
+libbsd-dev libncurses5-dev libsndfile1-dev \
+\
+libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcdio-paranoia-dev libiso9660-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
+autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi-client-dev libssl-dev libsoxr-dev \
+libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
+
+sudo apt-get clean
+
+# kernel ver 4.14.32
+echo y | sudo PRUNE_MODULES=1 rpi-update 171c962793f7a39a6798ce374d9d63ab0cbecf8c
+sudo rm -rf /lib/modules.bak
+sudo rm -rf /boot.bak
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -31,6 +121,8 @@ echo  STEP 2 - Expand the root partition to 3GB
 echo 
 echo //////////////////////////////////////////////////////////////
 
+sudo timedatectl set-timezone "Europe/Rome"
+
 echo "Change the current password (raspberry) to moodeaudio and the host name to moode."
 
 echo "pi:moodeaudio" | sudo chpasswd
@@ -43,7 +135,7 @@ echo  Download moOde application sources and configs.
 echo 
 echo  NOTE: We are downloading the Sources in this particular step in order to obtain the resizefs.sh file.
 echo 
-echo  moOde 4.0
+echo  moOde $MOODE_REL
 echo 
 
 cd ~
@@ -63,27 +155,18 @@ sudo update-rc.d dphys-swapfile remove
 #sudo rm /var/swap
 sudo systemctl disable cron.service
 sudo systemctl enable rpcbind
-sudo apt-get -y purge triggerhappy
 
 echo  Install core packages.
-
-# NOTE: run these two commands separately
-sudo apt-get update
-sudo apt-get -y upgrade
-
-sudo apt-get -y install rpi-update php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils
 
 sudo systemctl disable shellinabox
 
 echo //////////////////////////////////////////////////////////////
 echo 
-echo  STEP 4 - Install enhanced networking
+echo  STEP 4 - Install enhanced networking and bluetooth stack
 echo 
 echo //////////////////////////////////////////////////////////////
 
 echo  Install Host AP mode 
-
-sudo apt-get -y install dnsmasq hostapd
 
 sudo systemctl daemon-reload
 sudo systemctl disable hostapd
@@ -91,20 +174,68 @@ sudo systemctl disable dnsmasq
 
 echo  Install Bluetooth
 
-sudo apt-get -y install bluez bluez-firmware pi-bluetooth dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev
+# Remove current bluez installation
+sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
+
+# Compile bluez
+wget http://www.kernel.org/pub/linux/bluetooth/bluez-5.49.tar.xz
+#cp ./rel-stretch/other/bluetooth/bluez-5.49.tar.xz ./
+tar xvf bluez-5.49.tar.xz
+cd bluez-5.49
+./configure \
+    --prefix=/usr \
+    --libdir=/usr/lib/arm-linux-gnueabihf \
+    --libexecdir=/usr/sbin \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --enable-library \
+    --enable-manpages \
+    --enable-deprecated \
+    --disable-cups \
+    --disable-hid \
+    --disable-hog \
+    --disable-network \
+    --disable-obex
+make
+sudo make install
+cd ~
+rm -rf ./bluez-5.49*
+
+# Delete symlink and bin for old bluetoothd
+#sudo rm /usr/sbin/bluetoothd
+#sudo rm -rf /usr/lib/bluetooth
+# Create symlink for new bluetoothd
+#sudo ln -s /usr/libexec/bluetooth/bluetoothd /usr/sbin/bluetoothd
+
+git clone https://github.com/RPi-Distro/pi-bluetooth
+sudo cp pi-bluetooth/usr/bin/btuart /usr/bin/
+sudo cp pi-bluetooth/debian/pi-bluetooth.hciuart.service /etc/systemd/system/hciuart.service
+sudo systemctl daemon-reload
+rm -rf pi-bluetooth
 
 echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
-git clone https://github.com/Arkq/bluez-alsa.git
+git clone --single-branch https://github.com/Arkq/openaptx
+cd openaptx
+autoreconf --install
+mkdir build
+cd build
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install
+
+cd /tmp
+git clone --single-branch https://github.com/Arkq/bluez-alsa.git
 cd bluez-alsa
 autoreconf --install
 mkdir build
 cd build
-../configure --disable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
-make -j$NPROC
+../configure --enable-hcitop --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+make
 sudo make install
 cd ~
+rm -rf /tmp/openaptx
 rm -rf /tmp/bluez-alsa
 
 echo  Services are started by moOde Worker so lets disable them here.
@@ -117,7 +248,6 @@ echo  Finish up
 
 sudo mkdir -p /var/run/bluealsa
 sudo sync
-sudo apt-get clean
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -168,16 +298,14 @@ sudo chmod 0666 /etc/mpd.conf
 
 echo  Install MPD dev libs.
 
-sudo apt-get -y install libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcdio-paranoia-dev libiso9660-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev
-
-echo  Download MPD 0.20.12 sources and prep for compile.
+echo  Download MPD 0.20.18 sources and prep for compile.
 
 # Optionally install pre-compiled binary and skip to STEP 7
 #sudo cp ./rel-stretch/other/mpd/mpd-0.20.12 /usr/local/bin/mpd
 
-wget http://www.musicpd.org/download/mpd/0.20/mpd-0.20.12.tar.xz
-tar xf mpd-0.20.12.tar.xz
-cd mpd-0.20.12
+wget http://www.musicpd.org/download/mpd/0.20/mpd-0.20.18.tar.xz
+tar xf mpd-0.20.18.tar.xz
+cd mpd-0.20.18
 sh autogen.sh
 
 echo  Configure compile options.
@@ -196,14 +324,11 @@ echo  Configure compile options.
 
 echo  Compile and install.
 
-make -j$NPROC
+make
 sudo make install
 sudo strip --strip-unneeded /usr/local/bin/mpd
 cd ~
-rm -rf ./mpd-0.20.12*
-
-sudo apt-get clean
-sudo apt-get autoremove
+rm -rf ./mpd-0.20.18*
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -235,7 +360,6 @@ sudo mkdir /var/lib/mpd/music/RADIO
 # Mount points
 sudo mkdir /mnt/NAS
 sudo mkdir /mnt/SDCARD
-sudo mkdir /mnt/UPNP
 # Symlinks
 sudo ln -s /mnt/NAS /var/lib/mpd/music/NAS
 sudo ln -s /mnt/SDCARD /var/lib/mpd/music/SDCARD
@@ -305,12 +429,15 @@ sudo chmod 0644 /lib/systemd/system/mpd.socket
 sudo chmod 0666 /etc/bluealsaaplay.conf
 sudo chmod 0644 /etc/systemd/system/bluealsa-aplay@.service
 sudo chmod 0644 /etc/systemd/system/bluealsa.service
+sudo sed -i 's|/usr/bin/bluealsa|/usr/bin/bluealsa -a2dp-sink|g' /etc/systemd/system/bluealsa.service # To be removed when solved in moode mainstream code
 sudo chmod 0644 /lib/systemd/system/bluetooth.service
 sudo chmod 0755 /usr/local/bin/a2dp-autoconnect
 # Rotenc
 sudo chmod 0644 /lib/systemd/system/rotenc.service
 # Udev
 sudo chmod 0644 /etc/udev/rules.d/*
+# Localui
+sudo chmod 0644 /lib/systemd/system/localui.service
 
 echo  Services are started by moOde Worker so lets disable them here.
 
@@ -351,38 +478,32 @@ sudo chmod 0755 /usr/local/bin/alsaequal.bin
 sudo chown mpd:audio /usr/local/bin/alsaequal.bin
 sudo rm /usr/share/alsa/alsa.conf.d/equal.conf
 
+sudo mkdir /var/run/mpd
+sudo chown mpd:audio /var/run/mpd
+sudo /usr/local/bin/mpd /etc/mpd.conf
 mpc enable only 1
+sudo mpd --kill /etc/mpd.conf
 
-echo //////////////////////////////////////////////////////////////
-echo 
-echo  STEP 10 - Optionally squash /var/www
-echo 
-echo //////////////////////////////////////////////////////////////
+if [ $ENABLE_SQUASHFS -eq 1 ]
+then
+    echo //////////////////////////////////////////////////////////////
+    echo 
+    echo  STEP 10 - Optionally squash /var/www
+    echo 
+    echo //////////////////////////////////////////////////////////////
 
-echo NOTE: This is optional but highly recommended for performance/reliability
+    echo NOTE: This is optional but highly recommended for performance/reliability
 
-#cat <<EOF | sudo -i
-#echo "/var/local/moode.sqsh   /var/www        squashfs        ro,defaults     0       0" >> /etc/fstab
-#logout
-#EOF
-
-#cd ~
-#sudo rm /var/local/moode.sqsh
-#sudo mksquashfs /var/www /var/local/moode.sqsh
-
-#sudo rm -rf /var/www/*
-#sync
-
-echo //////////////////////////////////////////////////////////////
-echo 
-echo  STEP 11 - Optionally install latest Linux Kernel
-echo 
-echo //////////////////////////////////////////////////////////////
-
-echo y | sudo PRUNE_MODULES=1 rpi-update
-
-sudo rm -rf /lib/modules.bak
-sudo rm -rf /boot.bak
+    cat <<EOF | sudo -i
+echo "/var/local/moode.sqsh   /var/www        squashfs        ro,defaults     0       0" >> /etc/fstab
+logout
+EOF
+    cd ~
+    sudo rm /var/local/moode.sqsh
+    sudo mksquashfs /var/www /var/local/moode.sqsh
+    sudo rm -rf /var/www/*
+    sudo mount /var/local/moode.sqsh /var/www 
+fi
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -452,7 +573,6 @@ echo //////////////////////////////////////////////////////////////
 
 sudo apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install minidlna
 sudo systemctl disable minidlna
-sudo apt-get -y install djmount
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -463,7 +583,7 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo git clone https://github.com/Joshkunz/ashuffle.git
 cd ashuffle
-sudo make -j$NPROC
+sudo make
 cd ~
 sudo cp ./ashuffle/ashuffle /usr/local/bin
 sudo rm -rf ./ashuffle
@@ -477,7 +597,7 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo git clone https://github.com/hrkfdn/mpdas
 cd mpdas
-sudo make -j$NPROC
+sudo make
 sudo cp ./mpdas /usr/local/bin
 cd ~/
 sudo rm -rf ./mpdas
@@ -490,15 +610,12 @@ echo  COMPONENT 4 - Shairport-sync
 echo 
 echo //////////////////////////////////////////////////////////////
 
-sudo apt-get -y install autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev \
-avahi-daemon libavahi-client-dev libssl-dev libsoxr-dev
-
 cd ~
 git clone https://github.com/mikebrady/shairport-sync.git
 cd shairport-sync
 autoreconf -i -f
 ./configure --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-metadata --with-stdout --with-systemd
-make -j$NPROC
+make
 sudo make install
 sudo systemctl disable shairport-sync
 cd ~
@@ -511,16 +628,13 @@ echo  COMPONENT 5 - Squeezelite
 echo 
 echo //////////////////////////////////////////////////////////////
 
-BASE=/tmp/squeezelite
-git clone https://github.com/ralph-irving/squeezelite $BASE
-
-pushd $BASE
-export CFLAGS="-O3 -march=native -mcpu=native -DDSD -DRESAMPLE -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
+git clone https://github.com/ralph-irving/squeezelite /tmp/squeezelite
+pushd /tmp/squeezelite
 cat ./scripts/squeezelite-ralphy-dsd.patch | patch -p 0
-make -j$NPROC
+make CFLAGS="-O3 -march=native -mcpu=native -DDSD -DRESAMPLE -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
 sudo cp ./squeezelite /usr/local/bin/
 popd
-rm -rf $BASE
+rm -rf /tmp/squeezelite
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -530,11 +644,6 @@ echo //////////////////////////////////////////////////////////////
 
 echo  "Enjoy a Coffee and listen to some Tunes while the compiles run :-)"
 
-echo  Dev libraries
-
-sudo apt-get -y install libmicrohttpd-dev libexpat1-dev \
-libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip
-
 echo  Libupnp jfd5
 
 cd ~
@@ -542,7 +651,7 @@ cp ./rel-stretch/other/upmpdcli/libupnp-1.6.20.jfd5.tar.gz ./
 tar xfz ./libupnp-1.6.20.jfd5.tar.gz
 cd libupnp-1.6.20.jfd5
 ./configure --prefix=/usr --sysconfdir=/etc
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./libupnp-1.6.20.jfd5
@@ -554,7 +663,7 @@ cp ./rel-stretch/other/upmpdcli/libupnpp-0.16.0.tar.gz ./
 tar xfz ./libupnpp-0.16.0.tar.gz
 cd libupnpp-0.16.0
 ./configure --prefix=/usr --sysconfdir=/etc
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./libupnpp-0.16.0
@@ -562,15 +671,16 @@ rm libupnpp-0.16.0.tar.gz
 
 echo  Upmpdcli
 
-cp ./rel-stretch/other/upmpdcli/upmpdcli-1.2.15.tar.gz ./
-tar xfz ./upmpdcli-1.2.15.tar.gz 
-cd upmpdcli-1.2.15
+cp ./rel-stretch/other/upmpdcli/upmpdcli-code-1.2.16.tar.gz ./
+tar xfz ./upmpdcli-code-1.2.16.tar.gz 
+cd upmpdcli-code
+./autogen.sh
 ./configure --prefix=/usr --sysconfdir=/etc
-make -j$NPROC
+make
 sudo make install
 cd ~
-rm -rf ./upmpdcli-1.2.15
-rm upmpdcli-1.2.15.tar.gz
+rm -rf ./upmpdcli-code
+rm upmpdcli-code-1.2.16.tar.gz
 
 sudo useradd upmpdcli
 sudo cp ./rel-stretch/lib/systemd/system/upmpdcli.service /lib/systemd/system
@@ -583,11 +693,12 @@ echo  upexplorer
 
 echo NOTE: This also installs a bunch of other utils
 
-git clone https://@opensourceprojects.eu/git/p/libupnppsamples/code libupnppsamples-code
+#git clone https://@opensourceprojects.eu/git/p/libupnppsamples/code libupnppsamples-code
+cp -r ./rel-stretch/other/libupnppsamples-code/ ./
 cd libupnppsamples-code
 ./autogen.sh
 ./configure
-make -j$NPROC
+make
 sudo make install
 cd ~
 rm -rf ./libupnppsamples-code
@@ -601,7 +712,7 @@ echo //////////////////////////////////////////////////////////////
 echo NOTE: This component enables access to Google Play Music service via UPnP renderer.
 echo       If its not installed, the Google Play section in UPnP config screen will not be present.
 
-sudo pip install gmusicapi
+pip install gmusicapi
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -609,14 +720,9 @@ echo  COMPONENT 8 - Local UI display
 echo 
 echo //////////////////////////////////////////////////////////////
 
-echo  Install xserver. Perform this step separately from the rest.
-
-sudo apt-get -y install xinit xorg lsb-release xserver-xorg-legacy chromium-browser libgtk-3-0
-
 echo  Permissions, clean up and service config
 
 sudo sed -i "s/allowed_users=console/allowed_users=anybody/" /etc/X11/Xwrapper.config
-sudo apt-get clean
 sudo systemctl daemon-reload
 sudo systemctl disable localui
 
@@ -645,12 +751,26 @@ sudo rm -rf ./piano-firmware-master
 
 echo //////////////////////////////////////////////////////////////
 echo 
+echo  COMPONENT 10 - Broadcom Bluetooth devices firmwares
+echo 
+echo //////////////////////////////////////////////////////////////
+
+cd ~
+wget https://github.com/winterheart/broadcom-bt-firmware/archive/master.zip
+sudo unzip master.zip 
+sudo rm ./master.zip
+sudo cp -r ./broadcom-bt-firmware-master/brcm /lib/firmware/brcm
+sudo rm -rf ./broadcom-bt-firmware-master
+
+echo //////////////////////////////////////////////////////////////
+echo 
 echo  FINAL - Clean up
 echo 
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo apt-get clean
 sudo /var/www/command/util.sh clear-syslogs
+sudo apt-get autoremove
 
+[ $ENABLE_SQUASHFS -eq 1 ] && sudo umount /var/www
 sudo hostname $BUILDHOSTNAME

@@ -1,0 +1,1 @@
+Put here everything shoukd be shared with chrooted environment in /mnt/resources

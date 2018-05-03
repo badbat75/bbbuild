@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Static variables
-[ "x$MOODE_REL" = "x" ] && MOODE_REL=r40
+[ "x$MOODE_REL" = "x" ] && MOODE_REL=r41
 [ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
 [ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 [ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
@@ -9,7 +9,8 @@
 [ "x$ENABLE_SQUASHFS" = "x" ] && ENABLE_SQUASHFS=1
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
-[ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=0
+[ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=1
+[ "x$ZIP_FORMAT" = "x" ] && ZIP_FORMAT=ZIP
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
 
@@ -58,7 +59,9 @@ truncate -s $IMG_SIZE $IMGNAME >> $STARTDIR/$0.log
 echo "Done."
 # Expand root partition in the image
 echo -n "Expand root partition..."
-sfdisk -d $IMGNAME | sed '$s/ size.*,//' | sfdisk $IMGNAME >> $STARTDIR/$0.log 2>&1
+PARTINFO=$(sfdisk -d $IMGNAME | tail -n1)
+sfdisk --delete $IMGNAME 2
+echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $IMGNAME >> $STARTDIR/$0.log 2>&1
 echo "Done."
 # Create loopback devices for the image and its partitions
 echo -n "Creating loop devices..."
@@ -76,11 +79,13 @@ echo "Done."
 
 # Mount the image filesystems
 echo -n "Mounting all the partitions in $IMG_ROOT..."
-sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log
+sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log 
 sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot >> $STARTDIR/$0.log
 sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $IMG_ROOT/run >> $STARTDIR/$0.log
 sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
 sudo mount -t proc /proc $IMG_ROOT/proc >> $STARTDIR/$0.log
+sudo mkdir $IMG_ROOT/mnt/resources
+sudo mount --bind $STARTDIR/resources $IMG_ROOT/mnt/resources
 echo "Done."
 
 # Create CCACHE environment if set
@@ -109,6 +114,8 @@ echo -n "Add header to run.sh..."
 cat <<EOF > $IMG_ROOT/home/pi/run.sh
 #!/bin/bash
 
+set -x
+
 NPROC=\$(nproc)
 BUILDHOSTNAME=\$(hostname)
 
@@ -118,15 +125,21 @@ echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 
 if [ \$ENABLE_CCACHE -eq 1 ]
 then
-	 export PATH=/usr/lib/ccache:\$PATH
-#	 export CC=/usr/lib/ccache/gcc
-#	 export CPP=/usr/lib/ccache/g++
+#	 export PATH=/usr/lib/ccache:\$PATH
+	 export CC="ccache gcc"
+	 export CXX="ccache g++"
 fi
 
+export CFLAGS="-O3"
+export CXXFLAGS="-O3"
+export MAKEFLAGS="-j\$NPROC"
+
 echo ""
-echo "gcc: "\$CC" "\$(which gcc)
-echo "g++: "\$CPP" "\$(which g++)
-echo ""
+echo "C: "\$CC" "\$(which gcc)
+echo "C flags: "\$CFLAGS
+echo "C++: "\$CXX" "\$(which g++)
+echo "C++ flags: "\$CXXFLAGS
+echo "MAKE flags: "\$MAKEFLAGS
 EOF
 chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
 echo "Done."
@@ -139,7 +152,7 @@ then
 	sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh > $BATCHFILE.log 2>&1
 	echo "Done."
 else
-	echo "Interactive chroot mode. Press CTRL+Z or type EXIT to close interactive chroot mode."
+	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
 	sudo chroot $IMG_ROOT su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 fi
@@ -158,7 +171,10 @@ fi
 
 # Unmount everything
 echo -n "Unmount all partitions..."
+sudo umount $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
+sudo rmdir $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
 sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/run $IMG_ROOT/boot $IMG_ROOT >> $STARTDIR/$0.log
+
 echo "Done."
 # Delete the loopback devices
 echo -n "Delete loopback device..."
@@ -175,8 +191,17 @@ then
 	if [ $CREATE_ZIP -eq 1 ]
 	then
 		echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
-		zip $STARTDIR/$MOODENAME".zip" $MOODENAME".img" >> $STARTDIR/$0.log
-		rm $MOODENAME".img" >> $STARTDIR/$0.log
+		case $ZIP_FORMAT in
+		ZIP)
+			zip $STARTDIR/$MOODENAME".img.zip" $MOODENAME".img" >> $STARTDIR/$0.log &&
+			rm -f $MOODENAME".img" >> $STARTDIR/$0.log
+			;;
+		XZ)	xz -T0 $MOODENAME".img" >> $STARTDIR/$0.log &&
+			mv $MOODENAME".img.xz" $STARTDIR/ >> $STARTDIR/$0.log
+			;;
+		*)
+			echo "Compression $ZIP_FORMAT not supported."
+		esac
 		echo "Done."
 	else
 		echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
