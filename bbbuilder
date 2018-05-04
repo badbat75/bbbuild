@@ -160,8 +160,7 @@ function bbb_mount {
 		;;
 	*)
 		bbb_checkfile $1
-		IMAGENAME=$1
-		FULLSRC_IMAGE=$TMP_DIR/$SRC_IMAGENAME
+		FULLSRC_IMAGE=$1
 		;;
 	esac
 
