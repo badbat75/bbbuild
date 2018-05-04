@@ -68,7 +68,7 @@ function bbb_download {
 		unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR > $STARTDIR/$0.log
 		echo "Done."
 		# Retrieve the image name
-		export SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
+		SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 	else
 		SRCIMG_NAME=$(ls $TMP_DIR/*.img 2>/dev/null)
 		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
@@ -214,7 +214,7 @@ function bbb_manageimage {
 	if [ $DEV_MODE -eq 0 ]
 	then
 		# Rename the image
-		mv $SRCIMG_NAME $TGTIMG_NAME".img"
+		mv $FULLSRC_IMAGE $STARTDIR/$TGTIMG_NAME".img"
 
 		# ZIP the image if set
 		if [ $CREATE_ZIP -eq 1 ]
@@ -252,7 +252,6 @@ function bbb_cleanup {
 #######################
 
 function bbb_prepare {
-	# No download if a file is specified
 	bbb_download
 	bbb_mount $1
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
@@ -401,7 +400,6 @@ case _$1 in
 		TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare resizeimage | bbb_log $BBB_LOG
 		bbb_exec | bbb_log $BBB_LOG
-		echo $SRCIMG_NAME
 		bbb_finalize | bbb_log $BBB_LOG
 		;;
 esac
