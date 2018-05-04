@@ -68,11 +68,11 @@ function bbb_download {
 		unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR > $STARTDIR/$0.log
 		echo "Done."
 		# Retrieve the image name
-		SRC_IMAGENAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
+		SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 	else
-		SRC_IMAGENAME=$(ls $TMP_DIR/*.img 2>/dev/null)
+		SRCIMG_NAME=$(ls $TMP_DIR/*.img 2>/dev/null)
 		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
-		SRC_IMAGENAME=$(echo $SRC_IMAGENAME | head -n1 )
+		SRCIMG_NAME=$(echo $SRCIMG_NAME | head -n1 )
 	fi
 }
 
@@ -145,7 +145,7 @@ function bbb_addheader {
 function bbb_mount {
 	case $1 in
 	resizeimage)
-		FULLSRC_IMAGE=$TMP_DIR/$SRC_IMAGENAME
+		FULLSRC_IMAGE=$TMP_DIR/$SRCIMG_NAME
 		# Extend the image size to $IMG_SIZE
 		echo -n "Extend image size to $IMG_SIZE..."
 		truncate -s $IMG_SIZE $FULLSRC_IMAGE
@@ -214,7 +214,7 @@ function bbb_manageimage {
 	if [ $DEV_MODE -eq 0 ]
 	then
 		# Rename the image
-		mv $SRC_IMAGENAME $TGTIMG_NAME".img"
+		mv $SRCIMG_NAME $TGTIMG_NAME".img"
 
 		# ZIP the image if set
 		if [ $CREATE_ZIP -eq 1 ]
@@ -311,6 +311,12 @@ function bbb_help {
 		interactive <file>
 		    Mount the image <file> and run a bash shell in the chrooted environment.
 		
+		lsbbb
+			List bbb batch file present.
+		
+		lswd
+			List all the files present in the work directory
+
 		help
 		    This message
 
