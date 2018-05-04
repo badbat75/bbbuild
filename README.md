@@ -13,9 +13,6 @@ Where:
 
 Environment variables:
 ```
-MOODE_REL
-    Default: r41
-    Is the version of the moode package.
 TMP_DIR
     Default: /tmp/moode
     The temporary directory where start the job
