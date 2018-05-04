@@ -46,6 +46,10 @@ function bbb_checkfile {
 	fi
 }
 
+function bbb_ls {
+	find $1 -maxdepth 1 -type f
+}
+
 #######################
 # 2nd level functions #
 #######################
@@ -70,10 +74,6 @@ function bbb_download {
 		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
 		SRC_IMAGENAME=$(echo $SRC_IMAGENAME | head -n1 )
 	fi
-}
-
-function bbb_ls {
-	find $TMP_DIR -maxdepth 1 -type f
 }
 
 function bbb_enable_ccache {
@@ -371,9 +371,13 @@ case _$1 in
 		echo "Unmount image partitions only"
 		bbb_unmount
 		;;
-	_ls)
+	_lsbbb)
+		echo "List BBBs"
+		bbb_ls $STARTDIR/bbb
+		;;
+	_lswd)
 		echo "List files in $TMP_DIR"
-		bbb_ls
+		bbb_ls $TMP_DIR
 		;;
 	_help)
 		bbb_help
@@ -383,8 +387,8 @@ case _$1 in
 		exit 1
 		;;
 	*)
-		bbb_checkfile $1
-		BATCHFILE=$(realpath $1).bbb
+		bbb_checkfile bbb/$1
+		BATCHFILE=$(realpath bbb/$1)
 		BBB_CHROOTLOG=$(realpath $1).log
 		TGTIMAGE_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare resizeimage | bbb_log $BBB_LOG
