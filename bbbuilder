@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x
+set -x
 
 # Import configuration file
 . ./bbbuilder.conf
@@ -92,14 +92,14 @@ function bbb_enable_ccache {
 		sudo mount --bind $CCACHE_DIR $BBB_IMGPATH$CCACHE_DIR
 	fi
 	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $BBB_IMGPATH/etc/ccache.conf
-	sudo chroot root apt-get -y install ccache
+	sudo chroot $BBB_IMGPATH apt-get -y install ccache
 	echo "Done."
 }
 
 function bbb_disable_ccache {
 	# Remove CCACHE environment
 	echo -n "Clean CCACHE environment"...
-	sudo chroot root apt-get -y purge ccache
+	sudo chroot $BBB_IMGPATH apt-get -y purge ccache
 	sudo rm -f $BBB_IMGPATH/etc/ccache.conf
 	sudo umount $BBB_IMGPATH$CCACHE_DIR
 	sudo rm -r $BBB_IMGPATH$CCACHE_DIR
@@ -356,6 +356,8 @@ function bbb_help {
 # Main #
 ########
 
+[ ! -d $STARTDIR/log ] && mkdir $STARTDIR/log
+
 case _$1 in
 	_interactive)
 		echo "Interactive mode"
@@ -373,7 +375,7 @@ case _$1 in
 		;;
 	_lsbbb)
 		echo "List BBBs"
-		bbb_ls $STARTDIR/bbb
+		bbb_ls $STARTDIR/bbbs
 		;;
 	_lswd)
 		echo "List files in $TMP_DIR"
@@ -387,9 +389,9 @@ case _$1 in
 		exit 1
 		;;
 	*)
-		bbb_checkfile bbb/$1
-		BATCHFILE=$(realpath bbb/$1)
-		BBB_CHROOTLOG=$(realpath $1).log
+		bbb_checkfile $STARTDIR/bbbs/$1.bbb
+		BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
+		BBB_CHROOTLOG=$(realpath $STARTDIR/log/$1).log
 		TGTIMAGE_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare resizeimage | bbb_log $BBB_LOG
 		bbb_exec | bbb_log $BBB_LOG
