@@ -29,7 +29,7 @@ then
 	fi
 fi
 
-echo -n "Start date: " >> $STARTDIR/$0.log
+echo -n "Start date: " > $STARTDIR/$0.log
 date >> $STARTDIR/$0.log
 
 # Prepare directories
@@ -46,7 +46,7 @@ then
 	echo "Done."
 	# Unzip the image
 	echo -n "Unzip the image $ZIPNAME..."
-	unzip -n $ZIPNAME > $STARTDIR/$0.log
+	unzip -n $ZIPNAME >> $STARTDIR/$0.log
 	echo "Done."
 	# Retrieve the image name
 	IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
