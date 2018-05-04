@@ -253,7 +253,7 @@ function bbb_cleanup {
 
 function bbb_prepare {
 	# No download if a file is specified
-	[ "$1" = "resizeimage" ] && bbb_download
+	bbb_download
 	bbb_mount $1
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
 	bbb_addheader
@@ -358,10 +358,10 @@ function bbb_help {
 case _$1 in
 	_interactive)
 		echo "Interactive mode"
-		bbb_prepare $2 | bbb_log $BBB_LOG
+		bbb_mount $2 | bbb_log $BBB_LOG
 		echo "Hit any key" && read
 		bbb_interactive | bbb_log $BBB_LOG
-		bbb_finalize | bbb_log $BBB_LOG
+		bbb_unmount | bbb_log $BBB_LOG
 		;;
 	_mount)
 		echo "Mount image only"
