@@ -5,11 +5,11 @@ This project aims to build Moode on a vanilla raspbian with the maximum efficien
 
 Usage:
 ```
-rpi_moode_build [batchfile]
+bbbuild [bbbatch]
 ```
 Where:
 
-* *batchfile* is the file to be executed in chrooted environment. **runinchroot.sh** is the batch file generated from the official moode build. If not specified a shell will be opened in the chrooted environment.
+* *bbbatch* is the file to be executed in chrooted environment. **moode-r41** is the batch file generated from the official moode build.
 
 Environment variables:
 ```
