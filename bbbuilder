@@ -53,6 +53,7 @@ function bbb_download {
 	# In DEV mode, there's no download and unzip, the existing img file is used
 	if [ $DEV_MODE -eq 0 ]
 	then
+		[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
 		# Download the image
 		echo -n "Downloading image from $IMG_URL..."
 		ZIPNAME=$(basename $(wget -nc -q -S -P $TMP_DIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
@@ -181,9 +182,10 @@ function bbb_mount {
 		sudo resize2fs $LOOPDEV"p2" 2>&1
 		echo "Done."
 	fi
-
+	
 	# Mount the image filesystems
 	echo -n "Mounting all the partitions in $BBB_IMGPATH..."
+	[ ! -d $BBB_IMGPATH ] && mkdir $BBB_IMGPATH
 	sudo mount -t ext4 $LOOPDEV"p2" $BBB_IMGPATH &&
 	sudo mount -t vfat $LOOPDEV"p1" $BBB_IMGPATH/boot &&
 	sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $BBB_IMGPATH/run &&
@@ -253,11 +255,9 @@ function bbb_cleanup {
 
 function bbb_prepare {
 	# Prepare directories
-	[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
-	[ ! -d $BBB_IMGPATH ] && mkdir $BBB_IMGPATH
-
+	
 	bbb_download
-	bbb_mount resizeimage
+	bbb_mount $1
 
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
 	
@@ -312,8 +312,8 @@ function bbb_help {
 		unmount
 		    Unmount the image
 		
-		interactive
-		    Mount the image and run a bash shell in the chrooted environment
+		interactive <file>
+		    Mount the image <file> and run a bash shell in the chrooted environment.
 		
 		help
 		    This message
@@ -363,7 +363,7 @@ function bbb_help {
 case _$1 in
 	_interactive)
 		echo "Interactive mode"
-		bbb_prepare | bbb_log $BBB_LOG
+		bbb_prepare $2 | bbb_log $BBB_LOG
 		bbb_interactive | bbb_log $BBB_LOG
 		bbb_finalize | bbb_log $BBB_LOG
 		;;
@@ -391,7 +391,7 @@ case _$1 in
 		BATCHFILE=$(realpath $1).bbb
 		BBB_CHROOTLOG=$(realpath $1).log
 		TGTIMAGE_NAME=$(date +%Y-%m-%d)-$1
-		bbb_prepare | bbb_log $BBB_LOG
+		bbb_prepare resizeimage | bbb_log $BBB_LOG
 		bbb_exec | bbb_log $BBB_LOG
 		bbb_finalize | bbb_log $BBB_LOG
 		;;
