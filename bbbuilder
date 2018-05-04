@@ -33,7 +33,11 @@ function bbb_log {
 }
 
 function bbb_checkfile {
-	if [ ! -f $1 -o "x$1" = "x" ]
+	if [ "x$1" = "x" ]
+		echo "No file specified"
+		exit 1
+	fi
+	if [ ! -f $1 ]
 	then
 		echo "File $1 does not exist!"
 		exit 1
