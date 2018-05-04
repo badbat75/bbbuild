@@ -22,7 +22,7 @@ BBB_LOG=$STARTDIR/$0.log
 BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 
 #######################
-# 2nd level functions #
+# 3rd level functions #
 #######################
 
 function bbb_log {
@@ -30,25 +30,41 @@ function bbb_log {
 	awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
 }
 
+function bbb_checkfile {
+	if [ ! -f $1 ]
+	then
+		echo "File $1 does not exist!"
+		exit 1
+	fi
+}
+
+#######################
+# 2nd level functions #
+#######################
+
 function bbb_download {
 	# In DEV mode, there's no download and unzip, the existing img file is used
 	if [ $DEV_MODE -eq 0 ]
 	then
 		# Download the image
 		echo -n "Downloading image from $IMG_URL..."
-		ZIPNAME=$(basename $(wget -nc -q -S -P $TMPDIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+		ZIPNAME=$(basename $(wget -nc -q -S -P $TMP_DIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 		echo "Done."
 		# Unzip the image
 		echo -n "Unzip the image $ZIPNAME..."
-		unzip -n $TMPDIR/$ZIPNAME -d $TMPDIR > $STARTDIR/$0.log
+		unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR > $STARTDIR/$0.log
 		echo "Done."
 		# Retrieve the image name
-		IMGNAME=$(unzip -v $TMPDIR/$ZIPNAME | grep ".img" | awk '{print $8}')
+		SRC_IMAGENAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 	else
-		IMGNAME=$(ls $TMPDIR/*.img 2>/dev/null)
+		SRC_IMAGENAME=$(ls $TMP_DIR/*.img 2>/dev/null)
 		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
-		IMGNAME=$(echo $IMGNAME | head -n1 )
+		SRC_IMAGENAME=$(echo $SRC_IMAGENAME | head -n1 )
 	fi
+}
+
+function bbb_ls {
+	ls $TMP_DIR/
 }
 
 function bbb_enable_ccache {
@@ -121,24 +137,31 @@ function bbb_addheader {
 }
 
 function bbb_mount {
-	if [ "$1" = "resizeimage" ]
-	then
+	case $1 in
+	resizeimage)
+		FULLSRC_IMAGE=$TMP_DIR/$SRC_IMAGENAME
 		# Extend the image size to $IMG_SIZE
 		echo -n "Extend image size to $IMG_SIZE..."
-		truncate -s $IMG_SIZE $IMGNAME
+		truncate -s $IMG_SIZE $FULLSRC_IMAGE
 		echo "Done."
 		# Expand root partition in the image
 		echo -n "Expand root partition..."
-		PARTINFO=$(sfdisk -d $IMGNAME | tail -n1)
-		sfdisk --delete $IMGNAME 2
-		echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $IMGNAME 2>&1
+		PARTINFO=$(sfdisk -d $FULLSRC_IMAGE | tail -n1)
+		sfdisk --delete $FULLSRC_IMAGE 2
+		echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $FULLSRC_IMAGE 2>&1
 		echo "Done."
-	fi
-	
+		;;
+	*)
+		bbb_checkfile $1
+		IMAGENAME=$1
+		FULLSRC_IMAGE=$TMP_DIR/$SRC_IMAGENAME
+		;;
+	esac
+
 	# Create loopback devices for the image and its partitions
 	echo -n "Creating loop devices..."
-	sudo losetup -f -P $IMGNAME
-	LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
+	sudo losetup -f -P $FULLSRC_IMAGE
+	LOOPDEV=$(sudo losetup -j $FULLSRC_IMAGE | awk '{print $1}' | sed 's/.$//g')
 	echo "Done."
 	# Check the root partition
 	echo -n "Check root filesystems..."
@@ -185,20 +208,20 @@ function bbb_manageimage {
 	if [ $DEV_MODE -eq 0 ]
 	then
 		# Rename the image
-		mv $IMGNAME $IMG_NAME".img"
+		mv $SRC_IMAGENAME $TGTIMG_NAME".img"
 
 		# ZIP the image if set
 		if [ $CREATE_ZIP -eq 1 ]
 		then
-			echo -n "Zipping the image $IMG_NAME.img in $STARTDIR..."
+			echo -n "Zipping the image $TGTIMG_NAME.img in $STARTDIR..."
 			case $ZIP_FORMAT in
 				ZIP)
-					zip -b $TMP_DIR $STARTDIR/$IMG_NAME".img.zip" $TMP_DIR/$IMG_NAME".img" &&
-					rm -f $IMG_NAME".img"
+					zip -b $TMP_DIR $STARTDIR/$TGTIMG_NAME".img.zip" $TMP_DIR/$TGTIMG_NAME".img" &&
+					rm -f $TGTIMG_NAME".img"
 					;;
 				XZ)
-					xz -T0 $TMP_DIR/$IMG_NAME".img" &&
-					mv $TMP_DIR/$IMG_NAME".img.xz" $STARTDIR/
+					xz -T0 $TMP_DIR/$TGTIMG_NAME".img" &&
+					mv $TMP_DIR/$TGTIMG_NAME".img.xz" $STARTDIR/
 					;;
 				*)
 					echo "Compression $ZIP_FORMAT not supported."
@@ -206,8 +229,8 @@ function bbb_manageimage {
 			esac
 			echo "Done."
 		else
-			echo -n "Moving the image $TMP_DIR/$IMG_NAME.img in $STARTDIR..."
-			mv $TMP_DIR/$IMG_NAME".img" $STARTDIR/
+			echo -n "Moving the image $TMP_DIR/$TGTIMG_NAME.img in $STARTDIR..."
+			mv $TMP_DIR/$TGTIMG_NAME".img" $STARTDIR/
 			echo "Done."
 		fi
 	fi
@@ -340,12 +363,16 @@ case _$1 in
 		;;
 	_mount)
 		echo "Mount image only"
-		bbb_mount
+		bbb_mount $2
 		;;
 	_unmount)
 		echo "Unmount image partitions only"
 		bbb_unmount
 		;;
+	_ls)
+		echo "List files in $TMP_DIR"
+		bbb_ls
+		;
 	_help)
 		bbb_help
 		;;
@@ -354,14 +381,10 @@ case _$1 in
 		exit 1
 		;;
 	*)
-		if [ ! -f $1 ]
-		then
-			echo "File $1 not exists!"
-			exit 1
-		fi
+		bbb_checkfile $1
 		BATCHFILE=$(realpath $1).bbb
 		BBB_CHROOTLOG=$(realpath $1).log
-		IMG_NAME=$(date +%Y-%m-%d)-$1
+		TGTIMAGE_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare | bbb_log $BBB_LOG
 		bbb_exec | bbb_log $BBB_LOG
 		bbb_finalize | bbb_log $BBB_LOG
