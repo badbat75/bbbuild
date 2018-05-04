@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+#set -x
 
 # Import configuration file
 . ./bbbuilder.conf
@@ -256,10 +256,10 @@ function bbb_prepare {
 	bbb_download
 	bbb_mount $1
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
-	bbb_addheader
 }
 
 function bbb_exec {
+	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $BBB_IMGPATH/home/pi/run.sh
@@ -269,6 +269,7 @@ function bbb_exec {
 }
 
 function bbb_interactive {
+	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
 	sudo chroot $BBB_IMGPATH su - pi -c "ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
@@ -359,7 +360,6 @@ case _$1 in
 	_interactive)
 		echo "Interactive mode"
 		bbb_mount $2 | bbb_log $BBB_LOG
-		echo "Hit any key" && read
 		bbb_interactive | bbb_log $BBB_LOG
 		bbb_unmount | bbb_log $BBB_LOG
 		;;
