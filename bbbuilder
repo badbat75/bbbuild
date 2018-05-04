@@ -17,7 +17,7 @@
 STARTDIR=$PWD
 BBB_LOG=$STARTDIR/$0.log
 
-function log {
+function bbb_log {
 	# Prepend time for each row and redirect to log
 	awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
 }
@@ -305,7 +305,7 @@ case _$1 in
 			echo "File $1 not exists!"
 			exit 1
 		fi
-		BATCHFILE=$(realpath $1).chrootsh
+		BATCHFILE=$(realpath $1).bbb
 		BBB_CHROOTLOG=$(realpath $1).log
 		IMG_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare | bbb_log $BBB_LOG
