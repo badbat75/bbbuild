@@ -29,7 +29,8 @@ BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 
 function bbb_log {
 	# Prepend time for each row and redirect to log
-	awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
+#	awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
+	cat
 }
 
 function bbb_checkfile {
@@ -358,6 +359,7 @@ case _$1 in
 	_interactive)
 		echo "Interactive mode"
 		bbb_prepare $2 | bbb_log $BBB_LOG
+		echo "Hit any key" && read
 		bbb_interactive | bbb_log $BBB_LOG
 		bbb_finalize | bbb_log $BBB_LOG
 		;;
