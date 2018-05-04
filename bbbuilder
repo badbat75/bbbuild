@@ -372,7 +372,7 @@ case _$1 in
 	_ls)
 		echo "List files in $TMP_DIR"
 		bbb_ls
-		;
+		;;
 	_help)
 		bbb_help
 		;;
