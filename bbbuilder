@@ -97,15 +97,12 @@ function bbb_enable_ccache {
 
 function bbb_disable_ccache {
 	# Remove CCACHE environment
-	if [ $ENABLE_CCACHE -eq 1 ]
-	then
-		echo -n "Clean CCACHE environment"...
-		sudo chroot root apt-get -y purge ccache
-		sudo rm -f $BBB_IMGPATH/etc/ccache.conf
-		sudo umount $BBB_IMGPATH$CCACHE_DIR
-		sudo rm -r $BBB_IMGPATH$CCACHE_DIR
-		echo "Done."
-	fi
+	echo -n "Clean CCACHE environment"...
+	sudo chroot root apt-get -y purge ccache
+	sudo rm -f $BBB_IMGPATH/etc/ccache.conf
+	sudo umount $BBB_IMGPATH$CCACHE_DIR
+	sudo rm -r $BBB_IMGPATH$CCACHE_DIR
+	echo "Done."
 }
 
 function bbb_addheader {
@@ -254,13 +251,10 @@ function bbb_cleanup {
 #######################
 
 function bbb_prepare {
-	# Prepare directories
-	
-	bbb_download
+	# No download if a file is specified
+	[ ! "$1" = "resizeimage" ] && bbb_download
 	bbb_mount $1
-
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
-	
 	bbb_addheader
 }
 
@@ -282,7 +276,7 @@ function bbb_interactive {
 }
 
 function bbb_finalize {
-	bbb_disable_ccache
+	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
 	bbb_unmount
 	bbb_manageimage
 	bbb_cleanup
