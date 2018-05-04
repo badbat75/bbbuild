@@ -277,17 +277,17 @@ function bbb_help {
 		
 		Command available:
 		
-		mount <iilename>
-		    Mount the image in the $BBB_IMGPATH
+		mount <file>
+		    Mount the image <file> in the $BBB_IMGPATH
 		
 		unmount
-	 	    Unmount the image
+		    Unmount the image
 		
 		interactive
 		    Mount the image and run a bash shell in the chrooted environment
 		
 		help
-			This message
+		    This message
 
 		Environment variables:
 
