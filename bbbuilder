@@ -36,16 +36,16 @@ function bbb_download {
 	then
 		# Download the image
 		echo -n "Downloading image from $IMG_URL..."
-		ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+		ZIPNAME=$(basename $(wget -nc -q -S -P $TMPDIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 		echo "Done."
 		# Unzip the image
 		echo -n "Unzip the image $ZIPNAME..."
-		unzip -n $ZIPNAME > $STARTDIR/$0.log
+		unzip -n $TMPDIR/$ZIPNAME -d $TMPDIR > $STARTDIR/$0.log
 		echo "Done."
 		# Retrieve the image name
-		IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
+		IMGNAME=$(unzip -v $TMPDIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 	else
-		IMGNAME=$(ls *.img 2>/dev/null)
+		IMGNAME=$(ls $TMPDIR/*.img 2>/dev/null)
 		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
 		IMGNAME=$(echo $IMGNAME | head -n1 )
 	fi
@@ -82,6 +82,42 @@ function bbb_disable_ccache {
 		sudo rm -r $BBB_IMGPATH$CCACHE_DIR
 		echo "Done."
 	fi
+}
+
+function bbb_addheader {
+	# Add header to run.sh in the image
+	echo -n "Add header to run.sh..."
+	cat <<-EOF > $BBB_IMGPATH/home/pi/run.sh
+		#!/bin/bash
+
+		set -x
+
+		NPROC=\$(nproc)
+		BUILDHOSTNAME=\$(hostname)
+
+		echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
+		echo "Is CCACHE enabled: "\$ENABLE_CCACHE
+
+		if [ \$ENABLE_CCACHE -eq 1 ]
+		then
+		#	 export PATH=/usr/lib/ccache:\$PATH
+			 export CC="ccache gcc"
+			 export CXX="ccache g++"
+		fi
+
+		export CFLAGS="-O3"
+		export CXXFLAGS="-O3"
+		export MAKEFLAGS="-j\$NPROC"
+
+		echo ""
+		echo "C: "\$CC" "\$(which gcc)
+		echo "C flags: "\$CFLAGS
+		echo "C++: "\$CXX" "\$(which g++)
+		echo "C++ flags: "\$CXXFLAGS
+		echo "MAKE flags: "\$MAKEFLAGS
+	EOF
+	chmod +x $BBB_IMGPATH/home/pi/run.sh
+	echo "Done."
 }
 
 function bbb_mount {
@@ -157,12 +193,12 @@ function bbb_manageimage {
 			echo -n "Zipping the image $IMG_NAME.img in $STARTDIR..."
 			case $ZIP_FORMAT in
 				ZIP)
-					zip $STARTDIR/$IMG_NAME".img.zip" $IMG_NAME".img" &&
+					zip -b $TMP_DIR $STARTDIR/$IMG_NAME".img.zip" $TMP_DIR/$IMG_NAME".img" &&
 					rm -f $IMG_NAME".img"
 					;;
 				XZ)
-					xz -T0 $IMG_NAME".img" &&
-					mv $IMG_NAME".img.xz" $STARTDIR/
+					xz -T0 $TMP_DIR/$IMG_NAME".img" &&
+					mv $TMP_DIR/$IMG_NAME".img.xz" $STARTDIR/
 					;;
 				*)
 					echo "Compression $ZIP_FORMAT not supported."
@@ -170,8 +206,8 @@ function bbb_manageimage {
 			esac
 			echo "Done."
 		else
-			echo -n "Moving the image $IMG_NAME.img in $STARTDIR..."
-			mv $IMG_NAME".img" $STARTDIR/
+			echo -n "Moving the image $TMP_DIR/$IMG_NAME.img in $STARTDIR..."
+			mv $TMP_DIR/$IMG_NAME".img" $STARTDIR/
 			echo "Done."
 		fi
 	fi
@@ -196,46 +232,14 @@ function bbb_prepare {
 
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
 	
-	# Add header to run.sh in the image
-	echo -n "Add header to run.sh..."
-	cat <<-EOF > $BBB_IMGPATH/home/pi/run.sh
-		#!/bin/bash
-
-		set -x
-
-		NPROC=\$(nproc)
-		BUILDHOSTNAME=\$(hostname)
-
-		echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
-		echo "Is CCACHE enabled: "\$ENABLE_CCACHE
-
-		if [ \$ENABLE_CCACHE -eq 1 ]
-		then
-		#	 export PATH=/usr/lib/ccache:\$PATH
-			 export CC="ccache gcc"
-			 export CXX="ccache g++"
-		fi
-
-		export CFLAGS="-O3"
-		export CXXFLAGS="-O3"
-		export MAKEFLAGS="-j\$NPROC"
-
-		echo ""
-		echo "C: "\$CC" "\$(which gcc)
-		echo "C flags: "\$CFLAGS
-		echo "C++: "\$CXX" "\$(which g++)
-		echo "C++ flags: "\$CXXFLAGS
-		echo "MAKE flags: "\$MAKEFLAGS
-	EOF
-	chmod +x $BBB_IMGPATH/home/pi/run.sh
-	echo "Done."
+	bbb_addheader
 }
 
 function bbb_exec {
 	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $BBB_IMGPATH/home/pi/run.sh
-	time sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BBB_CHROOTLOG
+	echo "sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BBB_CHROOTLOG"
 	echo "Done."
 	rm $BBB_IMGPATH/home/pi/run.sh
 }
@@ -259,23 +263,34 @@ function bbb_help {
 	cat <<-EOF
 		rpi_moode_build
 
-		Release version 1.1
+		Release version 1.9
 
 		This project aims to build Moode on a vanilla raspbian with the maximum efficiency on compilation and execution, generating an image file to be installed on an SD card.
 
 		Usage:
 
-		    rpi_moode_build [batchfile]
+			bbbuild [arg1]
 
 		Where:
 
-		    batchfile is the file to be executed in chrooted environment. runinchroot.sh is the batch file generated from the official moode build. If not specified a shell will be opened in the chrooted environment.
+		    arg1 is the command to run or the bbb batch to be executed in chrooted environment.
+		
+		Command available:
+		
+		mount <iilename>
+		    Mount the image in the $BBB_IMGPATH
+		
+		unmount
+	 	    Unmount the image
+		
+		interactive
+		    Mount the image and run a bash shell in the chrooted environment
+		
+		help
+			This message
 
 		Environment variables:
 
-		MOODE_REL
-		    Default: r41
-		    Is the version of the moode package.
 		TMP_DIR
 		    Default: /tmp/moode
 		    The temporary directory where start the job
