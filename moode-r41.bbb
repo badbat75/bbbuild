@@ -135,12 +135,12 @@ echo  Download moOde application sources and configs.
 echo 
 echo  NOTE: We are downloading the Sources in this particular step in order to obtain the resizefs.sh file.
 echo 
-echo  moOde $MOODE_REL
+echo  moOde 4.1
 echo 
 
 cd ~
-wget http://moodeaudio.org/downloads/prod/rel-stretch-$MOODE_REL.zip
-sudo unzip ./rel-stretch-$MOODE_REL.zip
+wget http://moodeaudio.org/downloads/prod/rel-stretch-r41.zip
+sudo unzip ./rel-stretch-r41.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 

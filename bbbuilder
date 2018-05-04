@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Static variables
-[ "x$MOODE_REL" = "x" ] && MOODE_REL=r41
 [ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
 [ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 [ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
@@ -15,7 +14,6 @@
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
 
 # Dynamic variables
-MOODENAME=$(date +%Y-%m-%d)-moode-$MOODE_REL
 STARTDIR=$PWD
 BBB_LOG=$STARTDIR/$0.log
 
@@ -115,7 +113,6 @@ function bbb_prepare {
 		NPROC=\$(nproc)
 		BUILDHOSTNAME=\$(hostname)
 
-		echo "Moode Release: "\$MOODE_REL
 		echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
 		echo "Is CCACHE enabled: "\$ENABLE_CCACHE
 
@@ -146,7 +143,7 @@ function bbb_exec {
 	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
-	time sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BBB_CHROOTLOG
+	time sudo chroot $IMG_ROOT sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BBB_CHROOTLOG
 	echo "Done."
 	rm $IMG_ROOT/home/pi/run.sh
 }
@@ -154,7 +151,7 @@ function bbb_exec {
 function bbb_interactive {
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
-	sudo chroot $IMG_ROOT su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
+	sudo chroot $IMG_ROOT su - pi -c "ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 	rm $IMG_ROOT/home/pi/run.sh
 }
@@ -189,20 +186,20 @@ function bbb_manageimage {
 	if [ $DEV_MODE -eq 0 ]
 	then
 		# Rename the image
-		mv $IMGNAME $MOODENAME".img"
+		mv $IMGNAME $IMG_NAME".img"
 
 		# ZIP the image if set
 		if [ $CREATE_ZIP -eq 1 ]
 		then
-			echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
+			echo -n "Zipping the image $IMG_NAME.img in $STARTDIR..."
 			case $ZIP_FORMAT in
 				ZIP)
-					zip $STARTDIR/$MOODENAME".img.zip" $MOODENAME".img" &&
-					rm -f $MOODENAME".img"
+					zip $STARTDIR/$IMG_NAME".img.zip" $IMG_NAME".img" &&
+					rm -f $IMG_NAME".img"
 					;;
 				XZ)
-					xz -T0 $MOODENAME".img" &&
-					mv $MOODENAME".img.xz" $STARTDIR/
+					xz -T0 $IMG_NAME".img" &&
+					mv $IMG_NAME".img.xz" $STARTDIR/
 					;;
 				*)
 					echo "Compression $ZIP_FORMAT not supported."
@@ -210,8 +207,8 @@ function bbb_manageimage {
 			esac
 			echo "Done."
 		else
-			echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
-			mv $MOODENAME".img" $STARTDIR/
+			echo -n "Moving the image $IMG_NAME.img in $STARTDIR..."
+			mv $IMG_NAME".img" $STARTDIR/
 			echo "Done."
 		fi
 	fi
@@ -308,8 +305,9 @@ case _$1 in
 			echo "File $1 not exists!"
 			exit 1
 		fi
-		BATCHFILE=$(realpath $1)
-		BBB_CHROOTLOG=$BATCHFILE.log
+		BATCHFILE=$(realpath $1).chrootsh
+		BBB_CHROOTLOG=$(realpath $1).log
+		IMG_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare | bbb_log $BBB_LOG
 		bbb_exec | bbb_log $BBB_LOG
 		bbb_unmount | bbb_log $BBB_LOG
