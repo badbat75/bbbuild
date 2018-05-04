@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -x
+#set -x
 
 # Import configuration file
 . ./bbbuilder.conf
@@ -255,7 +255,7 @@ function bbb_prepare {
 	bbb_download
 	bbb_mount $1
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
-	FULLSRC_IMAGE=$FULLSRC_IMAGE
+	echo "In prepare: "$FULLSRC_IMAGE
 }
 
 function bbb_exec {
@@ -400,6 +400,7 @@ case _$1 in
 		BBB_CHROOTLOG=$(realpath $STARTDIR/log/$1).log
 		TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare resizeimage | bbb_log $BBB_LOG
+		echo "In main:"$FULLSRC_IMAGE
 		bbb_exec | bbb_log $BBB_LOG
 		bbb_finalize | bbb_log $BBB_LOG
 		;;
