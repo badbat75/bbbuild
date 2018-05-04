@@ -68,7 +68,7 @@ function bbb_download {
 		unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR > $STARTDIR/$0.log
 		echo "Done."
 		# Retrieve the image name
-		SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
+		export SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 	else
 		SRCIMG_NAME=$(ls $TMP_DIR/*.img 2>/dev/null)
 		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
@@ -398,9 +398,10 @@ case _$1 in
 		bbb_checkfile $STARTDIR/bbbs/$1.bbb
 		BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
 		BBB_CHROOTLOG=$(realpath $STARTDIR/log/$1).log
-		TGTIMAGE_NAME=$(date +%Y-%m-%d)-$1
+		TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 		bbb_prepare resizeimage | bbb_log $BBB_LOG
 		bbb_exec | bbb_log $BBB_LOG
+		echo $SRCIMG_NAME
 		bbb_finalize | bbb_log $BBB_LOG
 		;;
 esac
