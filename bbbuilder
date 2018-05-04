@@ -64,7 +64,7 @@ function bbb_download {
 }
 
 function bbb_ls {
-	ls $TMP_DIR/
+	find $TMP_DIR -maxdepth 1 -type f
 }
 
 function bbb_enable_ccache {
