@@ -34,6 +34,7 @@ function bbb_log {
 
 function bbb_checkfile {
 	if [ "x$1" = "x" ]
+	then
 		echo "No file specified"
 		exit 1
 	fi
