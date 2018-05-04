@@ -16,207 +16,304 @@
 
 # Dynamic variables
 MOODENAME=$(date +%Y-%m-%d)-moode-$MOODE_REL
-STARTDIR=$PWD   
+STARTDIR=$PWD
+BBB_LOG=$STARTDIR/$0.log
 
-# Check launch parameters (file)
-if [ ! "$1x" = "x" ]
-then
-	BATCHFILE=$(realpath $1)
-	if [ ! -f $1 ]
+function log {
+	# Prepend time for each row and redirect to log
+	awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
+}
+
+function bbb_prepare {
+	# Prepare directories
+	[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
+	cd $TMP_DIR
+	[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT
+
+	# In DEV mode, there's no download and unzip, the existing img file is used
+	if [ $DEV_MODE -eq 0 ]
 	then
-		echo "File $1 not exists!"
-		exit 1
+		# Download the image
+		echo -n "Downloading image from $IMG_URL..."
+		ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+		echo "Done."
+		# Unzip the image
+		echo -n "Unzip the image $ZIPNAME..."
+		unzip -n $ZIPNAME > $STARTDIR/$0.log
+		echo "Done."
+		# Retrieve the image name
+		IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
+	else
+		IMGNAME=$(ls *.img 2>/dev/null)
+		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
+		IMGNAME=$(echo $IMGNAME | head -n1 )
 	fi
-fi
 
-echo -n "Start date: " >> $STARTDIR/$0.log
-date >> $STARTDIR/$0.log
-
-# Prepare directories
-[ ! -d $TMP_DIR ] && mkdir $TMP_DIR >> $STARTDIR/$0.log
-cd $TMP_DIR
-[ ! -d $IMG_ROOT ] && mkdir $IMG_ROOT >> $STARTDIR/$0.log
-
-# In DEV mode, there's no download and unzip, the existing img file is used
-if [ $DEV_MODE -eq 0 ]
-then
-	# Download the image
-	echo -n "Downloading image from $IMG_URL..."
-	ZIPNAME=$(basename $(wget -nc -q -S --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+	# Extend the image size to $IMG_SIZE
+	echo -n "Extend image size to $IMG_SIZE..."
+	truncate -s $IMG_SIZE $IMGNAME
 	echo "Done."
-	# Unzip the image
-	echo -n "Unzip the image $ZIPNAME..."
-	unzip -n $ZIPNAME > $STARTDIR/$0.log
+	# Expand root partition in the image
+	echo -n "Expand root partition..."
+	PARTINFO=$(sfdisk -d $IMGNAME | tail -n1)
+	sfdisk --delete $IMGNAME 2
+	echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $IMGNAME 2>&1
 	echo "Done."
-	# Retrieve the image name
-	IMGNAME=$(unzip -v $ZIPNAME | grep ".img" | awk '{print $8}')
-else
-	IMGNAME=$(ls *.img 2>/dev/null)
-	[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
-	IMGNAME=$(echo $IMGNAME | head -n1 )
-fi
+	# Create loopback devices for the image and its partitions
+	echo -n "Creating loop devices..."
+	sudo losetup -f -P $IMGNAME
+	LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
+	echo "Done."
+	# Check the root partition
+	echo -n "Check root filesystems..."
+	sudo e2fsck -fp $LOOPDEV"p2" 2>&1
+	echo "Done."
+	# Resize the root partition
+	echo -n "Resize root partition..."
+	sudo resize2fs $LOOPDEV"p2" 2>&1
+	echo "Done."
 
-# Extend the image size to $IMG_SIZE
-echo -n "Extend image size to $IMG_SIZE..."
-truncate -s $IMG_SIZE $IMGNAME >> $STARTDIR/$0.log
-echo "Done."
-# Expand root partition in the image
-echo -n "Expand root partition..."
-PARTINFO=$(sfdisk -d $IMGNAME | tail -n1)
-sfdisk --delete $IMGNAME 2
-echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $IMGNAME >> $STARTDIR/$0.log 2>&1
-echo "Done."
-# Create loopback devices for the image and its partitions
-echo -n "Creating loop devices..."
-sudo losetup -f -P $IMGNAME >> $STARTDIR/$0.log
-LOOPDEV=$(sudo losetup -j $IMGNAME | awk '{print $1}' | sed 's/.$//g')
-echo "Done."
-# Check the root partition
-echo -n "Check root filesystems..."
-sudo e2fsck -fp $LOOPDEV"p2" >> $STARTDIR/$0.log 2>&1
-echo "Done."
-# Resize the root partition
-echo -n "Resize root partition..."
-sudo resize2fs $LOOPDEV"p2" >> $STARTDIR/$0.log 2>&1
-echo "Done."
+	# Mount the image filesystems
+	echo -n "Mounting all the partitions in $IMG_ROOT..."
+	sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT 
+	sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot
+	sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $IMG_ROOT/run
+	sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts
+	sudo mount -t proc /proc $IMG_ROOT/proc
+	sudo mkdir $IMG_ROOT/mnt/resources
+	sudo mount --bind $STARTDIR/resources $IMG_ROOT/mnt/resources
+	echo "Done."
 
-# Mount the image filesystems
-echo -n "Mounting all the partitions in $IMG_ROOT..."
-sudo mount -t ext4 $LOOPDEV"p2" $IMG_ROOT >> $STARTDIR/$0.log 
-sudo mount -t vfat $LOOPDEV"p1" $IMG_ROOT/boot >> $STARTDIR/$0.log
-sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $IMG_ROOT/run >> $STARTDIR/$0.log
-sudo mount -t devpts /dev/pts $IMG_ROOT/dev/pts >> $STARTDIR/$0.log
-sudo mount -t proc /proc $IMG_ROOT/proc >> $STARTDIR/$0.log
-sudo mkdir $IMG_ROOT/mnt/resources
-sudo mount --bind $STARTDIR/resources $IMG_ROOT/mnt/resources
-echo "Done."
-
-# Create CCACHE environment if set
-if [ $ENABLE_CCACHE -eq 1 ]
-then
-	echo -n "Create CCACHE environment..."
-	if [ ! -d $CCACHE_DIR ]
+	# Create CCACHE environment if set
+	if [ $ENABLE_CCACHE -eq 1 ]
 	then
-		sudo mkdir $CCACHE_DIR >> $STARTDIR/$0.log
-		sudo chown root:root $CCACHE_DIR >> $STARTDIR/$0.log
-		sudo chmod 777 $CCACHE_DIR >> $STARTDIR/$0.log
+		echo -n "Create CCACHE environment..."
+		if [ ! -d $CCACHE_DIR ]
+		then
+			sudo mkdir $CCACHE_DIR
+			sudo chown root:root $CCACHE_DIR
+			sudo chmod 777 $CCACHE_DIR
+		fi
+		if [ ! -d $IMG_ROOT$CCACHE_DIR ]
+		then
+			sudo mkdir $IMG_ROOT$CCACHE_DIR
+			sudo chmod 777 $IMG_ROOT$CCACHE_DIR
+			sudo mount --bind $CCACHE_DIR $IMG_ROOT$CCACHE_DIR
+		fi
+		echo "cache_dir = $CCACHE_DIR" | sudo tee --append $IMG_ROOT/etc/ccache.conf
+		sudo chroot root apt-get -y install ccache
+		echo "Done."
 	fi
-	if [ ! -d $IMG_ROOT$CCACHE_DIR ]
-	then
-		sudo mkdir $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
-		sudo chmod 777 $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
-		sudo mount --bind $CCACHE_DIR $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
-	fi
-	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $IMG_ROOT/etc/ccache.conf >> $STARTDIR/$0.log
-	sudo chroot root apt-get -y install ccache >> $STARTDIR/$0.log
+
+	# Add header to run.sh in the image
+	echo -n "Add header to run.sh..."
+	cat <<-EOF > $IMG_ROOT/home/pi/run.sh
+		#!/bin/bash
+
+		set -x
+
+		NPROC=\$(nproc)
+		BUILDHOSTNAME=\$(hostname)
+
+		echo "Moode Release: "\$MOODE_REL
+		echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
+		echo "Is CCACHE enabled: "\$ENABLE_CCACHE
+
+		if [ \$ENABLE_CCACHE -eq 1 ]
+		then
+		#	 export PATH=/usr/lib/ccache:\$PATH
+			 export CC="ccache gcc"
+			 export CXX="ccache g++"
+		fi
+
+		export CFLAGS="-O3"
+		export CXXFLAGS="-O3"
+		export MAKEFLAGS="-j\$NPROC"
+
+		echo ""
+		echo "C: "\$CC" "\$(which gcc)
+		echo "C flags: "\$CFLAGS
+		echo "C++: "\$CXX" "\$(which g++)
+		echo "C++ flags: "\$CXXFLAGS
+		echo "MAKE flags: "\$MAKEFLAGS
+	EOF
+	chmod +x $IMG_ROOT/home/pi/run.sh
 	echo "Done."
-fi
+	cd $STARTDIR
+}
 
-# Add header to run.sh in the image
-echo -n "Add header to run.sh..."
-cat <<EOF > $IMG_ROOT/home/pi/run.sh
-#!/bin/bash
-
-set -x
-
-NPROC=\$(nproc)
-BUILDHOSTNAME=\$(hostname)
-
-echo "Moode Release: "\$MOODE_REL
-echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
-echo "Is CCACHE enabled: "\$ENABLE_CCACHE
-
-if [ \$ENABLE_CCACHE -eq 1 ]
-then
-#	 export PATH=/usr/lib/ccache:\$PATH
-	 export CC="ccache gcc"
-	 export CXX="ccache g++"
-fi
-
-export CFLAGS="-O3"
-export CXXFLAGS="-O3"
-export MAKEFLAGS="-j\$NPROC"
-
-echo ""
-echo "C: "\$CC" "\$(which gcc)
-echo "C flags: "\$CFLAGS
-echo "C++: "\$CXX" "\$(which g++)
-echo "C++ flags: "\$CXXFLAGS
-echo "MAKE flags: "\$MAKEFLAGS
-EOF
-chmod +x $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
-echo "Done."
-
-# Run the batch in chrooted environment
-if [ ! "x$1" = "x" ]
-then
+function bbb_exec {
+	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $IMG_ROOT/home/pi/run.sh
-	time sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh > $BATCHFILE.log 2>&1
+	time sudo chroot $IMG_ROOT sudo -u pi MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BBB_CHROOTLOG
 	echo "Done."
-else
+	rm $IMG_ROOT/home/pi/run.sh
+}
+
+function bbb_interactive {
+	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
 	sudo chroot $IMG_ROOT su - pi -c "MOODE_REL=$MOODE_REL ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
-fi
-rm $IMG_ROOT/home/pi/run.sh >> $STARTDIR/$0.log
+	rm $IMG_ROOT/home/pi/run.sh
+}
 
-# Remove CCACHE environment
-if [ $ENABLE_CCACHE -eq 1 ]
-then
-	echo -n "Clean CCACHE environment"...
-	sudo chroot root apt-get -y purge ccache >> $STARTDIR/$0.log
-	sudo rm -f $IMG_ROOT/etc/ccache.conf >> $STARTDIR/$0.log
-	sudo umount $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
-	sudo rm -r $IMG_ROOT$CCACHE_DIR >> $STARTDIR/$0.log
-	echo "Done."
-fi
-
-# Unmount everything
-echo -n "Unmount all partitions..."
-sudo umount $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
-sudo rmdir $IMG_ROOT/mnt/resources >> $STARTDIR/$0.log
-sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/run $IMG_ROOT/boot $IMG_ROOT >> $STARTDIR/$0.log
-
-echo "Done."
-# Delete the loopback devices
-echo -n "Delete loopback device..."
-sudo losetup -D >> $STARTDIR/$0.log
-echo "Done."
-
-# In DEV mode there's no rename, move and zip for the image 
-if [ $DEV_MODE -eq 0 ]
-then
-	# Rename the image
-	mv $IMGNAME $MOODENAME".img"
-
-	# ZIP the image if set
-	if [ $CREATE_ZIP -eq 1 ]
+function bbb_unmount {
+	# Remove CCACHE environment
+	if [ $ENABLE_CCACHE -eq 1 ]
 	then
-		echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
-		case $ZIP_FORMAT in
-		ZIP)
-			zip $STARTDIR/$MOODENAME".img.zip" $MOODENAME".img" >> $STARTDIR/$0.log &&
-			rm -f $MOODENAME".img" >> $STARTDIR/$0.log
-			;;
-		XZ)	xz -T0 $MOODENAME".img" >> $STARTDIR/$0.log &&
-			mv $MOODENAME".img.xz" $STARTDIR/ >> $STARTDIR/$0.log
-			;;
-		*)
-			echo "Compression $ZIP_FORMAT not supported."
-		esac
-		echo "Done."
-	else
-		echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
-		mv $MOODENAME".img" $STARTDIR/ >> $STARTDIR/$0.log
+		echo -n "Clean CCACHE environment"...
+		sudo chroot root apt-get -y purge ccache
+		sudo rm -f $IMG_ROOT/etc/ccache.conf
+		sudo umount $IMG_ROOT$CCACHE_DIR
+		sudo rm -r $IMG_ROOT$CCACHE_DIR
 		echo "Done."
 	fi
 
-	# Delete TMP directory
-	[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR >> $STARTDIR/$0.log
-fi
+	# Unmount everything
+	echo -n "Unmount all partitions..."
+	sudo umount $IMG_ROOT/mnt/resources
+	sudo rmdir $IMG_ROOT/mnt/resources
+	sudo umount $IMG_ROOT/proc $IMG_ROOT/dev/pts $IMG_ROOT/run $IMG_ROOT/boot $IMG_ROOT
 
-echo -n "End date: " >> $STARTDIR/$0.log
-date >> $STARTDIR/$0.log
+	echo "Done."
+	# Delete the loopback devices
+	echo -n "Delete loopback device..."
+	sudo losetup -D
+	echo "Done."
+}
 
-cd $STARTDIR
+function bbb_manageimage {
+	# In DEV mode there's no rename, move and zip for the image 
+	if [ $DEV_MODE -eq 0 ]
+	then
+		# Rename the image
+		mv $IMGNAME $MOODENAME".img"
+
+		# ZIP the image if set
+		if [ $CREATE_ZIP -eq 1 ]
+		then
+			echo -n "Zipping the image $MOODENAME.img in $STARTDIR..."
+			case $ZIP_FORMAT in
+				ZIP)
+					zip $STARTDIR/$MOODENAME".img.zip" $MOODENAME".img" &&
+					rm -f $MOODENAME".img"
+					;;
+				XZ)
+					xz -T0 $MOODENAME".img" &&
+					mv $MOODENAME".img.xz" $STARTDIR/
+					;;
+				*)
+					echo "Compression $ZIP_FORMAT not supported."
+					;;
+			esac
+			echo "Done."
+		else
+			echo -n "Moving the image $MOODENAME.img in $STARTDIR..."
+			mv $MOODENAME".img" $STARTDIR/
+			echo "Done."
+		fi
+	fi
+}
+
+function bbb_cleanup {
+		# Delete TMP directory
+		[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR
+}
+
+function bbb_help {
+	cat <<-EOF
+		rpi_moode_build
+
+		Release version 1.1
+
+		This project aims to build Moode on a vanilla raspbian with the maximum efficiency on compilation and execution, generating an image file to be installed on an SD card.
+
+		Usage:
+
+		    rpi_moode_build [batchfile]
+
+		Where:
+
+		    batchfile is the file to be executed in chrooted environment. runinchroot.sh is the batch file generated from the official moode build. If not specified a shell will be opened in the chrooted environment.
+
+		Environment variables:
+
+		MOODE_REL
+		    Default: r41
+		    Is the version of the moode package.
+		TMP_DIR
+		    Default: /tmp/moode
+		    The temporary directory where start the job
+		IMG_URL
+		    Default: https://downloads.raspberrypi.org/raspbian_lite_latest
+		    The URL where to download the base OS
+		IMG_ROOT
+		    Default: root
+		    The directory where the immage will be mounted
+		IMG_SIZE
+		    Default: 3G
+		    The resizing value of the image expressed in GB
+		ENABLE_SQUASHFS
+		    Default: 1
+		    Set to 0 to disable it. Enable the creation of the SquashFS filesystem. See moode recipe.
+		ENABLE_CCACHE
+		    Default: 1
+		    Set to 0 to disable it. Enable the compiler cache. This will speedup everything from the 2nd time.
+		CCACHE_DIR
+		    Default: /var/cache/ccache
+		    Set the CCACHE directory
+		CREATE_ZIP
+		    Default: 1
+		    Set to 0 to disable it. ZIP the image at the end of the build
+		ZIP_FORMAT
+		    Default: ZIP
+		    Set to XZ to use LZMA compression or ZIP to use ZIP compression
+		DELETE_TMP
+		    Default: 0
+		    Set to 1 to enable it. Delete everything after the build
+		DEV_MODE
+		    Default: 0
+		    Set to 1 to enable it. Enable the developer mode: No download and unzip, the existing img file in the working directory is used. No rename, move and zip of the image after the build: DELETE_TMP and CREATE_ZIP is ignored.
+	EOF
+}
+
+# Main
+case _$1 in
+	_interactive)
+		echo "Interactive mode"
+		bbb_prepare | bbb_log $BBB_LOG
+		bbb_interactive | bbb_log $BBB_LOG
+		bbb_unmount | bbb_log $BBB_LOG
+		;;
+	_mount)
+		echo "Mount image only"
+		BBB_COMMAND=MOUNTONLY
+		;;
+	_unmount)
+		echo "Unmount image partitions only"
+		BBB_COMMAND=UNMOUNTONLY
+		;;
+	_help)
+		bbb_help
+		;;
+	_)
+		echo "No command or file specified!"
+		exit 1
+		;;
+	*)
+		if [ ! -f $1 ]
+		then
+			echo "File $1 not exists!"
+			exit 1
+		fi
+		BATCHFILE=$(realpath $1)
+		BBB_CHROOTLOG=$BATCHFILE.log
+		bbb_prepare | bbb_log $BBB_LOG
+		bbb_exec | bbb_log $BBB_LOG
+		bbb_unmount | bbb_log $BBB_LOG
+		bbb_manageimage | bbb_log $BBB_LOG
+		bbb_cleanup | bbb_log $BBB_LOG
+		;;
+esac
