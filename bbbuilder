@@ -252,7 +252,6 @@ function bbb_cleanup {
 #######################
 
 function bbb_build {
-	bbb_checkfile $STARTDIR/bbbs/$1.bbb
 	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
 	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 	bbb_download
@@ -392,6 +391,7 @@ case _$1 in
 		exit 1
 		;;
 	*)
+		bbb_checkfile $STARTDIR/bbbs/$1.bbb
 		bbb_build $1 2>&1 | bbb_log $BBB_LOG
 		;;
 esac
