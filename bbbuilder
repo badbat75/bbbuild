@@ -260,9 +260,9 @@ function bbb_build {
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
 	bbb_addheader
 	# Run the batch in chrooted environment
-	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
+	echo -n "Running $BATCHFILE to build. Log file in $BBBLOG_PATH/$1.log..."
 	cat $BATCHFILE >> $BBB_IMGPATH/home/pi/run.sh
-	sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh | bbb_log $1
+	sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $1.log
 	echo "Done."
 	rm $BBB_IMGPATH/home/pi/run.sh
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
