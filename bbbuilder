@@ -19,10 +19,10 @@
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
 [ "x$BBB_LOG" = "x" ] && BBB_LOG=bbbuilder.log
 [ "x$BBB_LOGDIR" = "x" ] && BBB_LOGDIR=logs
-LOG2FILE=0
 
 # Dynamic variables
 STARTDIR=$PWD
+BBB_LOGPATH=$STARTDIR/$BBB_LOGDIR
 BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 
 #######################
@@ -30,7 +30,7 @@ BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 #######################
 
 function bbb_log {
-	awk '{ print strftime("%T "), $0; fflush(); }' >> $STARTDIR/$BBB_LOGDIR/$1
+	awk '{ print strftime("%T "), $0; fflush(); }' >> $BBB_LOGPATH/$1
 }
 
 function bbb_checkfile {
@@ -254,7 +254,6 @@ function bbb_cleanup {
 function bbb_build {
 	bbb_checkfile $STARTDIR/bbbs/$1.bbb
 	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
-	BBB_CHROOTLOG=$(realpath $STARTDIR/$LOGDIR/$BBB_LOGDIR/$1).log
 	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 	bbb_download
 	bbb_mount resizeimage
@@ -263,7 +262,7 @@ function bbb_build {
 	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
 	cat $BATCHFILE >> $BBB_IMGPATH/home/pi/run.sh
-	sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh
+	sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh | bbb_log $1
 	echo "Done."
 	rm $BBB_IMGPATH/home/pi/run.sh
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
@@ -363,7 +362,7 @@ function bbb_help {
 ########
 
 [ ! -x /usr/bin/gawk ] && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
-[ ! -d $STARTDIR/$BBB_LOGDIR ] && mkdir $STARTDIR/$BBB_LOGDIR
+[ ! -d $BBB_LOGPATH ] && mkdir $BBB_LOGPATH
 
 case _$1 in
 	_interactive)
