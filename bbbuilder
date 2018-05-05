@@ -241,7 +241,7 @@ function bbb_checkenv {
 
 function bbb_build {
 	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
-	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
+	TGTIMG_NAME=$(date +%Y%m%d-%H%M%S)-$1
 	BUILD_LOGNAME=$(date +%Y%m%d-%H%M%S)-$1.log
 	bbb_download
 	bbb_mount resizeimage
