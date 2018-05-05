@@ -253,7 +253,8 @@ function bbb_build {
 	sudo chroot $BBB_CHROOTPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BUILD_LOGNAME
 	echo "Done."
 	rm $BBB_CHROOTPATH/home/pi/run.sh
-	cp $BBB_LOGPATH/$BUILD_LOGNAME $BBB_CHROOTPATH/home/pi/
+	xz -T0 $BBB_LOGPATH/$BUILD_LOGNAME
+	cp $BBB_LOGPATH/$BUILD_LOGNAME.xz $BBB_CHROOTPATH/home/pi/
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
 	bbb_unmount
 	bbb_manageimage
