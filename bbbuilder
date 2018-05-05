@@ -317,6 +317,15 @@ function bbb_help {
 		BBB_CHROOTDIR
 		    Default: root
 		    The directory where the immage will be mounted
+		BBB_IMGDIR
+		    Default: images
+			The directory where the created images will be stored
+		BBB_LOG
+		    Default: bbbuilder.log
+			The name of the bbbuilder log
+		BBB_LOGDIR
+		    Default: logs
+			The directory where logs will be generated
 		IMG_SIZE
 		    Default: 3G
 		    The resizing value of the image expressed in GB
@@ -330,8 +339,8 @@ function bbb_help {
 		    Default: /var/cache/ccache
 		    Set the CCACHE directory
 		ZIP_FORMAT
-		    Default: ZIP
-		    Set to XZ to use LZMA compression or ZIP to use ZIP compression
+		    Default: none
+		    Set to XZ to use LZMA compression or ZIP to use ZIP compression. If not defined no compression is applied.
 		DELETE_TMP
 		    Default: 0
 		    Set to 1 to enable it. Delete everything after the build
