@@ -8,22 +8,21 @@
 # Static variables
 [ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
 [ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
-[ "x$IMG_ROOT" = "x" ] && IMG_ROOT=root
 [ "x$IMG_SIZE" = "x" ] && IMG_SIZE=3G
 [ "x$ENABLE_SQUASHFS" = "x" ] && ENABLE_SQUASHFS=1
 [ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
-[ "x$CREATE_ZIP" = "x" ] && CREATE_ZIP=1
-[ "x$ZIP_FORMAT" = "x" ] && ZIP_FORMAT=ZIP
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
-[ "x$DEV_MODE" = "x" ] && DEV_MODE=0
+[ "x$BBB_CHROOTDIR" = "x" ] && BBB_CHROOTDIR=root
+[ "x$BBB_IMGDIR" = "x" ] && BBB_IMGDIR=images
 [ "x$BBB_LOG" = "x" ] && BBB_LOG=bbbuilder.log
 [ "x$BBB_LOGDIR" = "x" ] && BBB_LOGDIR=logs
 
 # Dynamic variables
 STARTDIR=$PWD
+BBB_CHROOTPATH=$TMP_DIR/$BBB_CHROOTDIR
+BBB_IMGPATH=$STARTDIR/$BBB_IMGDIR
 BBB_LOGPATH=$STARTDIR/$BBB_LOGDIR
-BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 
 #######################
 # 3rd level functions #
@@ -55,25 +54,16 @@ function bbb_ls {
 #######################
 
 function bbb_download {
-	# In DEV mode, there's no download and unzip, the existing img file is used
-	if [ $DEV_MODE -eq 0 ]
-	then
-		[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
-		# Download the image
-		echo -n "Downloading image from $IMG_URL..."
-		ZIPNAME=$(basename $(wget -nc -q -S -P $TMP_DIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
-		echo "Done."
-		# Unzip the image
-		echo -n "Unzip the image $ZIPNAME..."
-		unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR
-		echo "Done."
-		# Retrieve the image name
-		SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
-	else
-		SRCIMG_NAME=$(ls $TMP_DIR/*.img 2>/dev/null)
-		[ ! $? -eq 0 ] && echo "No images found!!!" && exit $?
-		SRCIMG_NAME=$(echo $SRCIMG_NAME | head -n1 )
-	fi
+	# Download the image
+	echo -n "Downloading image from $IMG_URL..."
+	ZIPNAME=$(basename $(wget -nc -q -S -P $TMP_DIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+	echo "Done."
+	# Unzip the image
+	echo -n "Unzip the image $ZIPNAME..."
+	unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR
+	echo "Done."
+	# Retrieve the image name
+	SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 }
 
 function bbb_enable_ccache {
@@ -85,31 +75,31 @@ function bbb_enable_ccache {
 		sudo chown root:root $CCACHE_DIR
 		sudo chmod 777 $CCACHE_DIR
 	fi
-	if [ ! -d $BBB_IMGPATH$CCACHE_DIR ]
+	if [ ! -d $BBB_CHROOTPATH$CCACHE_DIR ]
 	then
-		sudo mkdir $BBB_IMGPATH$CCACHE_DIR
-		sudo chmod 777 $BBB_IMGPATH$CCACHE_DIR
-		sudo mount --bind $CCACHE_DIR $BBB_IMGPATH$CCACHE_DIR
+		sudo mkdir $BBB_CHROOTPATH$CCACHE_DIR
+		sudo chmod 777 $BBB_CHROOTPATH$CCACHE_DIR
+		sudo mount --bind $CCACHE_DIR $BBB_CHROOTPATH$CCACHE_DIR
 	fi
-	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $BBB_IMGPATH/etc/ccache.conf
-	sudo chroot $BBB_IMGPATH apt-get -y install ccache
+	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $BBB_CHROOTPATH/etc/ccache.conf
+	sudo chroot $BBB_CHROOTPATH apt-get -y install ccache
 	echo "Done."
 }
 
 function bbb_disable_ccache {
 	# Remove CCACHE environment
 	echo -n "Clean CCACHE environment"...
-	sudo chroot $BBB_IMGPATH apt-get -y purge ccache
-	sudo rm -f $BBB_IMGPATH/etc/ccache.conf
-	sudo umount $BBB_IMGPATH$CCACHE_DIR
-	sudo rm -r $BBB_IMGPATH$CCACHE_DIR
+	sudo chroot $BBB_CHROOTPATH apt-get -y purge ccache
+	sudo rm -f $BBB_CHROOTPATH/etc/ccache.conf
+	sudo umount $BBB_CHROOTPATH$CCACHE_DIR
+	sudo rm -r $BBB_CHROOTPATH$CCACHE_DIR
 	echo "Done."
 }
 
 function bbb_addheader {
 	# Add header to run.sh in the image
 	echo -n "Add header to run.sh..."
-	cat <<-EOF > $BBB_IMGPATH/home/pi/run.sh
+	cat <<-EOF > $BBB_CHROOTPATH/home/pi/run.sh
 		#!/bin/bash
 
 		set -x
@@ -138,7 +128,7 @@ function bbb_addheader {
 		echo "C++ flags: "\$CXXFLAGS
 		echo "MAKE flags: "\$MAKEFLAGS
 	EOF
-	chmod +x $BBB_IMGPATH/home/pi/run.sh
+	chmod +x $BBB_CHROOTPATH/home/pi/run.sh
 	echo "Done."
 }
 
@@ -182,15 +172,14 @@ function bbb_mount {
 	fi
 	
 	# Mount the image filesystems
-	echo -n "Mounting all the partitions in $BBB_IMGPATH..."
-	[ ! -d $BBB_IMGPATH ] && mkdir $BBB_IMGPATH
-	sudo mount -t ext4 $LOOPDEV"p2" $BBB_IMGPATH &&
-	sudo mount -t vfat $LOOPDEV"p1" $BBB_IMGPATH/boot &&
-	sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $BBB_IMGPATH/run &&
-	sudo mount -t devpts /dev/pts $BBB_IMGPATH/dev/pts &&
-	sudo mount -t proc /proc $BBB_IMGPATH/proc &&
-	sudo mkdir $BBB_IMGPATH/mnt/resources &&
-	sudo mount --bind $STARTDIR/resources $BBB_IMGPATH/mnt/resources &&
+	echo -n "Mounting all the partitions in $BBB_CHROOTPATH..."
+	sudo mount -t ext4 $LOOPDEV"p2" $BBB_CHROOTPATH &&
+	sudo mount -t vfat $LOOPDEV"p1" $BBB_CHROOTPATH/boot &&
+	sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $BBB_CHROOTPATH/run &&
+	sudo mount -t devpts /dev/pts $BBB_CHROOTPATH/dev/pts &&
+	sudo mount -t proc /proc $BBB_CHROOTPATH/proc &&
+	sudo mkdir $BBB_CHROOTPATH/mnt/resources &&
+	sudo mount --bind $STARTDIR/resources $BBB_CHROOTPATH/mnt/resources &&
 	echo "Done."
 	return $?
 }
@@ -198,9 +187,9 @@ function bbb_mount {
 function bbb_unmount {
 	# Unmount everything
 	echo -n "Unmount all partitions..."
-	sudo umount $BBB_IMGPATH/mnt/resources
-	sudo rmdir $BBB_IMGPATH/mnt/resources
-	sudo umount $BBB_IMGPATH/proc $BBB_IMGPATH/dev/pts $BBB_IMGPATH/run $BBB_IMGPATH/boot $BBB_IMGPATH
+	sudo umount $BBB_CHROOTPATH/mnt/resources
+	sudo rmdir $BBB_CHROOTPATH/mnt/resources
+	sudo umount $BBB_CHROOTPATH/proc $BBB_CHROOTPATH/dev/pts $BBB_CHROOTPATH/run $BBB_CHROOTPATH/boot $BBB_CHROOTPATH
 
 	echo "Done."
 	# Delete the loopback devices
@@ -210,36 +199,27 @@ function bbb_unmount {
 }
 
 function bbb_manageimage {
-	# In DEV mode there's no rename, move and zip for the image 
-	if [ $DEV_MODE -eq 0 ]
-	then
-		# Rename the image
-		mv $FULLSRC_IMAGE $TMP_DIR/$TGTIMG_NAME".img"
-
-		# ZIP the image if set
-		if [ $CREATE_ZIP -eq 1 ]
-		then
-			echo -n "Zipping the image $TGTIMG_NAME.img in $STARTDIR..."
-			case $ZIP_FORMAT in
-				ZIP)
-					zip -j $STARTDIR/$TGTIMG_NAME".img.zip" $TMP_DIR/$TGTIMG_NAME".img" &&
-					rm -f $TMP_DIR/$TGTIMG_NAME".img"
-					;;
-				XZ)
-					xz -T0 $TMP_DIR/$TGTIMG_NAME".img" &&
-					mv $TMP_DIR/$TGTIMG_NAME".img.xz" $STARTDIR/
-					;;
-				*)
-					echo "Compression $ZIP_FORMAT not supported."
-					;;
-			esac
-			echo "Done."
-		else
-			echo -n "Moving the image $TMP_DIR/$TGTIMG_NAME.img in $STARTDIR..."
-			mv $TMP_DIR/$TGTIMG_NAME".img" $STARTDIR/
-			echo "Done."
-		fi
-	fi
+	# Rename the image
+	mv $FULLSRC_IMAGE $TMP_DIR/$TGTIMG_NAME".img"
+	# ZIP the image if ZIP_FORMAT is set
+	echo -n "Zipping the image $TGTIMG_NAME.img in $BBB_IMGPATH..."
+	case _$ZIP_FORMAT in
+		_ZIP)
+			zip -j $BBB_IMGPATH/$TGTIMG_NAME".img.zip" $TMP_DIR/$TGTIMG_NAME".img" &&
+			rm -f $TMP_DIR/$TGTIMG_NAME".img"
+			;;
+		_XZ)
+			xz -T0 $TMP_DIR/$TGTIMG_NAME".img" &&
+			mv $TMP_DIR/$TGTIMG_NAME".img.xz" $BBB_IMGPATH/
+			;;
+		_)
+			mv $TMP_DIR/$TGTIMG_NAME".img" $BBB_IMGPATH/
+			;;
+		*)
+			echo "Compression $ZIP_FORMAT not supported."
+			;;
+	esac
+	echo "Done."
 }
 
 function bbb_cleanup {
@@ -251,6 +231,14 @@ function bbb_cleanup {
 # 1st Level Functions #
 #######################
 
+function bbb_checkenv {
+	[ ! -x /usr/bin/gawk ] && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
+	[ ! -d $BBB_CHROOTPATH ] && mkdir $BBB_CHROOTPATH
+	[ ! -d $BBB_IMGPATH ] && mkdir $BBB_IMGPATH
+	[ ! -d $BBB_LOGPATH ] && mkdir $BBB_LOGPATH
+	[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
+}
+
 function bbb_build {
 	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
 	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
@@ -259,11 +247,11 @@ function bbb_build {
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
 	bbb_addheader
 	# Run the batch in chrooted environment
-	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
-	cat $BATCHFILE >> $BBB_IMGPATH/home/pi/run.sh
-	sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh | bbb_log $1
+	echo -n "Running $BATCHFILE to build. Log file in $BBBLOG_PATH/$1.log..."
+	cat $BATCHFILE >> $BBB_CHROOTPATH/home/pi/run.sh
+	sudo chroot $BBB_CHROOTPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $1.log
 	echo "Done."
-	rm $BBB_IMGPATH/home/pi/run.sh
+	rm $BBB_CHROOTPATH/home/pi/run.sh
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
 	bbb_unmount
 	bbb_manageimage
@@ -276,9 +264,9 @@ function bbb_interactive {
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
-	sudo chroot $BBB_IMGPATH su - pi -c "ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
+	sudo chroot $BBB_CHROOTPATH su - pi -c "ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
-	rm $BBB_IMGPATH/home/pi/run.sh
+	rm $BBB_CHROOTPATH/home/pi/run.sh
 	bbb_unmount
 }
 
@@ -301,7 +289,7 @@ function bbb_help {
 		Command available:
 		
 		mount <file>
-		    Mount the image <file> in the $BBB_IMGPATH
+		    Mount the image <file> in the $BBB_CHROOTPATH
 		
 		unmount
 		    Unmount the image
@@ -326,7 +314,7 @@ function bbb_help {
 		IMG_URL
 		    Default: https://downloads.raspberrypi.org/raspbian_lite_latest
 		    The URL where to download the base OS
-		IMG_ROOT
+		BBB_CHROOTDIR
 		    Default: root
 		    The directory where the immage will be mounted
 		IMG_SIZE
@@ -341,18 +329,12 @@ function bbb_help {
 		CCACHE_DIR
 		    Default: /var/cache/ccache
 		    Set the CCACHE directory
-		CREATE_ZIP
-		    Default: 1
-		    Set to 0 to disable it. ZIP the image at the end of the build
 		ZIP_FORMAT
 		    Default: ZIP
 		    Set to XZ to use LZMA compression or ZIP to use ZIP compression
 		DELETE_TMP
 		    Default: 0
 		    Set to 1 to enable it. Delete everything after the build
-		DEV_MODE
-		    Default: 0
-		    Set to 1 to enable it. Enable the developer mode: No download and unzip, the existing img file in the working directory is used. No rename, move and zip of the image after the build: DELETE_TMP and CREATE_ZIP is ignored.
 	EOF
 }
 
@@ -360,8 +342,7 @@ function bbb_help {
 # Main #
 ########
 
-[ ! -x /usr/bin/gawk ] && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
-[ ! -d $BBB_LOGPATH ] && mkdir $BBB_LOGPATH
+bbb_checkenv
 
 case _$1 in
 	_interactive)
