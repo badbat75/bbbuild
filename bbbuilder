@@ -260,7 +260,7 @@ function bbb_cleanup {
 function bbb_build {
 	bbb_checkfile $STARTDIR/bbbs/$1.bbb
 	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
-	BBB_CHROOTLOG=$(realpath $STARTDIR/log/$1).log
+	BBB_CHROOTLOG=$(realpath $STARTDIR/$BBB_LOGDIR/$1).log
 	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 	bbb_download
 	bbb_mount resizeimage
@@ -368,7 +368,7 @@ function bbb_help {
 # Main #
 ########
 
-[ ! -d $STARTDIR/log ] && mkdir $STARTDIR/log
+[ ! -d $STARTDIR/$BBB_LOGDIR] && mkdir $STARTDIR/$BBB_LOGDIR
 
 case _$1 in
 	_interactive)
