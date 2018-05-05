@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x
+[ "x$DEBUG" = "x1" ] && set -x
 
 # Import configuration file
 . ./bbbuilder.conf
@@ -17,11 +17,12 @@
 [ "x$ZIP_FORMAT" = "x" ] && ZIP_FORMAT=ZIP
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
+[ "x$BBB_LOG" = "x" ] && BBB_LOG=bbbuilder.log
+[ "x$BBB_LOGDIR" = "x" ] && BBB_LOGDIR=logs
 LOG2FILE=0
 
 # Dynamic variables
 STARTDIR=$PWD
-BBB_LOG=$STARTDIR/$0.log
 BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 
 #######################
@@ -29,10 +30,10 @@ BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 #######################
 
 function bbb_log {
-	if [ $LOG2FILE -eq 1 ]
+	if [ ! "$1x" = "" ]
 	then
 		# Prepend time for each row and redirect to log
-		awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
+		awk '{ print strftime("%T: "), $0; fflush(); }' >> $STARTDIR/$BBB_LOGDIR/$1
 	else
 		cat
 	fi
@@ -371,7 +372,7 @@ function bbb_help {
 
 case _$1 in
 	_interactive)
-		bbb_interactive | bbb_log $BBB_LOG
+		bbb_interactive
 		;;
 	_mount)
 		echo "Mount image only"
@@ -397,7 +398,6 @@ case _$1 in
 		exit 1
 		;;
 	*)
-		LOG2FILE=1
 		bbb_build $1 | bbb_log $BBB_LOG
 		;;
 esac
