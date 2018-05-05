@@ -17,6 +17,7 @@
 [ "x$ZIP_FORMAT" = "x" ] && ZIP_FORMAT=ZIP
 [ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
 [ "x$DEV_MODE" = "x" ] && DEV_MODE=0
+LOG2FILE=0
 
 # Dynamic variables
 STARTDIR=$PWD
@@ -28,9 +29,13 @@ BBB_IMGPATH=$TMP_DIR/$IMG_ROOT
 #######################
 
 function bbb_log {
-	# Prepend time for each row and redirect to log
-#	awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
-	cat
+	if [ $LOG2FILE -eq 1 ]
+	then
+		# Prepend time for each row and redirect to log
+		awk '{ print strftime("%T: "), $0; fflush(); }' >> $1
+	else
+		cat
+	fi
 }
 
 function bbb_checkfile {
@@ -251,14 +256,14 @@ function bbb_cleanup {
 # 1st Level Functions #
 #######################
 
-function bbb_prepare {
+function bbb_build {
+	bbb_checkfile $STARTDIR/bbbs/$1.bbb
+	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
+	BBB_CHROOTLOG=$(realpath $STARTDIR/log/$1).log
+	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
 	bbb_download
-	bbb_mount $1
+	bbb_mount resizeimage
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
-	echo "In prepare: "$FULLSRC_IMAGE
-}
-
-function bbb_exec {
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BATCHFILE.log..."
@@ -266,22 +271,22 @@ function bbb_exec {
 	echo "sudo chroot $BBB_IMGPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BBB_CHROOTLOG"
 	echo "Done."
 	rm $BBB_IMGPATH/home/pi/run.sh
+	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
+	bbb_unmount
+	bbb_manageimage
+	bbb_cleanup
 }
 
 function bbb_interactive {
+	echo "Interactive mode"
+	bbb_mount $2
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
 	sudo chroot $BBB_IMGPATH su - pi -c "ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 	rm $BBB_IMGPATH/home/pi/run.sh
-}
-
-function bbb_finalize {
-	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
 	bbb_unmount
-	bbb_manageimage
-	bbb_cleanup
 }
 
 function bbb_help {
@@ -366,10 +371,7 @@ function bbb_help {
 
 case _$1 in
 	_interactive)
-		echo "Interactive mode"
-		bbb_mount $2 | bbb_log $BBB_LOG
 		bbb_interactive | bbb_log $BBB_LOG
-		bbb_unmount | bbb_log $BBB_LOG
 		;;
 	_mount)
 		echo "Mount image only"
@@ -395,13 +397,7 @@ case _$1 in
 		exit 1
 		;;
 	*)
-		bbb_checkfile $STARTDIR/bbbs/$1.bbb
-		BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
-		BBB_CHROOTLOG=$(realpath $STARTDIR/log/$1).log
-		TGTIMG_NAME=$(date +%Y-%m-%d)-$1
-		bbb_prepare resizeimage | bbb_log $BBB_LOG
-		echo "In main:"$FULLSRC_IMAGE
-		bbb_exec | bbb_log $BBB_LOG
-		bbb_finalize | bbb_log $BBB_LOG
+		LOG2FILE=1
+		bbb_build $1 | bbb_log $BBB_LOG
 		;;
 esac
