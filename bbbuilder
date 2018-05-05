@@ -242,16 +242,18 @@ function bbb_checkenv {
 function bbb_build {
 	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
 	TGTIMG_NAME=$(date +%Y-%m-%d)-$1
+	BUILD_LOGNAME=$(date +%Y%m%d-%H%M%S)-$1.log
 	bbb_download
 	bbb_mount resizeimage
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
 	bbb_addheader
 	# Run the batch in chrooted environment
-	echo -n "Running $BATCHFILE to build. Log file in $BBBLOG_PATH/$1.log..."
+	echo -n "Running $BATCHFILE to build. Log file in $BBBLOG_PATH/$BUILD_LOGNAME..."
 	cat $BATCHFILE >> $BBB_CHROOTPATH/home/pi/run.sh
-	sudo chroot $BBB_CHROOTPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $1.log
+	sudo chroot $BBB_CHROOTPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BUILD_LOGNAME
 	echo "Done."
 	rm $BBB_CHROOTPATH/home/pi/run.sh
+	cp $BBB_LOGPATH/$BUILD_LOGNAME $BBB_CHROOTPATH/home/pi/
 	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
 	bbb_unmount
 	bbb_manageimage
