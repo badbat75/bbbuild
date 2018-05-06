@@ -311,27 +311,30 @@ function bbb_help {
 
 		Environment variables:
 
-		BBB_WORKDIR
-		    Default: /tmp/moode
-		    The temporary directory where start the job
 		OS_URL
 		    Default: https://downloads.raspberrypi.org/raspbian_lite_latest
 		    The URL where to download the base OS
+		BBB_WORKDIR
+		    Default: /tmp/moode
+		    The temporary directory where start the job
+		BBB_DELWORKDIR
+		    Default: 0
+		    Set to 1 to enable it. Delete everything after the build
 		BBB_CHROOTDIR
 		    Default: root
 		    The directory where the immage will be mounted
 		BBB_IMGDIR
 		    Default: images
 			The directory where the created images will be stored
+		BBB_IMGSIZE
+		    Default: 3G
+		    The resizing value of the image expressed in GB
 		BBB_LOG
 		    Default: bbbuilder.log
 			The name of the bbbuilder log
 		BBB_LOGDIR
 		    Default: logs
 			The directory where logs will be generated
-		BBB_IMGSIZE
-		    Default: 3G
-		    The resizing value of the image expressed in GB
 		ENABLE_SQUASHFS
 		    Default: 1
 		    Set to 0 to disable it. Enable the creation of the SquashFS filesystem. See moode recipe.
@@ -344,9 +347,6 @@ function bbb_help {
 		ZIP_FORMAT
 		    Default: none
 		    Set to XZ to use LZMA compression or ZIP to use ZIP compression. If not defined no compression is applied.
-		BBB_DELWORKDIR
-		    Default: 0
-		    Set to 1 to enable it. Delete everything after the build
 	EOF
 }
 
