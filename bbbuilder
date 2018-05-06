@@ -271,7 +271,7 @@ function bbb_interactive {
 }
 
 function bbb_ls {
-	find $1 -maxdepth 1 -type f -exec basename {} \; sed 's/\..*$//g'
+	find $1 -maxdepth 1 -type f -exec basename {} \; | sed 's/\..*$//g'
 }
 function bbb_help {
 	cat <<-EOF
