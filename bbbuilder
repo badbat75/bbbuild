@@ -1,26 +1,27 @@
 #!/bin/bash
 
 [ "x$DEBUG" = "x1" ] && set -x
+STARTDIR=$PWD
 
 # Import configuration file
-. ./bbbuilder.conf
+[ "x$BBB_CONFDIR" = "x" ] && BBB_CONFDIR=conf
+[ -f $PWD/$BBB_CONFDIR/bbbuilder.conf ] && . $PWD/conf/bbbuilder.conf
 
 # Static variables
-[ "x$TMP_DIR" = "x" ] && TMP_DIR=/tmp/moode
-[ "x$IMG_URL" = "x" ] && IMG_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
-[ "x$IMG_SIZE" = "x" ] && IMG_SIZE=3G
+[ "x$OS_URL" = "x" ] && OS_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 [ "x$ENABLE_SQUASHFS" = "x" ] && ENABLE_SQUASHFS=1
-[ "x$ENABLE_CCACHE" = "x" ] && ENABLE_CCACHE=1
+[ "x$CCACHE_ENABLED" = "x" ] && CCACHE_ENABLED=1
 [ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
-[ "x$DELETE_TMP" = "x" ] && DELETE_TMP=0
+[ "x$BBB_WORKDIR" = "x" ] && BBB_WORKDIR=/tmp/moode
+[ "x$BBB_DELWORKDIR" = "x" ] && BBB_DELWORKDIR=0
 [ "x$BBB_CHROOTDIR" = "x" ] && BBB_CHROOTDIR=root
 [ "x$BBB_IMGDIR" = "x" ] && BBB_IMGDIR=images
+[ "x$BBB_IMGSIZE" = "x" ] && BBB_IMGSIZE=3G
 [ "x$BBB_LOG" = "x" ] && BBB_LOG=bbbuilder.log
 [ "x$BBB_LOGDIR" = "x" ] && BBB_LOGDIR=logs
 
 # Dynamic variables
-STARTDIR=$PWD
-BBB_CHROOTPATH=$TMP_DIR/$BBB_CHROOTDIR
+BBB_CHROOTPATH=$BBB_WORKDIR/$BBB_CHROOTDIR
 BBB_IMGPATH=$STARTDIR/$BBB_IMGDIR
 BBB_LOGPATH=$STARTDIR/$BBB_LOGDIR
 
@@ -45,25 +46,21 @@ function bbb_checkfile {
 	fi
 }
 
-function bbb_ls {
-	find $1 -maxdepth 1 -type f
-}
-
 #######################
 # 2nd level functions #
 #######################
 
 function bbb_download {
 	# Download the image
-	echo -n "Downloading image from $IMG_URL..."
-	ZIPNAME=$(basename $(wget -nc -q -S -P $TMP_DIR --content-disposition $IMG_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+	echo -n "Downloading image from $OS_URL..."
+	ZIPNAME=$(basename $(wget -nc -q -S -P $BBB_WORKDIR --content-disposition $OS_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 	echo "Done."
 	# Unzip the image
 	echo -n "Unzip the image $ZIPNAME..."
-	unzip -n $TMP_DIR/$ZIPNAME -d $TMP_DIR
+	unzip -n $BBB_WORKDIR/$ZIPNAME -d $BBB_WORKDIR
 	echo "Done."
 	# Retrieve the image name
-	SRCIMG_NAME=$(unzip -v $TMP_DIR/$ZIPNAME | grep ".img" | awk '{print $8}')
+	SRCIMG_NAME=$(unzip -v $BBB_WORKDIR/$ZIPNAME | grep ".img" | awk '{print $8}')
 }
 
 function bbb_enable_ccache {
@@ -108,9 +105,9 @@ function bbb_addheader {
 		BUILDHOSTNAME=\$(hostname)
 
 		echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
-		echo "Is CCACHE enabled: "\$ENABLE_CCACHE
+		echo "Is CCACHE enabled: "\$CCACHE_ENABLED
 
-		if [ \$ENABLE_CCACHE -eq 1 ]
+		if [ \$CCACHE_ENABLED -eq 1 ]
 		then
 		#	 export PATH=/usr/lib/ccache:\$PATH
 			 export CC="ccache gcc"
@@ -135,10 +132,10 @@ function bbb_addheader {
 function bbb_mount {
 	case $1 in
 	resizeimage)
-		FULLSRC_IMAGE=$TMP_DIR/$SRCIMG_NAME
-		# Extend the image size to $IMG_SIZE
-		echo -n "Extend image size to $IMG_SIZE..."
-		truncate -s $IMG_SIZE $FULLSRC_IMAGE
+		FULLSRC_IMAGE=$BBB_WORKDIR/$SRCIMG_NAME
+		# Extend the image size to $BBB_IMGSIZE
+		echo -n "Extend image size to $BBB_IMGSIZE..."
+		truncate -s $BBB_IMGSIZE $FULLSRC_IMAGE
 		echo "Done."
 		# Expand root partition in the image
 		echo -n "Expand root partition..."
@@ -200,20 +197,20 @@ function bbb_unmount {
 
 function bbb_manageimage {
 	# Rename the image
-	mv $FULLSRC_IMAGE $TMP_DIR/$TGTIMG_NAME".img"
+	mv $FULLSRC_IMAGE $BBB_WORKDIR/$TGTIMG_NAME".img"
 	# ZIP the image if ZIP_FORMAT is set
 	echo -n "Zipping the image $TGTIMG_NAME.img in $BBB_IMGPATH..."
 	case _$ZIP_FORMAT in
 		_ZIP)
-			zip -j $BBB_IMGPATH/$TGTIMG_NAME".img.zip" $TMP_DIR/$TGTIMG_NAME".img" &&
-			rm -f $TMP_DIR/$TGTIMG_NAME".img"
+			zip -j $BBB_IMGPATH/$TGTIMG_NAME".img.zip" $BBB_WORKDIR/$TGTIMG_NAME".img" &&
+			rm -f $BBB_WORKDIR/$TGTIMG_NAME".img"
 			;;
 		_XZ)
-			xz -T0 $TMP_DIR/$TGTIMG_NAME".img" &&
-			mv $TMP_DIR/$TGTIMG_NAME".img.xz" $BBB_IMGPATH/
+			xz -T0 $BBB_WORKDIR/$TGTIMG_NAME".img" &&
+			mv $BBB_WORKDIR/$TGTIMG_NAME".img.xz" $BBB_IMGPATH/
 			;;
 		_)
-			mv $TMP_DIR/$TGTIMG_NAME".img" $BBB_IMGPATH/
+			mv $BBB_WORKDIR/$TGTIMG_NAME".img" $BBB_IMGPATH/
 			;;
 		*)
 			echo "Compression $ZIP_FORMAT not supported."
@@ -223,8 +220,8 @@ function bbb_manageimage {
 }
 
 function bbb_cleanup {
-		# Delete TMP directory
-		[ $DELETE_TMP -eq 1 ] && sudo rm -rf $TMP_DIR
+		# Delete working directory
+		[ $BBB_DELWORKDIR -eq 1 ] && sudo rm -rf $BBB_WORKDIR
 }
 
 #######################
@@ -236,7 +233,7 @@ function bbb_checkenv {
 	[ ! -d $BBB_CHROOTPATH ] && mkdir $BBB_CHROOTPATH
 	[ ! -d $BBB_IMGPATH ] && mkdir $BBB_IMGPATH
 	[ ! -d $BBB_LOGPATH ] && mkdir $BBB_LOGPATH
-	[ ! -d $TMP_DIR ] && mkdir $TMP_DIR
+	[ ! -d $BBB_WORKDIR ] && mkdir $BBB_WORKDIR
 }
 
 function bbb_build {
@@ -245,17 +242,17 @@ function bbb_build {
 	BUILD_LOGNAME=$(date +%Y%m%d-%H%M%S)-$1.log
 	bbb_download
 	bbb_mount resizeimage
-	[ $ENABLE_CCACHE -eq 1 ] && bbb_enable_ccache
+	[ $CCACHE_ENABLED -eq 1 ] && bbb_enable_ccache
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running $BATCHFILE to build. Log file in $BBBLOG_PATH/$BUILD_LOGNAME..."
 	cat $BATCHFILE >> $BBB_CHROOTPATH/home/pi/run.sh
-	sudo chroot $BBB_CHROOTPATH sudo -u pi ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BUILD_LOGNAME
+	sudo chroot $BBB_CHROOTPATH sudo -u pi CCACHE_ENABLED=$CCACHE_ENABLED ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BUILD_LOGNAME
 	echo "Done."
 	rm $BBB_CHROOTPATH/home/pi/run.sh
 	xz -T0 $BBB_LOGPATH/$BUILD_LOGNAME
 	cp $BBB_LOGPATH/$BUILD_LOGNAME.xz $BBB_CHROOTPATH/home/pi/
-	[ $ENABLE_CCACHE -eq 1 ] && bbb_disable_ccache
+	[ $CCACHE_ENABLED -eq 1 ] && bbb_disable_ccache
 	bbb_unmount
 	bbb_manageimage
 	bbb_cleanup
@@ -267,12 +264,15 @@ function bbb_interactive {
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
-	sudo chroot $BBB_CHROOTPATH su - pi -c "ENABLE_CCACHE=$ENABLE_CCACHE ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
+	sudo chroot $BBB_CHROOTPATH su - pi -c "CCACHE_ENABLED=$CCACHE_ENABLED ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
 	echo "Closed."
 	rm $BBB_CHROOTPATH/home/pi/run.sh
 	bbb_unmount
 }
 
+function bbb_ls {
+	find $1 -maxdepth 1 -type f -exec basename {} \;
+}
 function bbb_help {
 	cat <<-EOF
 		rpi_moode_build
@@ -311,10 +311,10 @@ function bbb_help {
 
 		Environment variables:
 
-		TMP_DIR
+		BBB_WORKDIR
 		    Default: /tmp/moode
 		    The temporary directory where start the job
-		IMG_URL
+		OS_URL
 		    Default: https://downloads.raspberrypi.org/raspbian_lite_latest
 		    The URL where to download the base OS
 		BBB_CHROOTDIR
@@ -329,13 +329,13 @@ function bbb_help {
 		BBB_LOGDIR
 		    Default: logs
 			The directory where logs will be generated
-		IMG_SIZE
+		BBB_IMGSIZE
 		    Default: 3G
 		    The resizing value of the image expressed in GB
 		ENABLE_SQUASHFS
 		    Default: 1
 		    Set to 0 to disable it. Enable the creation of the SquashFS filesystem. See moode recipe.
-		ENABLE_CCACHE
+		CCACHE_ENABLED
 		    Default: 1
 		    Set to 0 to disable it. Enable the compiler cache. This will speedup everything from the 2nd time.
 		CCACHE_DIR
@@ -344,7 +344,7 @@ function bbb_help {
 		ZIP_FORMAT
 		    Default: none
 		    Set to XZ to use LZMA compression or ZIP to use ZIP compression. If not defined no compression is applied.
-		DELETE_TMP
+		BBB_DELWORKDIR
 		    Default: 0
 		    Set to 1 to enable it. Delete everything after the build
 	EOF
@@ -373,8 +373,8 @@ case _$1 in
 		bbb_ls $STARTDIR/bbbs
 		;;
 	_lswd)
-		echo "List files in $TMP_DIR"
-		bbb_ls $TMP_DIR
+		echo "List files in $BBB_WORKDIR"
+		bbb_ls $BBB_WORKDIR
 		;;
 	_help)
 		bbb_help
