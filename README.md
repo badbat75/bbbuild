@@ -23,10 +23,10 @@ interactive <file>
     Mount the image <file> and run a bash shell in the chrooted environment.
 	
 lsbbb
-	List bbb batch file present.
+    List bbb batch file present.
 
 lswd
-	List all the files present in the work directory
+    List all the files present in the work directory
 
 help
     This message
@@ -48,7 +48,7 @@ BBB_CHROOTDIR
     The directory where the immage will be mounted
 BBB_IMGDIR
     Default: images
-The directory where the created images will be stored
+    The directory where the created images will be stored
 BBB_IMGSIZE
     Default: 3G
     The resizing value of the image expressed in GB
