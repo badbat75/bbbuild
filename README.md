@@ -13,22 +13,22 @@ Where:
 
 Command available:
 ```	
-**mount** <*file*>
-    Mount the image <*file*> in the $BBB_CHROOTPATH
-	
-**unmount**
+mount <file>
+    Mount the image <file> in the $BBB_CHROOTPATH
+
+unmount
     Unmount the image
 	
-**interactive** <*file*>
-    Mount the image <*file*> and run a bash shell in the chrooted environment.
+interactive <file>
+    Mount the image <file> and run a bash shell in the chrooted environment.
 	
-**lsbbb**
+lsbbb
 	List bbb batch file present.
 
-**lswd**
+lswd
 	List all the files present in the work directory
 
-**help**
+help
     This message
 ```
 
