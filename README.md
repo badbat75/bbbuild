@@ -48,16 +48,16 @@ BBB_CHROOTDIR
     The directory where the immage will be mounted
 BBB_IMGDIR
     Default: images
-	The directory where the created images will be stored
+The directory where the created images will be stored
 BBB_IMGSIZE
     Default: 3G
     The resizing value of the image expressed in GB
 BBB_LOG
     Default: bbbuilder.log
-	The name of the bbbuilder log
+    The name of the bbbuilder log
 BBB_LOGDIR
     Default: logs
-	The directory where logs will be generated
+    The directory where logs will be generated
 ENABLE_SQUASHFS
     Default: 1
     Set to 0 to disable it. Enable the creation of the SquashFS filesystem. See moode recipe.
