@@ -5,7 +5,7 @@ This project aims to build Moode on a vanilla raspbian with the maximum efficien
 
 Usage:
 ```
-bbbuild [*arg1*]
+bbbuild [arg1]
 ```
 Where:
 
