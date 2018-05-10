@@ -5,7 +5,7 @@ STARTDIR=${PWD}
 
 # Import configuration file
 test -z "${BBB_CONFDIR:-}" && BBB_CONFDIR=conf
-test -f ${PWD}/${BBB_CONFDIR}/bbbuilder.conf && . ${PWD}/conf/bbbuilder.conf
+test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
 
 # Static variables
 test -z "${OS_URL:-}" && OS_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
