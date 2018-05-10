@@ -252,7 +252,7 @@ function bbb_build {
 
 function bbb_interactive {
 	echo "Interactive mode"
-	bbb_mount ${2}
+	bbb_mount ${1}
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
@@ -350,7 +350,7 @@ bbb_checkenv
 
 case _${1} in
 	_interactive)
-		bbb_interactive
+		bbb_interactive ${2}
 		;;
 	_mount)
 		echo "Mount image only"
