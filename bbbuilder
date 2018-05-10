@@ -1,49 +1,41 @@
 #!/bin/bash
 
-[ "x$DEBUG" = "x1" ] && set -x
-STARTDIR=$PWD
+test ${1:-0} -eq 1 && set -x
+STARTDIR=${PWD}
 
 # Import configuration file
-[ "x$BBB_CONFDIR" = "x" ] && BBB_CONFDIR=conf
-[ -f $PWD/$BBB_CONFDIR/bbbuilder.conf ] && . $PWD/conf/bbbuilder.conf
+test -z "${BBB_CONFDIR:-}" && BBB_CONFDIR=conf
+test -f ${PWD}/${BBB_CONFDIR}/bbbuilder.conf && . ${PWD}/conf/bbbuilder.conf
 
 # Static variables
-[ "x$OS_URL" = "x" ] && OS_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
-[ "x$ENABLE_SQUASHFS" = "x" ] && ENABLE_SQUASHFS=1
-[ "x$CCACHE_ENABLED" = "x" ] && CCACHE_ENABLED=1
-[ "x$CCACHE_DIR" = "x" ] && CCACHE_DIR=/var/cache/ccache
-[ "x$BBB_WORKDIR" = "x" ] && BBB_WORKDIR=/tmp/moode
-[ "x$BBB_DELWORKDIR" = "x" ] && BBB_DELWORKDIR=0
-[ "x$BBB_CHROOTDIR" = "x" ] && BBB_CHROOTDIR=root
-[ "x$BBB_IMGDIR" = "x" ] && BBB_IMGDIR=images
-[ "x$BBB_IMGSIZE" = "x" ] && BBB_IMGSIZE=3G
-[ "x$BBB_LOG" = "x" ] && BBB_LOG=bbbuilder.log
-[ "x$BBB_LOGDIR" = "x" ] && BBB_LOGDIR=logs
+test -z "${OS_URL:-}" && OS_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
+test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=1
+test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
+test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
+test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
+test -z "${BBB_DELWORKDIR:-}" && BBB_DELWORKDIR=0
+test -z "${BBB_CHROOTDIR:-}" && BBB_CHROOTDIR=root
+test -z "${BBB_IMGDIR:-}" && BBB_IMGDIR=images
+test -z "${BBB_IMGSIZE:-}" && BBB_IMGSIZE=3G
+test -z "${BBB_LOG:-}" && BBB_LOG=bbbuilder.log
+test -z "${BBB_LOGDIR:-}" && BBB_LOGDIR=logs
 
 # Dynamic variables
-BBB_CHROOTPATH=$BBB_WORKDIR/$BBB_CHROOTDIR
-BBB_IMGPATH=$STARTDIR/$BBB_IMGDIR
-BBB_LOGPATH=$STARTDIR/$BBB_LOGDIR
+BBB_CHROOTPATH=${BBB_WORKDIR}/${BBB_CHROOTDIR}
+BBB_IMGPATH=${STARTDIR}/${BBB_IMGDIR}
+BBB_LOGPATH=${STARTDIR}/${BBB_LOGDIR}
 
 #######################
 # 3rd level functions #
 #######################
 
 function bbb_log {
-	awk '{ print strftime("%T "), $0; fflush(); }' >> $BBB_LOGPATH/$1
+	awk '{ print strftime("%T "), $0; fflush(); }' >> ${BBB_LOGPATH}/${1}
 }
 
 function bbb_checkfile {
-	if [ "x$1" = "x" ]
-	then
-		echo "No file specified"
-		exit 1
-	fi
-	if [ ! -f $1 ]
-	then
-		echo "File $1 does not exist!"
-		exit 1
-	fi
+	test -z "${1:-}" &&	echo "No file specified" &&	exit 1
+	test ! -f ${1} && echo "File ${1} does not exist!" && exit 1
 }
 
 #######################
@@ -52,51 +44,51 @@ function bbb_checkfile {
 
 function bbb_download {
 	# Download the image
-	echo -n "Downloading image from $OS_URL..."
-	ZIPNAME=$(basename $(wget -nc -q -S -P $BBB_WORKDIR --content-disposition $OS_URL 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+	echo -n "Downloading image from ${OS_URL}..."
+	ZIPNAME=$(basename $(wget -nc -q -S -P ${BBB_WORKDIR} --content-disposition ${OS_URL} 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 	echo "Done."
 	# Unzip the image
-	echo -n "Unzip the image $ZIPNAME..."
-	unzip -n $BBB_WORKDIR/$ZIPNAME -d $BBB_WORKDIR
+	echo -n "Unzip the image ${ZIPNAME}..."
+	unzip -n ${BBB_WORKDIR}/${ZIPNAME} -d ${BBB_WORKDIR}
 	echo "Done."
 	# Retrieve the image name
-	SRCIMG_NAME=$(unzip -v $BBB_WORKDIR/$ZIPNAME | grep ".img" | awk '{print $8}')
+	SRCIMG_NAME=$(unzip -v ${BBB_WORKDIR}/${ZIPNAME} | grep ".img" | awk '{print $8}')
 }
 
 function bbb_enable_ccache {
 	# Create CCACHE environment
 	echo -n "Create CCACHE environment..."
-	if [ ! -d $CCACHE_DIR ]
+	if [ ! -d ${CCACHE_DIR} ]
 	then
-		sudo mkdir $CCACHE_DIR
-		sudo chown root:root $CCACHE_DIR
-		sudo chmod 777 $CCACHE_DIR
+		sudo mkdir ${CCACHE_DIR}
+		sudo chown root:root ${CCACHE_DIR}
+		sudo chmod 777 ${CCACHE_DIR}
 	fi
-	if [ ! -d $BBB_CHROOTPATH$CCACHE_DIR ]
+	if [ ! -d ${BBB_CHROOTPATH}${CCACHE_DIR} ]
 	then
-		sudo mkdir $BBB_CHROOTPATH$CCACHE_DIR
-		sudo chmod 777 $BBB_CHROOTPATH$CCACHE_DIR
-		sudo mount --bind $CCACHE_DIR $BBB_CHROOTPATH$CCACHE_DIR
+		sudo mkdir ${BBB_CHROOTPATH}${CCACHE_DIR}
+		sudo chmod 777 ${BBB_CHROOTPATH}${CCACHE_DIR}
+		sudo mount --bind ${CCACHE_DIR} ${BBB_CHROOTPATH}${CCACHE_DIR}
 	fi
-	echo "cache_dir = $CCACHE_DIR" | sudo tee --append $BBB_CHROOTPATH/etc/ccache.conf
-	sudo chroot $BBB_CHROOTPATH apt-get -y install ccache
+	echo "cache_dir = ${CCACHE_DIR}" | sudo tee --append ${BBB_CHROOTPATH}/etc/ccache.conf
+	sudo chroot ${BBB_CHROOTPATH} apt-get -y install ccache
 	echo "Done."
 }
 
 function bbb_disable_ccache {
 	# Remove CCACHE environment
 	echo -n "Clean CCACHE environment"...
-	sudo chroot $BBB_CHROOTPATH apt-get -y purge ccache
-	sudo rm -f $BBB_CHROOTPATH/etc/ccache.conf
-	sudo umount $BBB_CHROOTPATH$CCACHE_DIR
-	sudo rm -r $BBB_CHROOTPATH$CCACHE_DIR
+	sudo chroot ${BBB_CHROOTPATH} apt-get -y purge ccache
+	sudo rm -f ${BBB_CHROOTPATH}/etc/ccache.conf
+	sudo umount ${BBB_CHROOTPATH}${CCACHE_DIR}
+	sudo rm -r ${BBB_CHROOTPATH}${CCACHE_DIR}
 	echo "Done."
 }
 
 function bbb_addheader {
 	# Add header to run.sh in the image
 	echo -n "Add header to run.sh..."
-	cat <<-EOF > $BBB_CHROOTPATH/home/pi/run.sh
+	cat <<-EOF > ${BBB_CHROOTPATH}/home/pi/run.sh
 		#!/bin/bash
 
 		set -x
@@ -104,89 +96,89 @@ function bbb_addheader {
 		NPROC=\$(nproc)
 		BUILDHOSTNAME=\$(hostname)
 
-		echo "Is SQUASHFS enabled: "\$ENABLE_SQUASHFS
-		echo "Is CCACHE enabled: "\$CCACHE_ENABLED
+		echo "Is SQUASHFS enabled: "\${ENABLE_SQUASHFS}
+		echo "Is CCACHE enabled: "\${CCACHE_ENABLED}
 
-		if [ \$CCACHE_ENABLED -eq 1 ]
+		if [ \${CCACHE_ENABLED} -eq 1 ]
 		then
-		#	 export PATH=/usr/lib/ccache:\$PATH
+		#	 export PATH=/usr/lib/ccache:\${PATH}
 			 export CC="ccache gcc"
 			 export CXX="ccache g++"
 		fi
 
 		export CFLAGS="-O3"
 		export CXXFLAGS="-O3"
-		export MAKEFLAGS="-j\$NPROC"
+		export MAKEFLAGS="-j\${NPROC}"
 
 		echo ""
-		echo "C: "\$CC" "\$(which gcc)
-		echo "C flags: "\$CFLAGS
-		echo "C++: "\$CXX" "\$(which g++)
-		echo "C++ flags: "\$CXXFLAGS
-		echo "MAKE flags: "\$MAKEFLAGS
+		echo "C: "\${CC}" "\$(which gcc)
+		echo "C flags: "\${CFLAGS}
+		echo "C++: "\${CXX}" "\$(which g++)
+		echo "C++ flags: "\${CXXFLAGS}
+		echo "MAKE flags: "\${MAKEFLAGS}
 	EOF
-	chmod +x $BBB_CHROOTPATH/home/pi/run.sh
+	chmod +x ${BBB_CHROOTPATH}/home/pi/run.sh
 	echo "Done."
 }
 
 function bbb_mount {
-	case $1 in
+	case ${1} in
 	resizeimage)
-		FULLSRC_IMAGE=$BBB_WORKDIR/$SRCIMG_NAME
-		# Extend the image size to $BBB_IMGSIZE
-		echo -n "Extend image size to $BBB_IMGSIZE..."
-		truncate -s $BBB_IMGSIZE $FULLSRC_IMAGE
+		FULLSRC_IMAGE=${BBB_WORKDIR}/${SRCIMG_NAME}
+		# Extend the image size to ${BBB_IMGSIZE}
+		echo -n "Extend image size to ${BBB_IMGSIZE}..."
+		truncate -s ${BBB_IMGSIZE} ${FULLSRC_IMAGE}
 		echo "Done."
 		# Expand root partition in the image
 		echo -n "Expand root partition..."
-		PARTINFO=$(sfdisk -d $FULLSRC_IMAGE | tail -n1)
-		sfdisk --delete $FULLSRC_IMAGE 2
-		echo $PARTINFO | sed '$s/ size.*,//' | sfdisk --append $FULLSRC_IMAGE 2>&1
+		PARTINFO=$(sfdisk -d ${FULLSRC_IMAGE} | tail -n1)
+		sfdisk --delete ${FULLSRC_IMAGE} 2
+		echo ${PARTINFO} | sed '$s/ size.*,//' | sfdisk --append ${FULLSRC_IMAGE} 2>&1
 		echo "Done."
 		;;
 	*)
-		bbb_checkfile $1
-		FULLSRC_IMAGE=$1
+		bbb_checkfile ${1}
+		FULLSRC_IMAGE=${1}
 		;;
 	esac
 
 	# Create loopback devices for the image and its partitions
 	echo -n "Creating loop devices..."
-	sudo losetup -f -P $FULLSRC_IMAGE
-	LOOPDEV=$(sudo losetup -j $FULLSRC_IMAGE | awk '{print $1}' | sed 's/.$//g')
+	sudo losetup -f -P ${FULLSRC_IMAGE}
+	LOOPDEV=$(sudo losetup -j ${FULLSRC_IMAGE} | awk '{print $1}' | sed 's/.$//g')
 	echo "Done."
 	# Check the root partition
 	echo -n "Check root filesystems..."
-	sudo e2fsck -fp $LOOPDEV"p2" 2>&1
+	sudo e2fsck -fp ${LOOPDEV}"p2" 2>&1
 	echo "Done."
 	
-	if [ "$1" = "resizeimage" ]
+	if [ "${1}" = "resizeimage" ]
 	then
 		# Resize the root partition
 		echo -n "Resize root partition..."
-		sudo resize2fs $LOOPDEV"p2" 2>&1
+		sudo resize2fs ${LOOPDEV}"p2" 2>&1
 		echo "Done."
 	fi
 	
 	# Mount the image filesystems
-	echo -n "Mounting all the partitions in $BBB_CHROOTPATH..."
-	sudo mount -t ext4 $LOOPDEV"p2" $BBB_CHROOTPATH &&
-	sudo mount -t vfat $LOOPDEV"p1" $BBB_CHROOTPATH/boot &&
-	sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run $BBB_CHROOTPATH/run &&
-	sudo mount -t devpts /dev/pts $BBB_CHROOTPATH/dev/pts &&
-	sudo mount -t proc /proc $BBB_CHROOTPATH/proc &&
-	sudo mkdir $BBB_CHROOTPATH/mnt/resources &&
-	sudo mount --bind $STARTDIR/resources $BBB_CHROOTPATH/mnt/resources &&
+	echo -n "Mounting all the partitions in ${BBB_CHROOTPATH}..."
+	sudo mount -t ext4 ${LOOPDEV}"p2" ${BBB_CHROOTPATH} &&
+	sudo mount -t vfat ${LOOPDEV}"p1" ${BBB_CHROOTPATH}/boot &&
+	sudo mount -t tmpfs -o nosuid,nodev,mode=755 /run ${BBB_CHROOTPATH}/run &&
+	sudo mount -t devpts /dev/pts ${BBB_CHROOTPATH}/dev/pts &&
+	sudo mount -t proc /proc ${BBB_CHROOTPATH}/proc &&
+	sudo mkdir ${BBB_CHROOTPATH}/mnt/resources &&
+	sudo mount --bind ${STARTDIR}/resources ${BBB_CHROOTPATH}/mnt/resources &&
 	echo "Done."
-	return $?
+	return ${?}
 }
 
 function bbb_unmount {
 	# Unmount everything
 	echo -n "Unmount all partitions..."
-	sudo umount $BBB_CHROOTPATH/mnt/resources
-	sudo rmdir $BBB_CHROOTPATH/mnt/resources
-	sudo umount $BBB_CHROOTPATH/proc $BBB_CHROOTPATH/dev/pts $BBB_CHROOTPATH/run $BBB_CHROOTPATH/boot $BBB_CHROOTPATH
+	sudo umount ${BBB_CHROOTPATH}/mnt/resources
+	sudo rmdir ${BBB_CHROOTPATH}/mnt/resources
+	sudo umount ${BBB_CHROOTPATH}/proc ${BBB_CHROOTPATH}/dev/pts ${BBB_CHROOTPATH}/run ${BBB_CHROOTPATH}/boot ${BBB_CHROOTPATH}
 
 	echo "Done."
 	# Delete the loopback devices
@@ -197,23 +189,23 @@ function bbb_unmount {
 
 function bbb_manageimage {
 	# Rename the image
-	mv $FULLSRC_IMAGE $BBB_WORKDIR/$TGTIMG_NAME".img"
+	mv ${FULLSRC_IMAGE} ${BBB_WORKDIR}/${TGTIMG_NAME}".img"
 	# ZIP the image if ZIP_FORMAT is set
-	echo -n "Zipping the image $TGTIMG_NAME.img in $BBB_IMGPATH..."
-	case _$ZIP_FORMAT in
+	echo -n "Zipping the image ${TGTIMG_NAME}.img in ${BBB_IMGPATH}..."
+	case _${ZIP_FORMAT} in
 		_ZIP)
-			zip -j $BBB_IMGPATH/$TGTIMG_NAME".img.zip" $BBB_WORKDIR/$TGTIMG_NAME".img" &&
-			rm -f $BBB_WORKDIR/$TGTIMG_NAME".img"
+			zip -j ${BBB_IMGPATH}/${TGTIMG_NAME}".img.zip" ${BBB_WORKDIR}/${TGTIMG_NAME}".img" &&
+			rm -f ${BBB_WORKDIR}/${TGTIMG_NAME}".img"
 			;;
 		_XZ)
-			xz -T0 $BBB_WORKDIR/$TGTIMG_NAME".img" &&
-			mv $BBB_WORKDIR/$TGTIMG_NAME".img.xz" $BBB_IMGPATH/
+			xz -T0 ${BBB_WORKDIR}/${TGTIMG_NAME}".img" &&
+			mv ${BBB_WORKDIR}/${TGTIMG_NAME}".img.xz" ${BBB_IMGPATH}/
 			;;
 		_)
-			mv $BBB_WORKDIR/$TGTIMG_NAME".img" $BBB_IMGPATH/
+			mv ${BBB_WORKDIR}/${TGTIMG_NAME}".img" ${BBB_IMGPATH}/
 			;;
 		*)
-			echo "Compression $ZIP_FORMAT not supported."
+			echo "Compression ${ZIP_FORMAT} not supported."
 			;;
 	esac
 	echo "Done."
@@ -221,7 +213,7 @@ function bbb_manageimage {
 
 function bbb_cleanup {
 		# Delete working directory
-		[ $BBB_DELWORKDIR -eq 1 ] && sudo rm -rf $BBB_WORKDIR
+		test ${BBB_DELWORKDIR} -eq 1 && sudo rm -rf ${BBB_WORKDIR}
 }
 
 #######################
@@ -229,30 +221,30 @@ function bbb_cleanup {
 #######################
 
 function bbb_checkenv {
-	[ ! -x /usr/bin/gawk ] && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
-	[ ! -d $BBB_CHROOTPATH ] && mkdir $BBB_CHROOTPATH
-	[ ! -d $BBB_IMGPATH ] && mkdir $BBB_IMGPATH
-	[ ! -d $BBB_LOGPATH ] && mkdir $BBB_LOGPATH
-	[ ! -d $BBB_WORKDIR ] && mkdir $BBB_WORKDIR
+	test ! -x /usr/bin/gawk && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
+	test ! -d ${BBB_CHROOTPATH} && mkdir ${BBB_CHROOTPATH}
+	test ! -d ${BBB_IMGPATH} && mkdir ${BBB_IMGPATH}
+	test ! -d ${BBB_LOGPATH} && mkdir ${BBB_LOGPATH}
+	test ! -d ${BBB_WORKDIR} && mkdir ${BBB_WORKDIR}
 }
 
 function bbb_build {
-	BATCHFILE=$(realpath $STARTDIR/bbbs/$1.bbb)
-	TGTIMG_NAME=$(date +%Y%m%d-%H%M%S)-$1
-	BUILD_LOGNAME=$(date +%Y%m%d-%H%M%S)-$1.log
+	BATCHFILE=$(realpath ${STARTDIR}/bbbs/${1}.bbb)
+	TGTIMG_NAME=$(date +%Y%m%d-%H%M%S)-${1}
+	BUILD_LOGNAME=$(date +%Y%m%d-%H%M%S)-${1}.log
 	bbb_download
 	bbb_mount resizeimage
-	[ $CCACHE_ENABLED -eq 1 ] && bbb_enable_ccache
+	test ${CCACHE_ENABLED} -eq 1 && bbb_enable_ccache
 	bbb_addheader
 	# Run the batch in chrooted environment
-	echo -n "Running $BATCHFILE to build. Log file in $BBBLOG_PATH/$BUILD_LOGNAME..."
-	cat $BATCHFILE >> $BBB_CHROOTPATH/home/pi/run.sh
-	sudo chroot $BBB_CHROOTPATH sudo -u pi CCACHE_ENABLED=$CCACHE_ENABLED ENABLE_SQUASHFS=$ENABLE_SQUASHFS /home/pi/run.sh 2>&1 | bbb_log $BUILD_LOGNAME
+	echo -n "Running ${BATCHFILE} to build. Log file in ${BBBLOG_PATH}/${BUILD_LOGNAME}..."
+	cat ${BATCHFILE} >> ${BBB_CHROOTPATH}/home/pi/run.sh
+	sudo chroot ${BBB_CHROOTPATH} sudo -u pi CCACHE_ENABLED=${CCACHE_ENABLED} ENABLE_SQUASHFS=${ENABLE_SQUASHFS} /home/pi/run.sh 2>&1 | bbb_log ${BUILD_LOGNAME}
 	echo "Done."
-	rm $BBB_CHROOTPATH/home/pi/run.sh
-	xz -T0 $BBB_LOGPATH/$BUILD_LOGNAME
-	cp $BBB_LOGPATH/$BUILD_LOGNAME.xz $BBB_CHROOTPATH/home/pi/
-	[ $CCACHE_ENABLED -eq 1 ] && bbb_disable_ccache
+	rm ${BBB_CHROOTPATH}/home/pi/run.sh
+	xz -T0 ${BBB_LOGPATH}/${BUILD_LOGNAME}
+	cp ${BBB_LOGPATH}/${BUILD_LOGNAME}.xz ${BBB_CHROOTPATH}/home/pi/
+	test ${CCACHE_ENABLED} -eq 1 && bbb_disable_ccache
 	bbb_unmount
 	bbb_manageimage
 	bbb_cleanup
@@ -260,18 +252,18 @@ function bbb_build {
 
 function bbb_interactive {
 	echo "Interactive mode"
-	bbb_mount $2
+	bbb_mount ${2}
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
-	sudo chroot $BBB_CHROOTPATH su - pi -c "CCACHE_ENABLED=$CCACHE_ENABLED ENABLE_SQUASHFS=$ENABLE_SQUASHFS bash"
+	sudo chroot ${BBB_CHROOTPATH} su - pi -c "CCACHE_ENABLED=${CCACHE_ENABLED} ENABLE_SQUASHFS=${ENABLE_SQUASHFS} bash"
 	echo "Closed."
-	rm $BBB_CHROOTPATH/home/pi/run.sh
+	rm ${BBB_CHROOTPATH}/home/pi/run.sh
 	bbb_unmount
 }
 
 function bbb_ls {
-	find $1 -maxdepth 1 -type f -exec basename {} \; | sed 's/\..*$//g'
+	find ${1} -maxdepth 1 -type f -exec basename {} \; | sed 's/\..*$//g'
 }
 function bbb_help {
 	cat <<-EOF
@@ -292,7 +284,7 @@ function bbb_help {
 		Command available:
 		
 		mount <file>
-		    Mount the image <file> in the $BBB_CHROOTPATH
+		    Mount the image <file> in the ${BBB_CHROOTPATH}
 		
 		unmount
 		    Unmount the image
@@ -356,13 +348,13 @@ function bbb_help {
 
 bbb_checkenv
 
-case _$1 in
+case _${1} in
 	_interactive)
 		bbb_interactive
 		;;
 	_mount)
 		echo "Mount image only"
-		bbb_mount $2
+		bbb_mount ${2}
 		;;
 	_unmount)
 		echo "Unmount image partitions only"
@@ -370,11 +362,11 @@ case _$1 in
 		;;
 	_lsbbb)
 		echo "List BBBs"
-		bbb_ls $STARTDIR/bbbs
+		bbb_ls ${STARTDIR}/bbbs
 		;;
 	_lswd)
-		echo "List files in $BBB_WORKDIR"
-		bbb_ls $BBB_WORKDIR
+		echo "List files in ${BBB_WORKDIR}"
+		bbb_ls ${BBB_WORKDIR}
 		;;
 	_help)
 		bbb_help
@@ -384,7 +376,7 @@ case _$1 in
 		exit 1
 		;;
 	*)
-		bbb_checkfile $STARTDIR/bbbs/$1.bbb
-		bbb_build $1 2>&1 | bbb_log $BBB_LOG
+		bbb_checkfile ${STARTDIR}/bbbs/${1}.bbb
+		bbb_build ${1} 2>&1 | bbb_log ${BBB_LOG}
 		;;
 esac
