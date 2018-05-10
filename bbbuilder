@@ -32,11 +32,11 @@ BBB_LOGPATH=${STARTDIR}/${BBB_LOGDIR}
 # 3rd level functions #
 #######################
 
-function bbb_log {
+function bbb_log () {
 	awk '{ print strftime("%T "), $0; fflush(); }' >> ${BBB_LOGPATH}/${1}
 }
 
-function bbb_checkfile {
+function bbb_checkfile () {
 	test -z "${1:-}" &&	echo "No file specified" &&	exit 1
 	test ! -f ${1} && echo "File ${1} does not exist!" && exit 1
 }
@@ -45,7 +45,7 @@ function bbb_checkfile {
 # 2nd level functions #
 #######################
 
-function bbb_download {
+function bbb_download () {
 	# Download the image
 	echo -n "Downloading image from ${OS_URL}..."
 	ZIPNAME=$(basename $(wget -nc -q -S -P ${BBB_WORKDIR} --content-disposition ${OS_URL} 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
@@ -58,7 +58,7 @@ function bbb_download {
 	SRCIMG_NAME=$(unzip -v ${BBB_WORKDIR}/${ZIPNAME} | grep ".img" | awk '{print $8}')
 }
 
-function bbb_enable_ccache {
+function bbb_enable_ccache () {
 	# Create CCACHE environment
 	echo -n "Create CCACHE environment..."
 	if [ ! -d ${CCACHE_DIR} ]
@@ -78,7 +78,7 @@ function bbb_enable_ccache {
 	echo "Done."
 }
 
-function bbb_disable_ccache {
+function bbb_disable_ccache () {
 	# Remove CCACHE environment
 	echo -n "Clean CCACHE environment"...
 	sudo chroot ${BBB_CHROOTPATH} apt-get -y purge ccache
@@ -88,7 +88,7 @@ function bbb_disable_ccache {
 	echo "Done."
 }
 
-function bbb_addheader {
+function bbb_addheader () {
 	# Add header to run.sh in the image
 	echo -n "Add header to run.sh..."
 	cat <<-EOF > ${BBB_CHROOTPATH}/home/pi/run.sh
@@ -124,7 +124,7 @@ function bbb_addheader {
 	echo "Done."
 }
 
-function bbb_mount {
+function bbb_mount () {
 	case ${1} in
 	resizeimage)
 		FULLSRC_IMAGE=${BBB_WORKDIR}/${SRCIMG_NAME}
@@ -176,7 +176,7 @@ function bbb_mount {
 	return ${?}
 }
 
-function bbb_unmount {
+function bbb_unmount () {
 	# Unmount everything
 	echo -n "Unmount all partitions..."
 	sudo umount ${BBB_CHROOTPATH}/mnt/resources
@@ -190,7 +190,7 @@ function bbb_unmount {
 	echo "Done."
 }
 
-function bbb_manageimage {
+function bbb_manageimage () {
 	# Rename the image
 	mv ${FULLSRC_IMAGE} ${BBB_WORKDIR}/${TGTIMG_NAME}".img"
 	# ZIP the image if ZIP_FORMAT is set
@@ -214,7 +214,7 @@ function bbb_manageimage {
 	echo "Done."
 }
 
-function bbb_cleanup {
+function bbb_cleanup () {
 		# Delete working directory
 		test ${BBB_DELWORKDIR} -eq 1 && sudo rm -rf ${BBB_WORKDIR}
 }
@@ -223,7 +223,7 @@ function bbb_cleanup {
 # 1st Level Functions #
 #######################
 
-function bbb_checkenv {
+function bbb_checkenv () {
 	test ! -x /usr/bin/gawk && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
 	test ! -d ${BBB_CHROOTPATH} && mkdir ${BBB_CHROOTPATH}
 	test ! -d ${BBB_IMGPATH} && mkdir ${BBB_IMGPATH}
@@ -231,7 +231,7 @@ function bbb_checkenv {
 	test ! -d ${BBB_WORKDIR} && mkdir ${BBB_WORKDIR}
 }
 
-function bbb_build {
+function bbb_build () {
 	BATCHFILE=$(realpath ${STARTDIR}/bbbs/${1}.bbb)
 	TGTIMG_NAME=$(date +%Y%m%d-%H%M%S)-${1}
 	BUILD_LOGNAME=$(date +%Y%m%d-%H%M%S)-${1}.log
@@ -253,7 +253,7 @@ function bbb_build {
 	bbb_cleanup
 }
 
-function bbb_interactive {
+function bbb_interactive () {
 	echo "Interactive mode"
 	bbb_mount ${1}
 	bbb_addheader
@@ -265,10 +265,10 @@ function bbb_interactive {
 	bbb_unmount
 }
 
-function bbb_ls {
+function bbb_ls () {
 	find ${1} -maxdepth 1 -type f -exec basename {} \; | sed 's/\..*$//g'
 }
-function bbb_help {
+function bbb_help () {
 	cat <<-EOF
 		rpi_moode_build
 
