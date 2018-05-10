@@ -1,6 +1,9 @@
 #!/bin/bash
 
+# Enable debug mode if DEBUG=1 is set
 test ${DEBUG:-0} -eq 1 && set -x
+
+# Define starting directory
 STARTDIR=${PWD}
 
 # Import configuration file
