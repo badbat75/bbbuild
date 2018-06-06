@@ -1,5 +1,5 @@
-*.img
-*.zip
-*.xz
-logs
-images
+./*.img
+./*.zip
+./*.xz
+./logs
+./images
