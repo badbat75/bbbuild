@@ -225,10 +225,10 @@ function bbb_cleanup () {
 
 function bbb_checkenv () {
 	test ! -x /usr/bin/gawk && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
-	test ! -d ${BBB_CHROOTPATH} && mkdir ${BBB_CHROOTPATH}
-	test ! -d ${BBB_IMGPATH} && mkdir ${BBB_IMGPATH}
-	test ! -d ${BBB_LOGPATH} && mkdir ${BBB_LOGPATH}
-	test ! -d ${BBB_WORKDIR} && mkdir ${BBB_WORKDIR}
+	test ! -d ${BBB_CHROOTPATH} && mkdir -p ${BBB_CHROOTPATH}
+	test ! -d ${BBB_IMGPATH} && mkdir -p ${BBB_IMGPATH}
+	test ! -d ${BBB_LOGPATH} && mkdir -p ${BBB_LOGPATH}
+	test ! -d ${BBB_WORKDIR} && mkdir -p ${BBB_WORKDIR}
 }
 
 function bbb_build () {
