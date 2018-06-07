@@ -148,9 +148,10 @@ echo  moOde 4.2
 echo 
 
 cd ~
-cp /mnt/resources/rel-stretch-r42p.zip .
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r42.zip
-sudo unzip ./rel-stretch-r42.zip
+#unzip ./rel-stretch-r42.zip
+cp /mnt/resources/rel-stretch-r42p.zip .
+unzip ./rel-stretch-r42p.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
