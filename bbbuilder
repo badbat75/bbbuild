@@ -22,11 +22,13 @@ test -z "${BBB_IMGDIR:-}" && BBB_IMGDIR=images
 test -z "${BBB_IMGSIZE:-}" && BBB_IMGSIZE=3G
 test -z "${BBB_LOG:-}" && BBB_LOG=bbbuilder.log
 test -z "${BBB_LOGDIR:-}" && BBB_LOGDIR=logs
+test -z "${BBB_PKGCACHEDIR:-}" && BBB_PKGCACHEDIR=pkgcache
 
 # Dynamic variables
 BBB_CHROOTPATH=${BBB_WORKDIR}/${BBB_CHROOTDIR}
 BBB_IMGPATH=${STARTDIR}/${BBB_IMGDIR}
 BBB_LOGPATH=${STARTDIR}/${BBB_LOGDIR}
+BBB_PKGCACHEPATH=${BBB_PKGCACHEDIR}/apt/archives
 
 #######################
 # 3rd level functions #
@@ -172,6 +174,7 @@ function bbb_mount () {
 	sudo mount -t proc /proc ${BBB_CHROOTPATH}/proc &&
 	sudo mkdir ${BBB_CHROOTPATH}/mnt/resources &&
 	sudo mount --bind ${STARTDIR}/resources ${BBB_CHROOTPATH}/mnt/resources &&
+	sudo mount --bind ${BBB_PKGCACHEDIR} ${BBB_CHROOTPATH}/var/cache/apt/archives &&
 	echo "Done."
 	return ${?}
 }
@@ -181,7 +184,7 @@ function bbb_unmount () {
 	echo -n "Unmount all partitions..."
 	sudo umount ${BBB_CHROOTPATH}/mnt/resources
 	sudo rmdir ${BBB_CHROOTPATH}/mnt/resources
-	sudo umount ${BBB_CHROOTPATH}/proc ${BBB_CHROOTPATH}/dev/pts ${BBB_CHROOTPATH}/run ${BBB_CHROOTPATH}/boot ${BBB_CHROOTPATH}
+	sudo umount ${BBB_CHROOTPATH}/var/cache/apt/archives ${BBB_CHROOTPATH}/proc ${BBB_CHROOTPATH}/dev/pts ${BBB_CHROOTPATH}/run ${BBB_CHROOTPATH}/boot ${BBB_CHROOTPATH}
 
 	echo "Done."
 	# Delete the loopback devices
@@ -229,6 +232,7 @@ function bbb_checkenv () {
 	test ! -d ${BBB_IMGPATH} && mkdir -p ${BBB_IMGPATH}
 	test ! -d ${BBB_LOGPATH} && mkdir -p ${BBB_LOGPATH}
 	test ! -d ${BBB_WORKDIR} && mkdir -p ${BBB_WORKDIR}
+	test ! -d ${BBB_PKGCACHEPATH} && mkdir -p ${BBB_PKGCACHEPATH}
 }
 
 function bbb_build () {
