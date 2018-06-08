@@ -437,8 +437,8 @@ sudo chmod 0644 /lib/systemd/system/mpd.socket
 sudo chmod 0666 /etc/bluealsaaplay.conf
 sudo chmod 0644 /etc/systemd/system/bluealsa-aplay@.service
 sudo chmod 0644 /etc/systemd/system/bluealsa.service
-#sudo sed -i 's|/usr/bin/bluealsa|/usr/bin/bluealsa -p a2dp-sink|g' /etc/systemd/system/bluealsa.service # To be removed when solved in moode mainstream code
 sudo chmod 0644 /lib/systemd/system/bluetooth.service
+sudo sed -i 's|/usr/sbin/bluetooth|/usr/libexec/bluetooth/bluetooth|g' /lib/systemd/system/bluetooth
 sudo chmod 0755 /usr/local/bin/a2dp-autoconnect
 # Rotenc
 sudo chmod 0644 /lib/systemd/system/rotenc.service
@@ -770,7 +770,7 @@ cd ~
 wget https://github.com/winterheart/broadcom-bt-firmware/archive/master.zip
 sudo unzip master.zip 
 sudo rm ./master.zip
-sudo cp -r ./broadcom-bt-firmware-master/brcm /lib/firmware/brcm
+sudo cp -r ./broadcom-bt-firmware-master/brcm /lib/firmware
 sudo rm -rf ./broadcom-bt-firmware-master
 
 echo //////////////////////////////////////////////////////////////
