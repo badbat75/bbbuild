@@ -174,7 +174,7 @@ function bbb_mount () {
 	sudo mount -t proc /proc ${BBB_CHROOTPATH}/proc &&
 	sudo mkdir ${BBB_CHROOTPATH}/mnt/resources &&
 	sudo mount --bind ${STARTDIR}/resources ${BBB_CHROOTPATH}/mnt/resources &&
-	sudo mount --bind ${BBB_PKGCACHEDIR} ${BBB_CHROOTPATH}/var/cache/apt/archives &&
+	sudo mount --bind ${BBB_PKGCACHEPATH} ${BBB_CHROOTPATH}/var/cache/apt/archives &&
 	echo "Done."
 	return ${?}
 }
