@@ -99,7 +99,7 @@ autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
 
-sudo apt-get clean
+#sudo apt-get clean
 
 # kernel ver 4.14.43
 echo "y" | sudo PRUNE_MODULES=1 rpi-update 328f413f7d2ec7855e25ff282d4354c57ce38860
