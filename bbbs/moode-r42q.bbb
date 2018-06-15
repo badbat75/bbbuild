@@ -205,7 +205,7 @@ rm ./BlueZ-master-4e926f8.zip
 #sudo rm /usr/sbin/bluetoothd
 #sudo rm -rf /usr/lib/bluetooth
 # Create symlink for new bluetoothd
-#sudo ln -s /usr/libexec/bluetooth/bluetoothd /usr/sbin/bluetoothd
+sudo ln -s /usr/libexec/bluetooth/* /usr/sbin/
 
 git clone https://github.com/RPi-Distro/pi-bluetooth
 sudo cp pi-bluetooth/usr/bin/btuart /usr/bin/
@@ -438,7 +438,7 @@ sudo chmod 0666 /etc/bluealsaaplay.conf
 sudo chmod 0644 /etc/systemd/system/bluealsa-aplay@.service
 sudo chmod 0644 /etc/systemd/system/bluealsa.service
 sudo chmod 0644 /lib/systemd/system/bluetooth.service
-sudo sed -i 's|/usr/sbin/bluetooth|/usr/libexec/bluetooth/bluetooth|g' /lib/systemd/system/bluetooth.service
+#sudo sed -i 's|/usr/sbin/bluetooth|/usr/libexec/bluetooth/bluetooth|g' /lib/systemd/system/bluetooth.service
 sudo chmod 0755 /usr/local/bin/a2dp-autoconnect
 # Rotenc
 sudo chmod 0644 /lib/systemd/system/rotenc.service
