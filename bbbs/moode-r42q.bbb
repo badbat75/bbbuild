@@ -194,7 +194,7 @@ cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
 unzip BlueZ-master-4e926f8.zip >/dev/null
 cd BlueZ-master
 autoreconf --install
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --libexecdir=/usr/sbin --enable-library
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library
 make
 sudo make install
 cd ~
@@ -438,7 +438,7 @@ sudo chmod 0666 /etc/bluealsaaplay.conf
 sudo chmod 0644 /etc/systemd/system/bluealsa-aplay@.service
 sudo chmod 0644 /etc/systemd/system/bluealsa.service
 sudo chmod 0644 /lib/systemd/system/bluetooth.service
-#sudo sed -i 's|/usr/sbin/bluetooth|/usr/libexec/bluetooth/bluetooth|g' /lib/systemd/system/bluetooth
+sudo sed -i 's|/usr/sbin/bluetooth|/usr/libexec/bluetooth/bluetooth|g' /lib/systemd/system/bluetooth.service
 sudo chmod 0755 /usr/local/bin/a2dp-autoconnect
 # Rotenc
 sudo chmod 0644 /lib/systemd/system/rotenc.service
