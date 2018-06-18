@@ -225,7 +225,7 @@ cd build
 make
 sudo make install
 cd ~
-rm -rf fdk-aac
+rm -rf /tmp/fdk-aac
 
 cd /tmp
 git clone --single-branch https://github.com/Arkq/openaptx
