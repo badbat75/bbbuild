@@ -216,6 +216,18 @@ rm -rf pi-bluetooth
 echo NOTE: Ignore warnings from autoreconf and configure
 
 cd /tmp
+git clone --single-branch https://github.com/mstorsjo/fdk-aac
+cd fdk-aac
+autoreconf --install
+mkdir build
+cd build
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install
+cd ~
+rm -rf fdk-aac
+
+cd /tmp
 git clone --single-branch https://github.com/Arkq/openaptx
 cd openaptx
 autoreconf --install
