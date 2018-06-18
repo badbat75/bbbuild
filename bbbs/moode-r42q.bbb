@@ -229,19 +229,22 @@ rm -rf /tmp/openaptx
 
 # Compile bluealsa 1.2.0
 # 2018-04-16 commit 88aefeea56b7ea20668796c2c7a8312bf595eef4
-cp ./rel-stretch/other/bluetooth/bluez-alsa-master-88aefee.zip ./
-unzip bluez-alsa-master-88aefee.zip
-cd bluez-alsa-master
+#cp ./rel-stretch/other/bluetooth/bluez-alsa-master-88aefee.zip ./
+#unzip bluez-alsa-master-88aefee.zip
+#cd bluez-alsa-master
+git clone --single-branch https://github.com/Arkq/bluez-alsa.git
+cd bluez-alsa
 # NOTE: Ignore warnings from autoreconf and configure
 autoreconf --install
 mkdir build
 cd build
-../configure --enable-hcitop --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure --enable-hcitop --enable-aac --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
 make
 sudo make install
 cd ~
-rm -rf bluez-alsa-master
-rm bluez-alsa-master-88aefee.zip
+#rm -rf bluez-alsa-master
+#rm bluez-alsa-master-88aefee.zip
+rm -rf bluez-alsa
 
 echo  Services are started by moOde Worker so lets disable them here.
 
