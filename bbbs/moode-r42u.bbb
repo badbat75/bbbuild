@@ -150,8 +150,8 @@ echo
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r42.zip
 #unzip ./rel-stretch-r42.zip
-cp /mnt/resources/rel-stretch-r42q.zip .
-unzip ./rel-stretch-r42q.zip
+cp /mnt/resources/rel-stretch-r42u.zip .
+unzip ./rel-stretch-r42u.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
