@@ -102,7 +102,8 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
 #sudo apt-get clean
 
 # kernel ver 4.14.43
-echo "y" | sudo PRUNE_MODULES=1 rpi-update 328f413f7d2ec7855e25ff282d4354c57ce38860
+#KERNELBUILD=328f413f7d2ec7855e25ff282d4354c57ce38860
+echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
 sudo rm -rf /boot.bak
@@ -150,8 +151,8 @@ echo
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r42.zip
 #unzip ./rel-stretch-r42.zip
-cp /mnt/resources/rel-stretch-r42u.zip .
-unzip ./rel-stretch-r42u.zip
+cp /mnt/resources/rel-stretch-r42x.zip .
+unzip ./rel-stretch-r42x.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -453,7 +454,6 @@ sudo chmod 0666 /etc/bluealsaaplay.conf
 sudo chmod 0644 /etc/systemd/system/bluealsa-aplay@.service
 sudo chmod 0644 /etc/systemd/system/bluealsa.service
 sudo chmod 0644 /lib/systemd/system/bluetooth.service
-#sudo sed -i 's|/usr/sbin/bluetooth|/usr/libexec/bluetooth/bluetooth|g' /lib/systemd/system/bluetooth.service
 sudo chmod 0755 /usr/local/bin/a2dp-autoconnect
 # Rotenc
 sudo chmod 0644 /lib/systemd/system/rotenc.service
@@ -487,6 +487,11 @@ sudo chmod 0777 /var/local/www/playhistory.log
 sudo chmod 0777 /var/local/www/currentsong.txt
 sudo touch /var/local/www/libcache.json
 sudo chmod 0777 /var/local/www/libcache.json
+
+echo  Some modification on official configuration files
+
+sudo echo 'BUFFERTIME=250000' >> /etc/bluealsaaplay.conf
+sudo sed -i 's|bluealsa-aplay --profile-a2dp|bluealsa-aplay --pcm-buffer-time=${BUFFERTIME} --profile-a2dp|g' /etc/systemd/system/bluealsa-aplay@.service
 
 echo //////////////////////////////////////////////////////////////
 echo 
