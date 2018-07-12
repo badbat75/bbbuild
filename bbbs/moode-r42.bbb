@@ -103,8 +103,8 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
 
 #sudo apt-get clean
 
-# kernel ver 4.14.43
-#KERNELBUILD=328f413f7d2ec7855e25ff282d4354c57ce38860
+# kernel ver 4.14.54
+KERNELBUILD=ec9d84e1d2ba701fd28897809269d8116b31dbf5
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
