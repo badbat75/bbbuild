@@ -23,6 +23,8 @@
 #       Bump to kernel 4.14.43 in STEP 11
 #       Bump to WiringPi 2.46 in STEP 5
 #       Set 0755 perm on home/pi/*.sh and *.php in STEP 8
+#       Add mpc update to Final Cleanup
+#       Add systemctl set-default multi-user.target to STEP 3
 # v2.4: Set permissions for localui.service in STEP 8
 #       Specify Linux kernel by Git hash in STEP 11
 #       Add echo "y" to rpi-update in STEP 11, reqd for prompt in 4.14.y branch
@@ -167,6 +169,7 @@ sudo update-rc.d dphys-swapfile remove
 #sudo rm /var/swap
 sudo systemctl disable cron.service
 sudo systemctl enable rpcbind
+sudo systemctl set-default multi-user.target
 
 echo  Install core packages.
 
@@ -511,6 +514,7 @@ sudo mkdir /var/run/mpd
 sudo chown mpd:audio /var/run/mpd
 sudo /usr/local/bin/mpd /etc/mpd.conf
 mpc enable only 1
+mpc update
 sudo mpd --kill /etc/mpd.conf
 
 if [ $ENABLE_SQUASHFS -eq 1 ]
