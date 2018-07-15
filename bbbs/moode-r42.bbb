@@ -1,6 +1,6 @@
 ################################################################
 #
-# Build Recipe v2.5, 2018-06-06
+# Build Recipe v2.5, 2018-07-11
 #
 # moOde 4.2
 #
@@ -8,7 +8,7 @@
 # and System Integrators and provide a recipe for making
 # a custom OS for running moOde audio player.
 #
-# NOTE: This recipe is based on Stretch Lite 2018-04-18
+# NOTE: This recipe is based on Stretch Lite 2018-06-27
 # 
 # Unless otherwise noted or if a command requires user
 # interaction, groups of commands can be run in batch.
@@ -151,9 +151,8 @@ echo  moOde 4.2
 echo 
 
 cd ~
-#wget http://moodeaudio.org/downloads/prod/rel-stretch-r42.zip
-#unzip ./rel-stretch-r42.zip
-cp /mnt/resources/rel-stretch-r42.zip .
+wget http://moodeaudio.org/downloads/prod/rel-stretch-r42.zip
+#cp /mnt/resources/rel-stretch-r42.zip .
 unzip ./rel-stretch-r42.zip
 
 echo //////////////////////////////////////////////////////////////
