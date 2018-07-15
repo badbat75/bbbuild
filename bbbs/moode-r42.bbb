@@ -492,7 +492,7 @@ sudo chmod 0777 /var/local/www/libcache.json
 
 echo  Some modification on official configuration files
 
-sudo echo 'BUFFERTIME=50000' >> /etc/bluealsaaplay.conf
+sudo echo 'BUFFERTIME=30000' >> /etc/bluealsaaplay.conf
 sudo sed -i 's|bluealsa-aplay --profile-a2dp|bluealsa-aplay --pcm-buffer-time=${BUFFERTIME} --profile-a2dp|g' /etc/systemd/system/bluealsa-aplay@.service
 
 echo //////////////////////////////////////////////////////////////
