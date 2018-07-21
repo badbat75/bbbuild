@@ -197,7 +197,7 @@ cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
 unzip BlueZ-master-4e926f8.zip >/dev/null
 cd BlueZ-master
 autoreconf --install
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library --enable-deprecated
 make
 sudo make install
 cd ~
@@ -492,7 +492,7 @@ sudo chmod 0777 /var/local/www/libcache.json
 
 echo  Some modification on official configuration files
 
-sudo echo 'BUFFERTIME=15000' >> /etc/bluealsaaplay.conf
+sudo echo 'BUFFERTIME=20000' >> /etc/bluealsaaplay.conf
 sudo sed -i 's|bluealsa-aplay --profile-a2dp|bluealsa-aplay --pcm-buffer-time=${BUFFERTIME} --profile-a2dp|g' /etc/systemd/system/bluealsa-aplay@.service
 
 echo //////////////////////////////////////////////////////////////
