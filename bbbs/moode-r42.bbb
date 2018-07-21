@@ -670,6 +670,7 @@ make
 sudo cp ./squeezelite /usr/local/bin/
 cd ~
 sudo rm -rf ./squeezelite-master/
+sudo rm -f ./squeezelite-1.8.7-1052.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
