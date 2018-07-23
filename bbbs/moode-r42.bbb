@@ -197,7 +197,7 @@ cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
 unzip BlueZ-master-4e926f8.zip >/dev/null
 cd BlueZ-master
 autoreconf --install
-./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library
+./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library --enable-deprecated
 make
 sudo make install
 cd ~
@@ -218,29 +218,29 @@ rm -rf pi-bluetooth
 
 echo NOTE: Ignore warnings from autoreconf and configure
 
-cd /tmp
-git clone --single-branch https://github.com/mstorsjo/fdk-aac
-cd fdk-aac
-autoreconf --install
-mkdir build
-cd build
-../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
-make
-sudo make install
-cd ~
-rm -rf /tmp/fdk-aac
+#cd /tmp
+#git clone --single-branch https://github.com/mstorsjo/fdk-aac
+#cd fdk-aac
+#autoreconf --install
+#mkdir build
+#cd build
+#../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+#make
+#sudo make install
+#cd ~
+#rm -rf /tmp/fdk-aac
 
-cd /tmp
-git clone --single-branch https://github.com/Arkq/openaptx
-cd openaptx
-autoreconf --install
-mkdir build
-cd build
-../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
-make
-sudo make install
-cd ~
-rm -rf /tmp/openaptx
+#cd /tmp
+#git clone --single-branch https://github.com/Arkq/openaptx
+#cd openaptx
+#autoreconf --install
+#mkdir build
+#cd build
+#../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+#make
+#sudo make install
+#cd ~
+#rm -rf /tmp/openaptx
 
 # Compile bluealsa 1.2.0
 # 2018-04-16 commit 88aefeea56b7ea20668796c2c7a8312bf595eef4
@@ -253,7 +253,8 @@ cd bluez-alsa
 autoreconf --install
 mkdir build
 cd build
-../configure --enable-hcitop --enable-aac --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+#../configure --enable-hcitop --enable-aac --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure --enable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
 make
 sudo make install
 cd ~
@@ -492,7 +493,7 @@ sudo chmod 0777 /var/local/www/libcache.json
 
 echo  Some modification on official configuration files
 
-sudo echo 'BUFFERTIME=15000' >> /etc/bluealsaaplay.conf
+sudo echo 'BUFFERTIME=20000' >> /etc/bluealsaaplay.conf
 sudo sed -i 's|bluealsa-aplay --profile-a2dp|bluealsa-aplay --pcm-buffer-time=${BUFFERTIME} --profile-a2dp|g' /etc/systemd/system/bluealsa-aplay@.service
 
 echo //////////////////////////////////////////////////////////////
@@ -669,6 +670,7 @@ make
 sudo cp ./squeezelite /usr/local/bin/
 cd ~
 sudo rm -rf ./squeezelite-master/
+sudo rm -f ./squeezelite-1.8.7-1052.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
