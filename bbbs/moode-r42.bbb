@@ -242,12 +242,12 @@ echo NOTE: Ignore warnings from autoreconf and configure
 #cd ~
 #rm -rf /tmp/openaptx
 
-# Compile bluealsa 1.2.0
+# Compile bluealsa 1.3.0
 # 2018-04-16 commit 88aefeea56b7ea20668796c2c7a8312bf595eef4
 #cp ./rel-stretch/other/bluetooth/bluez-alsa-master-88aefee.zip ./
 #unzip bluez-alsa-master-88aefee.zip
 #cd bluez-alsa-master
-git clone --single-branch https://github.com/Arkq/bluez-alsa.git
+git clone --single-branch --branch v1.3.0 https://github.com/Arkq/bluez-alsa.git
 cd bluez-alsa
 # NOTE: Ignore warnings from autoreconf and configure
 autoreconf --install
