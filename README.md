@@ -1,5 +1,5 @@
 # bbbuild
-Release version 2.0
+Release version 2.0.1
 
 This project aims to build Moode on a vanilla raspbian with the maximum efficiency on compilation and execution, generating an image file to be installed on an SD card.
 
