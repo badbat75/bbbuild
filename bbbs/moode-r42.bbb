@@ -218,17 +218,17 @@ rm -rf pi-bluetooth
 
 echo NOTE: Ignore warnings from autoreconf and configure
 
-#cd /tmp
-#git clone --single-branch https://github.com/mstorsjo/fdk-aac
-#cd fdk-aac
-#autoreconf --install
-#mkdir build
-#cd build
-#../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
-#make
-#sudo make install
-#cd ~
-#rm -rf /tmp/fdk-aac
+cd /tmp
+git clone --single-branch https://github.com/mstorsjo/fdk-aac
+cd fdk-aac
+autoreconf --install
+mkdir build
+cd build
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install
+cd ~
+rm -rf /tmp/fdk-aac
 
 #cd /tmp
 #git clone --single-branch https://github.com/Arkq/openaptx
@@ -248,13 +248,14 @@ echo NOTE: Ignore warnings from autoreconf and configure
 #unzip bluez-alsa-master-88aefee.zip
 #cd bluez-alsa-master
 git clone --single-branch --branch v1.3.0 https://github.com/Arkq/bluez-alsa.git
+patch -p0 < /mnt/resources/bluez-alsa-1.3.0-iphone-aac.patch
 cd bluez-alsa
 # NOTE: Ignore warnings from autoreconf and configure
 autoreconf --install
 mkdir build
 cd build
 #../configure --enable-hcitop --enable-aac --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
-../configure --enable-hcitop --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure --enable-hcitop --enable-aac --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
 make
 sudo make install
 cd ~
