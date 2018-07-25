@@ -12,7 +12,7 @@ test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
 
 # Static variables
 test -z "${OS_URL:-}" && OS_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
-test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=1
+test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=0
 test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
 test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
 test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
@@ -335,8 +335,8 @@ function bbb_help () {
 		    Default: logs
 		    The directory where logs will be generated
 		ENABLE_SQUASHFS
-		    Default: 1
-		    Set to 0 to disable it. Enable the creation of the SquashFS filesystem. See moode recipe.
+		    Default: 0
+		    Set to 1 to enable it. Enable the creation of the SquashFS filesystem. See moode recipe.
 		CCACHE_ENABLED
 		    Default: 1
 		    Set to 0 to disable it. Enable the compiler cache. This will speedup everything from the 2nd time.
