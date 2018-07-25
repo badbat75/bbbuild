@@ -248,8 +248,13 @@ rm -rf /tmp/fdk-aac
 #unzip bluez-alsa-master-88aefee.zip
 #cd bluez-alsa-master
 git clone --single-branch --branch v1.3.0 https://github.com/Arkq/bluez-alsa.git
-patch -p0 < /mnt/resources/bluez-alsa-1.3.0-iphone-aac.patch
 cd bluez-alsa
+
+# To use when using 1.3.0 branch
+patch -p1 < /mnt/resources/bluez-alsa-1.3.0-iphone-aac.patch
+# To use when using master branch
+##patch -p1 < /mnt/resources/remove-65a1a11-commit.patch
+
 # NOTE: Ignore warnings from autoreconf and configure
 autoreconf --install
 mkdir build
