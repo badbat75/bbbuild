@@ -11,10 +11,11 @@ test -z "${BBB_CONFDIR:-}" && BBB_CONFDIR=conf
 test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
 
 # Static variables
-test -z "${OS_URL:-}" && OS_URL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=0
 test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
 test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
+test -z "${BBB_OSURL:-}" && BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
+test -z "${BBB_OSDIR}" && BBB_OSDIR=osimages
 test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
 test -z "${BBB_DELWORKDIR:-}" && BBB_DELWORKDIR=0
 test -z "${BBB_CHROOTDIR:-}" && BBB_CHROOTDIR=root
@@ -49,15 +50,15 @@ function bbb_checkfile () {
 
 function bbb_download () {
 	# Download the image
-	echo -n "Downloading image from ${OS_URL}..."
-	ZIPNAME=$(basename $(wget -nc -q -S -P ${BBB_WORKDIR} --content-disposition ${OS_URL} 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
+	echo -n "Downloading image from ${BBB_OSURL}..."
+	ZIPNAME=$(basename $(wget -nc -q -S -P ${BBB_OSDIR} --content-disposition ${BBB_OSURL} 2>&1 | grep Location: | tail -n1 | awk '{print $2}'))
 	echo "Done."
 	# Unzip the image
 	echo -n "Unzip the image ${ZIPNAME}..."
-	unzip -n ${BBB_WORKDIR}/${ZIPNAME} -d ${BBB_WORKDIR}
+	unzip -n ${BBB_OSDIR}/${ZIPNAME} -d ${BBB_WORKDIR}
 	echo "Done."
 	# Retrieve the image name
-	SRCIMG_NAME=$(unzip -v ${BBB_WORKDIR}/${ZIPNAME} | grep ".img" | awk '{print $8}')
+	SRCIMG_NAME=$(unzip -v ${BBB_OSDIR}/${ZIPNAME} | grep ".img" | awk '{print $8}')
 }
 
 function bbb_enable_ccache () {
@@ -228,6 +229,7 @@ function bbb_cleanup () {
 
 function bbb_checkenv () {
 	test ! -x /usr/bin/gawk && echo -e "Please install gawk package!!!\nHelp: sudo apt-get -y install gawk\n" && exit 1
+	test | -d ${BBB_OSDIR} && mkdir -p ${BBB_OSDIR}
 	test ! -d ${BBB_CHROOTPATH} && mkdir -p ${BBB_CHROOTPATH}
 	test ! -d ${BBB_IMGPATH} && mkdir -p ${BBB_IMGPATH}
 	test ! -d ${BBB_LOGPATH} && mkdir -p ${BBB_LOGPATH}
@@ -310,9 +312,12 @@ function bbb_help () {
 
 		Environment variables:
 
-		OS_URL
+		BBB_OSURL
 		    Default: https://downloads.raspberrypi.org/raspbian_lite_latest
 		    The URL where to download the base OS
+		BBB_OSDIR
+			Default: osimages
+			The path where the base OS will be saved
 		BBB_WORKDIR
 		    Default: /tmp/moode
 		    The temporary directory where start the job
@@ -321,7 +326,7 @@ function bbb_help () {
 		    Set to 1 to enable it. Delete everything after the build
 		BBB_CHROOTDIR
 		    Default: root
-		    The directory where the immage will be mounted
+		    The directory where the image will be mounted
 		BBB_IMGDIR
 		    Default: images
 		    The directory where the created images will be stored
