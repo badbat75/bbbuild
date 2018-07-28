@@ -114,7 +114,7 @@ function bbb_addheader () {
 
 		export CFLAGS="${CFLAGS}"
 		export CXXFLAGS="${CXXFLAGS}"
-		export MAKEFLAGS="-j\${NPROC}"
+		export MAKEFLAGS="-j\${NPROC} V=1"
 
 		echo ""
 		echo "C: "\${CC}" "\$(which gcc)
