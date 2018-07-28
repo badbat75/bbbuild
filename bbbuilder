@@ -111,8 +111,8 @@ function bbb_addheader () {
 			 export CXX="ccache g++"
 		fi
 
-		export CFLAGS="-O3"
-		export CXXFLAGS="-O3"
+		export CFLAGS="${CFLAGS} -O3"
+		export CXXFLAGS="${CFLAGS} -O3"
 		export MAKEFLAGS="-j\${NPROC}"
 
 		echo ""

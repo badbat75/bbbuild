@@ -193,16 +193,20 @@ sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
 
 # Compile bluez 5.49
 # 2018-05-02 commit 4e926f8e3ef2e3321f9b169db54ec256d9b41207
-cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
-unzip BlueZ-master-4e926f8.zip >/dev/null
-cd BlueZ-master
+#cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
+#unzip BlueZ-master-4e926f8.zip >/dev/null
+#cd BlueZ-master
+# Compile bluez 5.50
+curl -Ls http://www.kernel.org/pub/linux/bluetooth/bluez-5.50.tar.xz | tar xvJf -
+cd bluez-5.50
 autoreconf --install
 ./configure --prefix=/usr --sysconfdir=/etc --localstatedir=/var --enable-library --enable-deprecated
 make
 sudo make install
 cd ~
-rm -rf ./BlueZ-master
-rm ./BlueZ-master-4e926f8.zip
+#rm -rf ./BlueZ-master
+#rm ./BlueZ-master-4e926f8.zip
+rm -rf bluez-5.50
 
 # Delete symlink and bin for old bluetoothd
 #sudo rm /usr/sbin/bluetoothd
@@ -650,16 +654,25 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
+git clone https://github.com/mikebrady/alac.git
+autoreconf -i -f
+./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install
+cd ~
+rm -rf ./alac
+
 git clone https://github.com/mikebrady/shairport-sync.git
 cd shairport-sync
 autoreconf -i -f
-./configure --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-metadata --with-stdout --with-systemd
+./configure --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-apple-alac --with-metadata --with-stdout --with-systemd
 make
 sudo make install
 sudo systemctl disable shairport-sync
 cd ~
 rm -rf ./shairport-sync
-sudo cp ./rel-stretch/usr/local/etc/shairport-sync.conf /usr/local/etc
+sudo cp /mnt/resources/shairport-sync.conf /usr/local/etc
+#sudo cp ./rel-stretch/usr/local/etc/shairport-sync.conf /usr/local/etc
 
 echo //////////////////////////////////////////////////////////////
 echo 
