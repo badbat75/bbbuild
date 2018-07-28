@@ -655,6 +655,7 @@ echo //////////////////////////////////////////////////////////////
 
 cd ~
 git clone https://github.com/mikebrady/alac.git
+cd alac
 autoreconf -i -f
 ./configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
 make
