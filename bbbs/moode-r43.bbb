@@ -163,7 +163,7 @@ echo
 
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r43.zip
-cp /mnt/resources/rel-stretch-r43c.zip .
+cp /mnt/resources/rel-stretch-r43g.zip .
 unzip ./rel-stretch-r43.zip
 
 echo //////////////////////////////////////////////////////////////
@@ -202,11 +202,6 @@ echo  Install Bluetooth
 # Remove current bluez installation
 sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
 
-# Compile bluez 5.49
-# 2018-05-02 commit 4e926f8e3ef2e3321f9b169db54ec256d9b41207
-#cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
-#unzip BlueZ-master-4e926f8.zip >/dev/null
-#cd BlueZ-master
 # Compile bluez 5.50
 curl -Ls http://www.kernel.org/pub/linux/bluetooth/bluez-5.50.tar.xz | tar xvJf -
 cd bluez-5.50
@@ -215,8 +210,6 @@ autoreconf --install
 make
 sudo make install
 cd ~
-#rm -rf ./BlueZ-master
-#rm ./BlueZ-master-4e926f8.zip
 rm -rf bluez-5.50
 
 # Delete symlink and bin for old bluetoothd
@@ -257,20 +250,9 @@ rm -rf /tmp/fdk-aac
 #cd ~
 #rm -rf /tmp/openaptx
 
-# Compile bluealsa 1.3.0
-# 2018-04-16 commit 88aefeea56b7ea20668796c2c7a8312bf595eef4
-#cp ./rel-stretch/other/bluetooth/bluez-alsa-master-88aefee.zip ./
-#unzip bluez-alsa-master-88aefee.zip
-#cd bluez-alsa-master
-git clone --single-branch --branch v1.3.0 https://github.com/Arkq/bluez-alsa.git
+# Compile bluealsa from master
+git clone --single-branch https://github.com/Arkq/bluez-alsa.git
 cd bluez-alsa
-
-# To use when using 1.3.0 branch
-patch -p1 < /mnt/resources/bluez-alsa-1.3.0-iphone-aac.patch
-# To use when using master branch
-##patch -p1 < /mnt/resources/remove-65a1a11-commit.patch
-
-# NOTE: Ignore warnings from autoreconf and configure
 autoreconf --install
 mkdir build
 cd build
@@ -279,8 +261,6 @@ cd build
 make
 sudo make install
 cd ~
-#rm -rf bluez-alsa-master
-#rm bluez-alsa-master-88aefee.zip
 rm -rf bluez-alsa
 
 echo  Services are started by moOde Worker so lets disable them here.
