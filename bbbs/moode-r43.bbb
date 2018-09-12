@@ -107,7 +107,9 @@ libbsd-dev libncurses5-dev libsndfile1-dev \
 libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcdio-paranoia-dev libiso9660-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
 autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi-client-dev libssl-dev libsoxr-dev \
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
-xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
+\
+portaudio19-dev
 
 #sudo apt-get clean
 
@@ -165,7 +167,7 @@ echo
 
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r43.zip
-cp /mnt/resources/rel-stretch-r43g.zip .
+cp /mnt/resources/rel-stretch-r43h.zip .
 unzip ./rel-stretch-r43.zip
 
 echo //////////////////////////////////////////////////////////////
@@ -674,7 +676,6 @@ sudo cp /mnt/resources/shairport-sync.conf /usr/local/etc
 //
 ////////////////////////////////////////////////////////////////
 
-sudo apt-get -y install portaudio19-dev
 wget -qL --content-disposition https://sh.rustup.rs
 chmod +x rustup-init.sh
 ./rustup-init.sh -y
@@ -686,7 +687,7 @@ cd librespot/
 cargo build --release --features alsa-backend
 sudo cp target/release/librespot /usr/local/bin
 cd ~
-sudo rm -rf librespot
+rm -rf librespot
 
 echo //////////////////////////////////////////////////////////////
 echo 
