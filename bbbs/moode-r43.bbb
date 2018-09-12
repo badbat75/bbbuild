@@ -19,8 +19,10 @@
 #       Replace Browse tab w/Music tab in STEP 12 1b.
 #       Correct STEP 1 Option 2 to use 2018-06-27 Stretch Lite
 #       Update root symlink
-#       Bump to kernel 4.14.58 in STEP 11
+#       Bump to kernel 4.14.68 in STEP 11
 #       Add libaudiofile for wav to mpd compile in STEP 6
+#       Add php7.0-gd in STEP 3
+#       Add component 4B - Librespot
 # v2.5: Add -DGPIO cflag to new Squeezelite compile in COMPONENT 5.
 #       Use BlueZ-master-4e926f8.zip in STEP 4
 #       Use bluez-alsa-master-88aefee.zip in STEP 4
@@ -95,7 +97,7 @@ sudo apt-get -y upgrade
 
 sudo apt-get update
 sudo apt-get -y install \
-php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
+php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache php7.0-gd mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
 dnsmasq hostapd \
 \
 dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
@@ -109,8 +111,8 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
 
 #sudo apt-get clean
 
-# kernel ver 4.14.58
-KERNELBUILD=f1eab5a34dda932ca1ad447bdb35edb0cb55263c
+# kernel ver 4.14.68
+KERNELBUILD=a5b781c7a761664226ff9654416776d372f8bbf0
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -640,7 +642,7 @@ sudo chmod 0755 /usr/local/etc/mpdasrc
 
 echo //////////////////////////////////////////////////////////////
 echo 
-echo  COMPONENT 4 - Shairport-sync
+echo  COMPONENT 4A - Shairport-sync
 echo 
 echo //////////////////////////////////////////////////////////////
 
@@ -665,6 +667,26 @@ cd ~
 rm -rf ./shairport-sync
 sudo cp /mnt/resources/shairport-sync.conf /usr/local/etc
 #sudo cp ./rel-stretch/usr/local/etc/shairport-sync.conf /usr/local/etc
+
+////////////////////////////////////////////////////////////////
+//
+// COMPONENT 4B - Librespot
+//
+////////////////////////////////////////////////////////////////
+
+sudo apt-get -y install portaudio19-dev
+wget -qL --content-disposition https://sh.rustup.rs
+chmod +x rustup-init.sh
+./rustup-init.sh -y
+rm rustup-init.sh
+
+cd ~
+git clone https://github.com/librespot-org/librespot
+cd librespot/
+cargo build --release --features alsa-backend
+sudo cp target/release/librespot /usr/local/bin
+cd ~
+sudo rm -rf librespot
 
 echo //////////////////////////////////////////////////////////////
 echo 
