@@ -113,8 +113,8 @@ portaudio19-dev
 
 #sudo apt-get clean
 
-# kernel ver 4.14.68
-KERNELBUILD=a5b781c7a761664226ff9654416776d372f8bbf0
+# kernel ver 4.14.72
+KERNELBUILD=0abe903f4a137e2738fe3be5f14a2a34afc9762b
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -166,8 +166,8 @@ echo  moOde 4.3
 echo 
 
 cd ~
-#wget http://moodeaudio.org/downloads/prod/rel-stretch-r43.zip
-cp /mnt/resources/rel-stretch-r43h.zip .
+wget http://moodeaudio.org/downloads/prod/rel-stretch-r43.zip
+#cp /mnt/resources/rel-stretch-r43.zip .
 unzip ./rel-stretch-r43.zip
 
 echo //////////////////////////////////////////////////////////////
