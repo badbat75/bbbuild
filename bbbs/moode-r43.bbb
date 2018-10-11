@@ -145,7 +145,7 @@ echo //////////////////////////////////////////////////////////////
 
 sudo timedatectl set-timezone "Europe/Rome"
 
-echo 2. Change the current password (raspberry) to moodeaudio and the host name to moode.
+echo "2. Change the current password (raspberry) to moodeaudio and the host name to moode."
 
 echo "pi:moodeaudio" | sudo chpasswd
 sudo sed -i "s/raspberrypi/moode/" /etc/hostname
