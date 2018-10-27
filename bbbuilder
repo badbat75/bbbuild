@@ -14,6 +14,7 @@ test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
 test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=0
 test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
 test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
+test -z "${GCC_CUSTOM_ENABLED}" && GCC_CUSTOM_ENABLED=1
 test -z "${BBB_OSURL:-}" && BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 test -z "${BBB_OSDIR}" && BBB_OSDIR=osimages
 test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
@@ -81,6 +82,13 @@ function bbb_enable_ccache () {
 	echo "Done."
 }
 
+function bbb_enable_gcc_custom () {
+	echo -n "Create environment for GCC v8"
+	tar xJf ${STARTDIR}/resources/gcc-linaro-arm-8.2.1.tar.xz -C ${BBB_CHROOTPATH}
+	CC="gcc-8"
+	CXX="g++-8"
+}
+
 function bbb_disable_ccache () {
 	# Remove CCACHE environment
 	echo -n "Clean CCACHE environment"...
@@ -94,6 +102,8 @@ function bbb_disable_ccache () {
 function bbb_addheader () {
 	# Add header to run.sh in the image
 	echo -n "Add header to run.sh..."
+	[ "x${CC}" ="x" ] && CC="gcc"
+	[ "x${CXX}" ="x" ] && CXX="g++"
 	cat <<-EOF > ${BBB_CHROOTPATH}/home/pi/run.sh
 		#!/bin/bash
 
@@ -108,8 +118,8 @@ function bbb_addheader () {
 		if [ \${CCACHE_ENABLED} -eq 1 ]
 		then
 		#	 export PATH=/usr/lib/ccache:\${PATH}
-			 export CC="ccache gcc"
-			 export CXX="ccache g++"
+			 export CC="ccache ${CC}"
+			 export CXX="ccache ${CXX}"
 		fi
 
 		export CFLAGS="${CFLAGS}"
@@ -244,6 +254,7 @@ function bbb_build () {
 	bbb_download
 	bbb_mount resizeimage
 	test ${CCACHE_ENABLED} -eq 1 && bbb_enable_ccache
+	test ${GCC_CUSTOM_ENABLED} -eq 1 && bbb_enable_gcc_custom
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running ${BATCHFILE} to build. Log file in ${BBBLOG_PATH}/${BUILD_LOGNAME}..."
