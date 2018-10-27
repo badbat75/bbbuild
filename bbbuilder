@@ -14,7 +14,7 @@ test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
 test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=0
 test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
 test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
-test -z "${GCC_CUSTOM_ENABLED}" && GCC_CUSTOM_ENABLED=1
+test -z "${GCC_CUSTOM_ENABLED}" && GCC_CUSTOM_ENABLED=0
 test -z "${BBB_OSURL:-}" && BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 test -z "${BBB_OSDIR:-}" && BBB_OSDIR=osimages
 test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
