@@ -84,7 +84,7 @@ function bbb_enable_ccache () {
 
 function bbb_enable_gcc_custom () {
 	echo -n "Create environment for GCC v8"
-	tar xJf ${STARTDIR}/resources/gcc-linaro-arm-8.2.1.tar.xz -C ${BBB_CHROOTPATH}
+	sudo tar xJf ${STARTDIR}/resources/gcc-linaro-arm-8.2.1.tar.xz -C ${BBB_CHROOTPATH}
 	CC="gcc-8"
 	CXX="g++-8"
 }
@@ -102,8 +102,8 @@ function bbb_disable_ccache () {
 function bbb_addheader () {
 	# Add header to run.sh in the image
 	echo -n "Add header to run.sh..."
-	[ "x${CC}" ="x" ] && CC="gcc"
-	[ "x${CXX}" ="x" ] && CXX="g++"
+	[ "x${CC}" = "x" ] && CC="gcc"
+	[ "x${CXX}" = "x" ] && CXX="g++"
 	cat <<-EOF > ${BBB_CHROOTPATH}/home/pi/run.sh
 		#!/bin/bash
 
