@@ -195,7 +195,13 @@ function bbb_unmount () {
 	echo -n "Unmount all partitions..."
 	sudo umount ${BBB_CHROOTPATH}/mnt/resources
 	sudo rmdir ${BBB_CHROOTPATH}/mnt/resources
-	sudo umount ${BBB_CHROOTPATH}/var/cache/apt/archives ${BBB_CHROOTPATH}/proc ${BBB_CHROOTPATH}/dev/pts ${BBB_CHROOTPATH}/run ${BBB_CHROOTPATH}/boot ${BBB_CHROOTPATH}
+	sudo umount ${BBB_CHROOTPATH}/var/cache/ccache \
+				${BBB_CHROOTPATH}/var/cache/apt/archives \
+				${BBB_CHROOTPATH}/proc \
+				${BBB_CHROOTPATH}/dev/pts \
+				${BBB_CHROOTPATH}/run \
+				${BBB_CHROOTPATH}/boot \
+				${BBB_CHROOTPATH}
 
 	echo "Done."
 	# Delete the loopback devices
