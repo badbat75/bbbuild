@@ -79,18 +79,25 @@ function bbb_enable_ccache () {
 		sudo chmod 777 ${BBB_CHROOTPATH}${CCACHE_DIR}
 		sudo mount --bind ${CCACHE_DIR} ${BBB_CHROOTPATH}${CCACHE_DIR}
 	fi
-	echo "cache_dir = ${CCACHE_DIR}" | sudo tee --append ${BBB_CHROOTPATH}/etc/ccache.conf
+	echo "cache_dir = ${CCACHE_DIR}"
 	sudo chroot ${BBB_CHROOTPATH} apt-get -y install ccache
 	echo "Done."
 }
 
 function bbb_enable_gcc_custom () {
-	echo -n "Create environment for GCC v8"
-	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C /
-	#${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}
+	echo -n "Create environment for GCC v8..."
+	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
+	#/opt/${GCC_CUSTOM[name]}
 	#export PATH=$PATH:${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}/bin
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
+	echo "Testing ${CC}: "
+	${BBB_CHROOTPATH}/usr/bin/${CC} -v
+	[ "$?" -eq 0 ] && echo "OK" || echo "Error"
+	echo "Testing ${CXX}: "
+	${BBB_CHROOTPATH}/usr/bin/${CXX} -v
+	[ "$?" -eq 0 ] && echo "OK" || echo "Error"
+	echo "Done."
 }
 
 function bbb_disable_ccache () {
