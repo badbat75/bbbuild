@@ -6,6 +6,9 @@ test ${DEBUG:-0} -eq 1 && set -x
 # Define starting directory
 STARTDIR=${PWD}
 
+# Define associative arrays
+declare -A GCC_CUSTOM
+
 # Import configuration file
 test -z "${BBB_CONFDIR:-}" && BBB_CONFDIR=conf
 test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
@@ -14,7 +17,6 @@ test -f "${PWD}/${BBB_CONFDIR}/bbbuilder.conf" && . ${PWD}/conf/bbbuilder.conf
 test -z "${ENABLE_SQUASHFS:-}" && ENABLE_SQUASHFS=0
 test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
 test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
-test -z "${GCC_CUSTOM_ENABLED}" && GCC_CUSTOM_ENABLED=0
 test -z "${BBB_OSURL:-}" && BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 test -z "${BBB_OSDIR:-}" && BBB_OSDIR=osimages
 test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
@@ -84,9 +86,10 @@ function bbb_enable_ccache () {
 
 function bbb_enable_gcc_custom () {
 	echo -n "Create environment for GCC v8"
-	sudo tar xJf ${STARTDIR}/resources/gcc-linaro-arm-8.2.1.tar.xz -C ${BBB_CHROOTPATH}
-	CC="gcc-8"
-	CXX="g++-8"
+	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}
+	export PATH=$PATH:${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}/bin
+	CC="gcc${GCC_CUSTOM[suffix]}"
+	CXX="g++${GCC_CUSTOM[suffix]}"
 }
 
 function bbb_disable_ccache () {
@@ -260,7 +263,7 @@ function bbb_build () {
 	bbb_download
 	bbb_mount resizeimage
 	test ${CCACHE_ENABLED} -eq 1 && bbb_enable_ccache
-	test ${GCC_CUSTOM_ENABLED} -eq 1 && bbb_enable_gcc_custom
+	test -z "${GCC_CUSTOM[name]}" || bbb_enable_gcc_custom
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running ${BATCHFILE} to build. Log file in ${BBBLOG_PATH}/${BUILD_LOGNAME}..."
