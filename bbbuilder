@@ -86,8 +86,9 @@ function bbb_enable_ccache () {
 
 function bbb_enable_gcc_custom () {
 	echo -n "Create environment for GCC v8"
-	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}
-	export PATH=$PATH:${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}/bin
+	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C /
+	#${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}
+	#export PATH=$PATH:${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}/bin
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
 }
