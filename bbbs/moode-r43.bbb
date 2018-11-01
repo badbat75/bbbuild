@@ -332,9 +332,9 @@ echo  Download MPD 0.20.20 sources and prep for compile.
 # Optionally install pre-compiled binary and skip to STEP 7
 #sudo cp ./rel-stretch/other/mpd/mpd-0.20.20 /usr/local/bin/mpd
 
-wget http://www.musicpd.org/download/mpd/0.20/mpd-0.20.20.tar.xz
-tar xf mpd-0.20.20.tar.xz
-cd mpd-0.20.20
+wget http://www.musicpd.org/download/mpd/0.20/mpd-0.20.23.tar.xz
+tar xf mpd-0.20.23.tar.xz
+cd mpd-0.20.23
 sh autogen.sh
 
 echo  Configure compile options.
@@ -357,7 +357,7 @@ make
 sudo make install
 sudo strip --strip-unneeded /usr/local/bin/mpd
 cd ~
-rm -rf ./mpd-0.20.20*
+rm -rf ./mpd-0.20.23*
 
 echo //////////////////////////////////////////////////////////////
 echo 
