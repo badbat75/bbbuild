@@ -333,6 +333,7 @@ echo  Download MPD 0.20.20 sources and prep for compile.
 #sudo cp ./rel-stretch/other/mpd/mpd-0.20.20 /usr/local/bin/mpd
 
 # Install libcdio
+sudo apt-get install texinfo
 wget http://git.savannah.gnu.org/cgit/libcdio.git/snapshot/libcdio-release-2.0.0.tar.gz
 tar xvzf libcdio-release-2.0.0.tar.gz
 cd libcdio-release-2.0.0
@@ -350,6 +351,7 @@ unzip release-10.2+0.94+2.zip
 cd libcdio-paranoia-release-10.2-0.94-2
 autoreconf -f -i
 mkdir build
+cd build
 ../configure
 make
 sudo make install
