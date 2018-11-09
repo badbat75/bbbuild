@@ -15,6 +15,8 @@
 #
 # Changes:
 #
+# v2.7: Updated moOde sources and SQL database.
+#       Bump to kernel 4.14.73 in STEP 11
 # v2.6: Move timezone setting to after ssh login in STEP 2
 #       Replace Browse tab w/Music tab in STEP 12 1b.
 #       Correct STEP 1 Option 2 to use 2018-06-27 Stretch Lite
@@ -113,8 +115,8 @@ portaudio19-dev
 
 #sudo apt-get clean
 
-# kernel ver 4.14.72
-KERNELBUILD=0abe903f4a137e2738fe3be5f14a2a34afc9762b
+# kernel ver 4.14.73
+KERNELBUILD=9f230923e419d942cf02fe936ea4fd186d3a21fa
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -166,9 +168,9 @@ echo  moOde 4.3
 echo 
 
 cd ~
-wget http://moodeaudio.org/downloads/prod/rel-stretch-r43.zip
-#cp /mnt/resources/rel-stretch-r43.zip .
-unzip ./rel-stretch-r43.zip
+#wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
+cp /mnt/resources/rel-stretch-r44b.zip .
+unzip ./rel-stretch-r44b.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
