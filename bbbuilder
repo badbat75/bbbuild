@@ -345,46 +345,54 @@ function bbb_help () {
 		    This message
 
 		Environment variables:
-
-		BBB_OSURL
-		    Default: https://downloads.raspberrypi.org/raspbian_lite_latest
-		    The URL where to download the base OS
-		BBB_OSDIR
-			Default: osimages
-			The path where the base OS will be saved
-		BBB_WORKDIR
-		    Default: /tmp/moode
-		    The temporary directory where start the job
-		BBB_DELWORKDIR
-		    Default: 0
-		    Set to 1 to enable it. Delete everything after the build
-		BBB_CHROOTDIR
-		    Default: root
-		    The directory where the image will be mounted
-		BBB_IMGDIR
-		    Default: images
-		    The directory where the created images will be stored
-		BBB_IMGSIZE
-		    Default: 3G
-		    The resizing value of the image expressed in GB
-		BBB_LOG
-		    Default: bbbuilder.log
-		    The name of the bbbuilder log
-		BBB_LOGDIR
-		    Default: logs
-		    The directory where logs will be generated
-		ENABLE_SQUASHFS
-		    Default: 0
-		    Set to 1 to enable it. Enable the creation of the SquashFS filesystem. See moode recipe.
-		CCACHE_ENABLED
-		    Default: 1
-		    Set to 0 to disable it. Enable the compiler cache. This will speedup everything from the 2nd time.
-		CCACHE_DIR
-		    Default: /var/cache/ccache
-		    Set the CCACHE directory
-		ZIP_FORMAT
-		    Default: none
-		    Set to XZ to use LZMA compression or ZIP to use ZIP compression. If not defined no compression is applied.
+            BBB_OSURL
+                Default: https://downloads.raspberrypi.org/raspbian_lite_latest
+                The URL where to download the base OS
+            BBB_OSDIR
+                Default: osimages
+                The path where to store the OS
+            BBB_WORKDIR
+                Default: /tmp/moode
+                The temporary directory where start the job
+            BBB_DELWORKDIR
+                Default: 0
+                Set to 1 to enable it. Delete everything after the build
+            BBB_CHROOTDIR
+                Default: root
+                The directory where the immage will be mounted
+            BBB_IMGDIR
+                Default: images
+                The directory where the created images will be stored
+            BBB_IMGSIZE
+                Default: 3G
+                The resizing value of the image expressed in GB
+            BBB_LOG
+                Default: bbbuilder.log
+                The name of the bbbuilder log
+            BBB_LOGDIR
+                Default: logs
+                The directory where logs will be generated
+            BBB_PKGCACHEDIR
+                Default: pkgcache
+                Directory where OS packages cache is stored
+            ENABLE_SQUASHFS
+                Default: 0
+                Set to 1 to enable it. Enable the creation of the SquashFS filesystem. See moode recipe.
+            CCACHE_ENABLED
+                Default: 1
+                Set to 0 to disable it. Enable the compiler cache. This will speedup everything from the 2nd time.
+            CCACHE_DIR
+                Default: /var/cache/ccache
+                Set the CCACHE directory
+            ZIP_FORMAT
+                Default: none
+                Set to XZ to use LZMA compression or ZIP to use ZIP compression. If not defined no compression is applied.
+            GCC_CUSTOM[name]
+                Default: none
+                Set the name of the package to be imported in the chrooted environment.
+            GCC_CUSTOM[suffix]
+                Default: none
+                Set the suffix of the command compilers that make scripts should run in the chrooted environment
 	EOF
 }
 
