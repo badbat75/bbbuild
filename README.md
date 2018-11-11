@@ -1,5 +1,5 @@
 # bbbuild
-Release version 2.1.0
+Release version 2.5.0
 
 This project aims to build Moode on a vanilla raspbian with the maximum efficiency on compilation and execution, generating an image file to be installed on an SD card.
 
@@ -34,9 +34,12 @@ help
 
 Environment variables:
 ```
-OS_URL
+BBB_OSURL
     Default: https://downloads.raspberrypi.org/raspbian_lite_latest
     The URL where to download the base OS
+BBB_OSDIR
+    Default: osimages
+    The path where to store the OS
 BBB_WORKDIR
     Default: /tmp/moode
     The temporary directory where start the job
@@ -58,9 +61,12 @@ BBB_LOG
 BBB_LOGDIR
     Default: logs
     The directory where logs will be generated
+BBB_PKGCACHEDIR
+    Default: pkgcache
+    Directory where OS packages cache is stored
 ENABLE_SQUASHFS
-    Default: 1
-    Set to 0 to disable it. Enable the creation of the SquashFS filesystem. See moode recipe.
+    Default: 0
+    Set to 1 to enable it. Enable the creation of the SquashFS filesystem. See moode recipe.
 CCACHE_ENABLED
     Default: 1
     Set to 0 to disable it. Enable the compiler cache. This will speedup everything from the 2nd time.
@@ -70,4 +76,10 @@ CCACHE_DIR
 ZIP_FORMAT
     Default: none
     Set to XZ to use LZMA compression or ZIP to use ZIP compression. If not defined no compression is applied.
+GCC_CUSTOM[name]
+    Default: none
+    Set the name of the package to be imported in the chrooted environment.
+GCC_CUSTOM[suffix]
+    Default: none
+    Set the suffix of the command compilers that make scripts should run in the chrooted environment
 ```
