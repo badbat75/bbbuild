@@ -344,6 +344,9 @@ autoreconf -f -i
 mkdir build
 cd build
 ../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+cd doc
+make stamp-vti
+cd -
 make
 sudo make install
 cd ~
