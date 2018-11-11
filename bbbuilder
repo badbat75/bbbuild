@@ -81,6 +81,7 @@ function bbb_enable_ccache () {
 	fi
 	echo "cache_dir = ${CCACHE_DIR}"
 	sudo chroot ${BBB_CHROOTPATH} apt-get -y install ccache
+	sudo chroot ${BBB_CHROOTPATH} su - pi -c "ccache -o cache_dir=${CCACHE_DIR} && ccache -c && ccache -s"
 	echo "Done."
 }
 
