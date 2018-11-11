@@ -113,7 +113,7 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 portaudio19-dev \
 \
-texinfo
+texinfo help2man
 
 #sudo apt-get clean
 
@@ -343,10 +343,10 @@ cd libcdio-release-2.0.0
 autoreconf -f -i
 mkdir build
 cd build
-../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
-cd doc
-make stamp-vti
-cd -
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var --enable-maintainer-mode
+#cd doc
+#make stamp-vti
+#cd -
 make
 sudo make install
 cd ~
