@@ -112,6 +112,8 @@ libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-r
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 portaudio19-dev
+\
+texinfo
 
 #sudo apt-get clean
 
@@ -335,14 +337,13 @@ echo  Download MPD 0.20.20 sources and prep for compile.
 #sudo cp ./rel-stretch/other/mpd/mpd-0.20.20 /usr/local/bin/mpd
 
 # Install libcdio
-sudo apt-get install texinfo
 wget http://git.savannah.gnu.org/cgit/libcdio.git/snapshot/libcdio-release-2.0.0.tar.gz
 tar xvzf libcdio-release-2.0.0.tar.gz
 cd libcdio-release-2.0.0
 autoreconf -f -i
 mkdir build
 cd build
-../configure
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
 make
 sudo make install
 cd ~
@@ -354,7 +355,7 @@ cd libcdio-paranoia-release-10.2-0.94-2
 autoreconf -f -i
 mkdir build
 cd build
-../configure
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
 make
 sudo make install
 cd ~
