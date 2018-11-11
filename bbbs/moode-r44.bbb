@@ -648,7 +648,7 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo git clone https://github.com/Joshkunz/ashuffle.git
 cd ashuffle
-sudo make
+make
 cd ~
 sudo cp ./ashuffle/ashuffle /usr/local/bin
 sudo rm -rf ./ashuffle
@@ -662,7 +662,7 @@ echo //////////////////////////////////////////////////////////////
 cd ~
 sudo git clone https://github.com/hrkfdn/mpdas
 cd mpdas
-sudo make
+make
 sudo cp ./mpdas /usr/local/bin
 cd ~/
 sudo rm -rf ./mpdas
