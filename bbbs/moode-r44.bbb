@@ -111,7 +111,7 @@ autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
-portaudio19-dev
+portaudio19-dev \
 \
 texinfo
 
