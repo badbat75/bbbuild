@@ -5,7 +5,7 @@
 #CCACHE_DIR=/var/cache/ccache
 #BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 #BBB_OSDIR=osimages
-#BBB_WORKDIR=/tmp/moode
+#BBB_WORKDIR=/tmp/bbbuild
 #BBB_DELWORKDIR=0
 #BBB_CHROOTDIR=root
 #BBB_IMGDIR=images
