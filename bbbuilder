@@ -106,7 +106,7 @@ function bbb_enable_gcc_custom () {
 	echo -n "Configure ld.so.conf..."
 	for i in ${GCC_CUSTOM[libspath]}
 	do
-		sudo echo "$i" >> ${BBB_CHROOTPATH}/etc/ld.so.conf.d/00-gcc${GCC_CUSTOM[suffix]}.conf
+		sudo bash -c "echo \"$i\" >> ${BBB_CHROOTPATH}/etc/ld.so.conf.d/00-gcc${GCC_CUSTOM[suffix]}.conf"
 	done
 	sudo chroot ${BBB_CHROOTPATH} ldconfig
 	echo "Done."
