@@ -88,8 +88,6 @@ function bbb_enable_ccache () {
 function bbb_enable_gcc_custom () {
 	echo "Create environment for GCC ${GCC_CUSTOM[name]}..."
 	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
-	#/opt/${GCC_CUSTOM[name]}
-	#export PATH=$PATH:${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}/bin
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
 	echo "Testing ${CC}: "
@@ -104,6 +102,13 @@ function bbb_enable_gcc_custom () {
 		echo "Error"
 		exit 1
 	fi
+	echo "Done."
+	echo -n "Configure ld.so.conf..."
+	for i in ${GCC_CUSTOM[libspath]}
+	do
+		sudo echo "$i" >> ${BBB_CHROOTPATH}/etc/ld.so.conf.d/00-gcc${GCC_CUSTOM[suffix]}.conf
+	done
+	sudo chroot ${BBB_CHROOTPATH} ldconfig
 	echo "Done."
 }
 
