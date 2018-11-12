@@ -152,9 +152,7 @@ sudo timedatectl set-timezone "Europe/Rome"
 echo "2. Change the current password (raspberry) to moodeaudio and the host name to moode."
 
 echo "pi:moodeaudio" | sudo chpasswd
-sudo sed -i "s/raspberrypi/moode/" /etc/hostname
-sudo sed -i "s/raspberrypi/moode/" /etc/hosts
-sudo hostname moode
+#Hostname and hosts configured at the end
 
 echo 3. Change timezone to local time zone
 
@@ -873,5 +871,7 @@ cd ~
 sudo /var/www/command/util.sh clear-syslogs
 #sudo apt-get autoremove
 
+sudo sed -i "s/raspberrypi/moode/" /etc/hostname
+sudo sed -i "s/raspberrypi/moode/" /etc/hosts
+
 [ $ENABLE_SQUASHFS -eq 1 ] && sudo umount /var/www
-sudo hostname $BUILDHOSTNAME
