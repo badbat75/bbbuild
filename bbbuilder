@@ -19,7 +19,7 @@ test -z "${CCACHE_ENABLED:-}" && CCACHE_ENABLED=1
 test -z "${CCACHE_DIR:-}" && CCACHE_DIR=/var/cache/ccache
 test -z "${BBB_OSURL:-}" && BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 test -z "${BBB_OSDIR:-}" && BBB_OSDIR=osimages
-test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/moode
+test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/bbbuild
 test -z "${BBB_DELWORKDIR:-}" && BBB_DELWORKDIR=0
 test -z "${BBB_CHROOTDIR:-}" && BBB_CHROOTDIR=root
 test -z "${BBB_IMGDIR:-}" && BBB_IMGDIR=images
@@ -81,14 +81,13 @@ function bbb_enable_ccache () {
 	fi
 	echo "cache_dir = ${CCACHE_DIR}"
 	sudo chroot ${BBB_CHROOTPATH} apt-get -y install ccache
+	sudo chroot ${BBB_CHROOTPATH} su - pi -c "ccache -o cache_dir=${CCACHE_DIR} && ccache -c && ccache -s"
 	echo "Done."
 }
 
 function bbb_enable_gcc_custom () {
 	echo "Create environment for GCC ${GCC_CUSTOM[name]}..."
 	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
-	#/opt/${GCC_CUSTOM[name]}
-	#export PATH=$PATH:${BBB_CHROOTPATH}/opt/${GCC_CUSTOM[name]}/bin
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
 	echo "Testing ${CC}: "
@@ -103,6 +102,13 @@ function bbb_enable_gcc_custom () {
 		echo "Error"
 		exit 1
 	fi
+	echo "Done."
+	echo -n "Configure ld.so.conf..."
+	for i in ${GCC_CUSTOM[libspath]}
+	do
+		sudo bash -c "echo \"$i\" >> ${BBB_CHROOTPATH}/etc/ld.so.conf.d/00-gcc${GCC_CUSTOM[suffix]}.conf"
+	done
+	sudo chroot ${BBB_CHROOTPATH} ldconfig
 	echo "Done."
 }
 

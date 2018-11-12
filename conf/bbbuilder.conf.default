@@ -5,7 +5,7 @@
 #CCACHE_DIR=/var/cache/ccache
 #BBB_OSURL='https://downloads.raspberrypi.org/raspbian_lite_latest'
 #BBB_OSDIR=osimages
-#BBB_WORKDIR=/tmp/moode
+#BBB_WORKDIR=/tmp/bbbuild
 #BBB_DELWORKDIR=0
 #BBB_CHROOTDIR=root
 #BBB_IMGDIR=images
@@ -14,8 +14,10 @@
 #BBB_LOGDIR=logs
 #BBB_PKGCACHEDIR=pkgcache
 #ZIP_FORMAT=
-#GCC_CUSTOM[name]=gcc-arm-linux-gnueabihf-8.2.1
-#GCC_CUSTOM[suffix]=-8.2.1
+#GCC_CUSTOM[ver]=8.2.1
+#GCC_CUSTOM[suffix]=-${GCC_CUSTOM[ver]}
+#GCC_CUSTOM[name]=gcc-arm-linux-gnueabihf${GCC_CUSTOM[suffix]}
+#GCC_CUSTOM[libspath]="/usr/lib/arm-linux-gnueabihf/${GCC_CUSTOM[ver]} /lib/arm-linux-gnueabihf/${GCC_CUSTOM[ver]}"
 
 # Optional compiler flags for RPi model types
 # RaspberryPi and Pi0:
