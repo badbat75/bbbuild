@@ -382,7 +382,7 @@ sudo meson . output/release --buildtype=release -Db_ndebug=true
 
 4. Configure compile options.
 
-sudo meson configure \
+meson configure \
 -Dalsa=enabled \
 -Dcurl=enabled \
 -Ddatabase=true \
@@ -430,7 +430,7 @@ output/release
 
 5. Compile and install.
 
-sudo ninja -C output/release
+ninja -C output/release
 sudo ninja -C output/release install
 cd ~
 sudo rm -rf ./mpd-0.21.2*
