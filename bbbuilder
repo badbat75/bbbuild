@@ -150,9 +150,9 @@ function bbb_addheader () {
 		export MAKEFLAGS="-j\${NPROC} V=1"
 
 		echo ""
-		echo "C: "\${CC}" "\$(which gcc)
+		echo "C: "\${CC}" "\$(which ${CC})
 		echo "C flags: "\${CFLAGS}
-		echo "C++: "\${CXX}" "\$(which g++)
+		echo "C++: "\${CXX}" "\$(which ${CXX})
 		echo "C++ flags: "\${CXXFLAGS}
 		echo "MAKE flags: "\${MAKEFLAGS}
 	EOF
