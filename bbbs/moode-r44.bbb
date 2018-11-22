@@ -115,7 +115,7 @@ autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
-portaudio19-dev python3-setuptools \
+portaudio19-dev python3-setuptools ninja-build \
 \
 texinfo help2man
 
@@ -380,7 +380,7 @@ sudo tar xf mpd-0.21.2.tar.xz
 cd mpd-0.21.2
 sudo meson . output/release --buildtype=release -Db_ndebug=true
 
-4. Configure compile options.
+# 4. Configure compile options.
 
 meson configure \
 -Dalsa=enabled \
@@ -428,7 +428,7 @@ meson configure \
 -Dudisks=disabled \
 output/release
 
-5. Compile and install.
+# 5. Compile and install.
 
 ninja -C output/release
 sudo ninja -C output/release install
