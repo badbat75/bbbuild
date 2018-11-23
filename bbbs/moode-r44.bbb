@@ -694,7 +694,7 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo git clone https://github.com/Joshkunz/ashuffle.git
+git clone https://github.com/Joshkunz/ashuffle.git
 cd ashuffle
 make
 cd ~
@@ -708,7 +708,7 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo git clone https://github.com/hrkfdn/mpdas
+git clone https://github.com/hrkfdn/mpdas
 cd mpdas
 make
 sudo cp ./mpdas /usr/local/bin
@@ -762,9 +762,8 @@ rm rustup-init.sh
 
 # Compile librespot
 cd ~
-sudo apt-get -y install portaudio19-dev
-sudo cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
-sudo unzip ./librespot-master-a4e0f58.zip
+cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
+unzip ./librespot-master-a4e0f58.zip
 cd ./librespot-master
 cargo build --release --features alsa-backend
 # copy binary
