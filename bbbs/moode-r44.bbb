@@ -783,9 +783,8 @@ echo //////////////////////////////////////////////////////////////
 cp ./rel-stretch/other/squeezelite/squeezelite-1.8.7-1052.zip ./
 unzip ./squeezelite-1.8.7-1052.zip
 cd ./squeezelite-master/
-export CFLAGS="${CFLAGS} -march=native -mcpu=native -DDSD -DRESAMPLE -DGPIO -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
 cat ./scripts/squeezelite-ralphy-dsd.patch | patch -p 0
-make
+CFLAGS="${CFLAGS} -DDSD -DRESAMPLE -DGPIO -fno-fast-math -pipe -fPIC" make
 sudo cp ./squeezelite /usr/local/bin/
 cd ~
 sudo rm -rf ./squeezelite-master/
