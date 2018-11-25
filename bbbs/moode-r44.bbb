@@ -15,7 +15,8 @@
 #
 # Changes:
 #
-# v2.7: Bump to MPD 0.21.2 meson/ninja build in STEP 6
+# v2.7: Bump to 2018-11-13 Stretch Lite
+#       Bump to MPD 0.21.3 meson/ninja build in STEP 6
 #       Add meson and ninja to core components in STEP 3
 #       Bump to shairport-sync 3.2.2 in COMPONENT 4A
 #       Bump to kernel 4.14.80 in STEP 11
@@ -173,8 +174,8 @@ echo
 
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
-cp /mnt/resources/rel-stretch-r44d.zip .
-unzip ./rel-stretch-r44d.zip
+cp /mnt/resources/rel-stretch-r44f.zip .
+unzip ./rel-stretch-r44f.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -342,7 +343,7 @@ sudo chmod 0666 /etc/mpd.conf
 
 echo  Install MPD dev libs.
 
-echo  Download MPD 0.20.20 sources and prep for compile.
+echo  Download MPD 0.21.3 sources and prep for compile.
 
 # Optionally install pre-compiled binary and skip to STEP 7
 #sudo cp ./rel-stretch/other/mpd/mpd-0.20.20 /usr/local/bin/mpd
@@ -375,9 +376,9 @@ sudo make install
 cd ~
 rm -rf ./libcdio-paranoia-release-10.2-0.94-2 ./release-10.2+0.94+2.zip
 
-wget http://www.musicpd.org/download/mpd/0.21/mpd-0.21.2.tar.xz
-tar xf mpd-0.21.2.tar.xz
-cd mpd-0.21.2
+wget http://www.musicpd.org/download/mpd/0.21/mpd-0.21.3.tar.xz
+tar xf mpd-0.21.3.tar.xz
+cd mpd-0.21.3
 meson . output/release --buildtype=release -Db_ndebug=true
 
 # 4. Configure compile options.
@@ -433,7 +434,7 @@ output/release
 ninja -C output/release
 sudo ninja -C output/release install
 cd ~
-rm -rf ./mpd-0.21.2*
+rm -rf ./mpd-0.21.3*
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -759,6 +760,7 @@ wget -qL --content-disposition https://sh.rustup.rs
 chmod +x rustup-init.sh
 ./rustup-init.sh -y
 rm rustup-init.sh
+. $HOME/.cargo/env
 
 # Compile librespot
 cd ~
