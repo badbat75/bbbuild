@@ -757,10 +757,14 @@ echo ////////////////////////////////////////////////////////////////
 # this binary also runs equally well on armv7l (Pi-2B | 3B | 3B+).
 
 # Install the rust compiler and cargo package manager. Choose #1 when prompted.
-wget -qL --content-disposition https://sh.rustup.rs
-chmod +x rustup-init.sh
-./rustup-init.sh -y
-rm rustup-init.sh
+#wget -qL --content-disposition https://sh.rustup.rs
+#chmod +x rustup-init.sh
+#./rustup-init.sh -y 
+#rm rustup-init.sh
+wget -qL --content-disposition https://static.rust-lang.org/rustup/dist/arm-unknown-linux-gnueabihf/rustup-init
+./rustup-init -y --default-host arm-unkown-linux-gnu
+rm rustup-init
+
 . $HOME/.cargo/env
 
 # Compile librespot
