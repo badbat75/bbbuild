@@ -437,6 +437,10 @@ sudo ninja -C output/release install
 cd ~
 rm -rf ./mpd-0.21.3*
 
+sudo rm -f /usr/local/lib/systemd/system/mpd.service
+sudo rm -f /usr/local/lib/systemd/system/mpd.socket
+sudo rm -f /usr/local/lib/systemd/user/mpd.service
+
 echo //////////////////////////////////////////////////////////////
 echo 
 echo  STEP 7 - Create moOde runtime environment
