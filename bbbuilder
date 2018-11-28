@@ -298,7 +298,7 @@ function bbb_build () {
 	then
 		bbb_enable_gcc_custom || exit 1
 	fi
-	bbb_set_python3
+	#bbb_set_python3
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running ${BATCHFILE} to build. Log file in ${BBBLOG_PATH}/${BUILD_LOGNAME}..."
