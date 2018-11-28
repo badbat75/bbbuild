@@ -113,9 +113,12 @@ function bbb_enable_gcc_custom () {
 }
 
 function bbb_set_python3 () {
+	echo "Setting up python3"
 	sudo chroot ${BBB_CHROOTPATH} update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
 	sudo chroot ${BBB_CHROOTPATH} update-alternatives --install /usr/bin/python python /usr/bin/python3.5 2
-	sudo chroot ${BBB_CHROOTPATH} apt-get install python3-pip
+	sudo chroot ${BBB_CHROOTPATH} apt-get -y install python3-pip
+	sudo chroot ${BBB_CHROOTPATH} update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 2
+	echo "Done."
 }
 
 function bbb_disable_ccache () {
