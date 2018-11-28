@@ -763,6 +763,7 @@ echo ////////////////////////////////////////////////////////////////
 #rm rustup-init.sh
 wget -qL --content-disposition https://static.rust-lang.org/rustup/dist/arm-unknown-linux-gnueabihf/rustup-init
 ./rustup-init -y --default-host arm-unkown-linux-gnu
+chmod +x rustup-init
 rm rustup-init
 
 . $HOME/.cargo/env
