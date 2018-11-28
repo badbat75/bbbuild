@@ -148,6 +148,7 @@ function bbb_addheader () {
 		export CFLAGS="${CFLAGS}"
 		export CXXFLAGS="${CXXFLAGS}"
 		export MAKEFLAGS="-j\${NPROC} V=1"
+		export PIPFLAGS="--install-option=\"--jobs=${NPROC}\""
 
 		echo ""
 		echo "C: "\${CC}" "\$(which ${CC})
@@ -155,6 +156,7 @@ function bbb_addheader () {
 		echo "C++: "\${CXX}" "\$(which ${CXX})
 		echo "C++ flags: "\${CXXFLAGS}
 		echo "MAKE flags: "\${MAKEFLAGS}
+		echo "PIP flags: "\${PIPFLAGS}
 	EOF
 	chmod +x ${BBB_CHROOTPATH}/home/pi/run.sh
 	echo "Done."
