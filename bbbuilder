@@ -283,7 +283,10 @@ function bbb_build () {
 	bbb_download
 	bbb_mount resizeimage
 	test ${CCACHE_ENABLED} -eq 1 && bbb_enable_ccache
-	test ! -z "${GCC_CUSTOM[name]}" && bbb_enable_gcc_custom || exit 1
+	if [ ! -z "${GCC_CUSTOM[name]}" ]
+	then
+		bbb_enable_gcc_custom || exit 1
+	fi
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running ${BATCHFILE} to build. Log file in ${BBBLOG_PATH}/${BUILD_LOGNAME}..."
