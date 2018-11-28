@@ -195,13 +195,14 @@ sudo systemctl set-default multi-user.target
 echo  Install core packages.
 
 # meson
-sudo cp ./rel-stretch/other/mpd/build-tools/meson-0.48.1.tar.gz ./
-sudo tar xfz meson-0.48.1.tar.gz
-cd meson-0.48.1
+wget https://files.pythonhosted.org/packages/bc/2f/85346d2cb39b7e301e02209f0954c3fdf4213818b84a42cc595d2f77c867/meson-0.48.2.tar.gz
+#cp ./rel-stretch/other/mpd/build-tools/meson-0.48.1.tar.gz ./
+tar xfz meson-0.48.2.tar.gz
+cd meson-0.48.2
 sudo python3 setup.py install
 cd ~
-sudo rm -rf meson-0.48.1
-sudo rm -f meson-0.48.1.tar.gz
+sudo rm -rf meson-0.48.2
+sudo rm -f meson-0.48.2.tar.gz
 
 sudo systemctl disable shellinabox
 
