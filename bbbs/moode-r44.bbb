@@ -1,8 +1,8 @@
 ################################################################
 #
-# Build Recipe v2.6, 2018-MM-DD
+# Build Recipe v2.7, 2018-11-15
 #
-# moOde 4.4
+# moOde 4.4 2018-11-15
 #
 # These instructions are written for Linux Enthusiasts
 # and System Integrators and provide a recipe for making
@@ -15,8 +15,13 @@
 #
 # Changes:
 #
-# v2.7: Updated moOde sources and SQL database.
-#       Bump to kernel 4.14.73 in STEP 11
+# v2.7: Bump to 2018-11-13 Stretch Lite
+#       Bump to MPD 0.21.3 meson/ninja build in STEP 6
+#       Add meson and ninja to core components in STEP 3
+#       Bump to shairport-sync 3.2.2 in COMPONENT 4A
+#       Bump to kernel 4.14.80 in STEP 11
+#       Update the procedure for librespot in COMPONENT 4B
+#       Deprecate symlink to /var/lib/mpd/music in STEP 7
 # v2.6: Move timezone setting to after ssh login in STEP 2
 #       Replace Browse tab w/Music tab in STEP 12 1b.
 #       Correct STEP 1 Option 2 to use 2018-06-27 Stretch Lite
@@ -111,14 +116,14 @@ autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
-portaudio19-dev \
+portaudio19-dev python3-setuptools ninja-build \
 \
 texinfo help2man python3-pip
 
 #sudo apt-get clean
 
-# kernel ver 4.14.73
-KERNELBUILD=9f230923e419d942cf02fe936ea4fd186d3a21fa
+# kernel ver 4.14.80
+KERNELBUILD=69596b44b2a4154a4f5085c8b511a27c154266b8
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -164,13 +169,13 @@ echo 4. Download moOde application sources and configs.
 echo 
 echo  NOTE: We are downloading the Sources in this particular step in order to obtain the resizefs.sh file.
 echo 
-echo  moOde 4.3
+echo  moOde 4.4
 echo 
 
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
-cp /mnt/resources/rel-stretch-r44b.zip .
-unzip ./rel-stretch-r44b.zip
+cp /mnt/resources/rel-stretch-r44f.zip .
+unzip ./rel-stretch-r44f.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -188,6 +193,16 @@ sudo systemctl enable rpcbind
 sudo systemctl set-default multi-user.target
 
 echo  Install core packages.
+
+# meson
+wget https://files.pythonhosted.org/packages/bc/2f/85346d2cb39b7e301e02209f0954c3fdf4213818b84a42cc595d2f77c867/meson-0.48.2.tar.gz
+#cp ./rel-stretch/other/mpd/build-tools/meson-0.48.1.tar.gz ./
+tar xfz meson-0.48.2.tar.gz
+cd meson-0.48.2
+sudo python3 setup.py install
+cd ~
+sudo rm -rf meson-0.48.2
+sudo rm -f meson-0.48.2.tar.gz
 
 sudo systemctl disable shellinabox
 
@@ -329,7 +344,7 @@ sudo chmod 0666 /etc/mpd.conf
 
 echo  Install MPD dev libs.
 
-echo  Download MPD 0.20.20 sources and prep for compile.
+echo  Download MPD 0.21.3 sources and prep for compile.
 
 # Optionally install pre-compiled binary and skip to STEP 7
 #sudo cp ./rel-stretch/other/mpd/mpd-0.20.20 /usr/local/bin/mpd
@@ -362,31 +377,65 @@ sudo make install
 cd ~
 rm -rf ./libcdio-paranoia-release-10.2-0.94-2 ./release-10.2+0.94+2.zip
 
-wget http://www.musicpd.org/download/mpd/0.20/mpd-0.20.23.tar.xz
-tar xf mpd-0.20.23.tar.xz
-cd mpd-0.20.23
+wget http://www.musicpd.org/download/mpd/0.21/mpd-0.21.3.tar.xz
+tar xf mpd-0.21.3.tar.xz
+cd mpd-0.21.3
+meson . output/release --buildtype=release -Db_ndebug=true
 
-echo  Configure compile options.
+# 4. Configure compile options.
 
-./configure --enable-database --enable-libmpdclient --enable-alsa \
---enable-curl --enable-dsd --enable-ffmpeg --enable-flac \
---enable-id3 --enable-soundcloud --enable-lame-encoder --enable-mad \
---enable-mpg123 --enable-pipe-output --enable-recorder-output --enable-shout \
---enable-vorbis --enable-wave-encoder --enable-wavpack --enable-httpd-output \
---enable-soxr --with-zeroconf=avahi \
---disable-bzip2 --disable-zzip --disable-fluidsynth --disable-gme \
---disable-wildmidi --disable-sqlite --disable-jack --disable-ao --disable-oss \
---disable-ipv6 --disable-pulse --disable-nfs --disable-smbclient \
---disable-upnp --disable-expat --disable-lsr \
---disable-sndfile --disable-sidplay
+meson configure \
+-Dalsa=enabled \
+-Dcurl=enabled \
+-Ddatabase=true \
+-Ddsd=true \
+-Dffmpeg=enabled \
+-Dfaad=enabled \
+-Dflac=enabled \
+-Dhttpd=true \
+-Did3tag=enabled \
+-Dlame=enabled \
+-Dlibmpdclient=enabled \
+-Dmad=enabled \
+-Dmpg123=enabled \
+-Dpipe=true \
+-Drecorder=true \
+-Dshout=enabled \
+-Dsoundcloud=enabled \
+-Dsoxr=enabled \
+-Dvorbis=enabled \
+-Dwave_encoder=true \
+-Dwavpack=enabled \
+-Dzeroconf=avahi \
+-Dao=disabled \
+-Daudiofile=disabled \
+-Dbzip2=disabled \
+-Dexpat=disabled \
+-Dfluidsynth=disabled \
+-Dgme=disabled \
+-Dipv6=disabled \
+-Djack=disabled \
+-Dlibsamplerate=disabled \
+-Dnfs=disabled \
+-Doss=disabled \
+-Dpulse=disabled \
+-Dsidplay=disabled \
+-Dsmbclient=disabled \
+-Dsndfile=disabled \
+-Dsqlite=disabled \
+-Dupnp=disabled \
+-Dwildmidi=disabled \
+-Dzzip=disabled \
+-Ddbus=disabled \
+-Dudisks=disabled \
+output/release
 
-echo  Compile and install.
+# 5. Compile and install.
 
-make
-sudo make install
-sudo strip --strip-unneeded /usr/local/bin/mpd
+ninja -C output/release
+sudo ninja -C output/release install
 cd ~
-rm -rf ./mpd-0.20.23*
+rm -rf ./mpd-0.21.3*
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -422,7 +471,6 @@ sudo mkdir /mnt/SDCARD
 sudo ln -s /mnt/NAS /var/lib/mpd/music/NAS
 sudo ln -s /mnt/SDCARD /var/lib/mpd/music/SDCARD
 sudo ln -s /media /var/lib/mpd/music/USB
-sudo ln -s /var/lib/mpd/music /var/www/95187460
 # Logs
 sudo touch /var/log/moode.log
 sudo chmod 0666 /var/log/moode.log
@@ -648,7 +696,7 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo git clone https://github.com/Joshkunz/ashuffle.git
+git clone https://github.com/Joshkunz/ashuffle.git
 cd ashuffle
 make
 cd ~
@@ -662,7 +710,7 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo git clone https://github.com/hrkfdn/mpdas
+git clone https://github.com/hrkfdn/mpdas
 cd mpdas
 make
 sudo cp ./mpdas /usr/local/bin
@@ -687,7 +735,7 @@ sudo make install
 cd ~
 rm -rf ./alac
 
-git clone https://github.com/mikebrady/shairport-sync.git
+git clone -b 3.2.2 https://github.com/mikebrady/shairport-sync.git
 cd shairport-sync
 autoreconf -i -f
 ./configure --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-apple-alac --with-metadata --with-stdout --with-systemd
@@ -705,18 +753,27 @@ echo // COMPONENT 4B - Librespot
 echo //
 echo ////////////////////////////////////////////////////////////////
 
+# The procedure for librespot is to compile it on armv6l architecture (Pi-1B | Zero | Zero W) because
+# this binary also runs equally well on armv7l (Pi-2B | 3B | 3B+).
+
+# Install the rust compiler and cargo package manager. Choose #1 when prompted.
 wget -qL --content-disposition https://sh.rustup.rs
 chmod +x rustup-init.sh
 ./rustup-init.sh -y
 rm rustup-init.sh
+. $HOME/.cargo/env
 
+# Compile librespot
 cd ~
-git clone https://github.com/librespot-org/librespot
-cd librespot/
+cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
+unzip ./librespot-master-a4e0f58.zip
+cd ./librespot-master
 cargo build --release --features alsa-backend
-sudo cp target/release/librespot /usr/local/bin
+# copy binary
+sudo cp target/release/librespot /usr/local/bin/librespot
 cd ~
-rm -rf librespot
+sudo rm -rf librespot-master
+sudo rm -f ./librespot-master-a4e0f58.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -727,9 +784,8 @@ echo //////////////////////////////////////////////////////////////
 cp ./rel-stretch/other/squeezelite/squeezelite-1.8.7-1052.zip ./
 unzip ./squeezelite-1.8.7-1052.zip
 cd ./squeezelite-master/
-export CFLAGS="${CFLAGS} -march=native -mcpu=native -DDSD -DRESAMPLE -DGPIO -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
 cat ./scripts/squeezelite-ralphy-dsd.patch | patch -p 0
-make
+CFLAGS="${CFLAGS} -DDSD -DRESAMPLE -DGPIO -fno-fast-math -pipe -fPIC" make
 sudo cp ./squeezelite /usr/local/bin/
 cd ~
 sudo rm -rf ./squeezelite-master/
@@ -811,7 +867,7 @@ echo //////////////////////////////////////////////////////////////
 echo NOTE: This component enables access to Google Play Music service via UPnP renderer.
 echo       If its not installed, the Google Play section in UPnP config screen will not be present.
 
-pip3 install gmusicapi
+pip3 install ${PIPFLAGS} gmusicapi
 
 echo //////////////////////////////////////////////////////////////
 echo 

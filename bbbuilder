@@ -23,7 +23,7 @@ test -z "${BBB_WORKDIR:-}" && BBB_WORKDIR=/tmp/bbbuild
 test -z "${BBB_DELWORKDIR:-}" && BBB_DELWORKDIR=0
 test -z "${BBB_CHROOTDIR:-}" && BBB_CHROOTDIR=root
 test -z "${BBB_IMGDIR:-}" && BBB_IMGDIR=images
-test -z "${BBB_IMGSIZE:-}" && BBB_IMGSIZE=3G
+test -z "${BBB_IMGSIZE:-}" && BBB_IMGSIZE=4G
 test -z "${BBB_LOG:-}" && BBB_LOG=bbbuilder.log
 test -z "${BBB_LOGDIR:-}" && BBB_LOGDIR=logs
 test -z "${BBB_PKGCACHEDIR:-}" && BBB_PKGCACHEDIR=pkgcache
@@ -112,6 +112,15 @@ function bbb_enable_gcc_custom () {
 	echo "Done."
 }
 
+function bbb_set_python3 () {
+	echo "Setting up python3"
+	sudo chroot ${BBB_CHROOTPATH} update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+	sudo chroot ${BBB_CHROOTPATH} update-alternatives --install /usr/bin/python python /usr/bin/python3.5 2
+	sudo chroot ${BBB_CHROOTPATH} apt-get -y install python3-pip
+	sudo chroot ${BBB_CHROOTPATH} update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 2
+	echo "Done."
+}
+
 function bbb_disable_ccache () {
 	# Remove CCACHE environment
 	echo -n "Clean CCACHE environment"...
@@ -148,13 +157,15 @@ function bbb_addheader () {
 		export CFLAGS="${CFLAGS}"
 		export CXXFLAGS="${CXXFLAGS}"
 		export MAKEFLAGS="-j\${NPROC} V=1"
+		#export PIPFLAGS="--install-option=\"--jobs=\${NPROC}\""
 
 		echo ""
-		echo "C: "\${CC}" "\$(which gcc)
+		echo "C: "\${CC}" "\$(which ${CC})
 		echo "C flags: "\${CFLAGS}
-		echo "C++: "\${CXX}" "\$(which g++)
+		echo "C++: "\${CXX}" "\$(which ${CXX})
 		echo "C++ flags: "\${CXXFLAGS}
 		echo "MAKE flags: "\${MAKEFLAGS}
+		echo "PIP flags: "\${PIPFLAGS}
 	EOF
 	chmod +x ${BBB_CHROOTPATH}/home/pi/run.sh
 	echo "Done."
@@ -283,7 +294,11 @@ function bbb_build () {
 	bbb_download
 	bbb_mount resizeimage
 	test ${CCACHE_ENABLED} -eq 1 && bbb_enable_ccache
-	test ! -z "${GCC_CUSTOM[name]}" && bbb_enable_gcc_custom || exit 1
+	if [ ! -z "${GCC_CUSTOM[name]}" ]
+	then
+		bbb_enable_gcc_custom || exit 1
+	fi
+	#bbb_set_python3
 	bbb_addheader
 	# Run the batch in chrooted environment
 	echo -n "Running ${BATCHFILE} to build. Log file in ${BBBLOG_PATH}/${BUILD_LOGNAME}..."
