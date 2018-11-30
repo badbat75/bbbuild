@@ -778,7 +778,7 @@ cd ~
 #unzip ./librespot-master-a4e0f58.zip
 curl -sL https://github.com/librespot-org/libresve/master.tar.gz | tar xzf -
 cd ./librespot-master
-cargo build --release --features alsa-backend --target=arm-unknown-linux-gnueabihf 
+cargo build --release --features alsa-backend --target=arm-unknown-linux-gnueabihf #-C linker=${CC} -C link-args=${CFLAGS}
 # copy binary
 sudo cp target/arm-unknown-linux-gnueabihf/release/librespot /usr/local/bin/librespot
 cd ~
