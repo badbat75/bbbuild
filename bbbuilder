@@ -91,10 +91,10 @@ function bbb_enable_gcc_custom () {
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
 	echo "Testing ${CC}: "
-	${BBB_CHROOTPATH}/usr/bin/${CC} -v
+	sudo chroot ${BBB_CHROOTPATH} /usr/bin/${CC} -v
 	[ "$?" -eq 0 ] && echo "OK" || echo "Error"
 	echo "Testing ${CXX}: "
-	${BBB_CHROOTPATH}/usr/bin/${CXX} -v
+	sudo chroot ${BBB_CHROOTPATH} /usr/bin/${CXX} -v
 	if [ "$?" -eq 0 ]
 	then
 		echo "OK"
