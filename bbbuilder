@@ -424,6 +424,9 @@ function bbb_help () {
 bbb_checkenv
 
 case _${1} in
+	_resizeimage)
+		bbb_mount resizeimage
+		;;
 	_interactive)
 		bbb_interactive ${2}
 		;;
