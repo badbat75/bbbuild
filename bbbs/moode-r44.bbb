@@ -774,15 +774,16 @@ rm rustup-init
 
 # Compile librespot
 cd ~
-cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
-unzip ./librespot-master-a4e0f58.zip
+#cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
+#unzip ./librespot-master-a4e0f58.zip
+curl -sL https://github.com/librespot-org/libresve/master.tar.gz | tar xzf -
 cd ./librespot-master
-cargo build --release --features alsa-backend
+cargo build --release --features alsa-backend --target=arm-unknown-linux-gnueabihf 
 # copy binary
-sudo cp target/release/librespot /usr/local/bin/librespot
+sudo cp target/arm-unknown-linux-gnueabihf/release/librespot /usr/local/bin/librespot
 cd ~
 sudo rm -rf librespot-master
-sudo rm -f ./librespot-master-a4e0f58.zip
+#sudo rm -f ./librespot-master-a4e0f58.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
