@@ -770,7 +770,7 @@ chmod +x rustup-init
 ./rustup-init -y --default-host arm-unknown-linux-gnueabihf
 rm rustup-init
 
-. $HOME/.cargo/env
+. ${HOME}/.cargo/env
 
 # Compile librespot
 cd ~
@@ -784,6 +784,7 @@ sudo cp target/arm-unknown-linux-gnueabihf/release/librespot /usr/local/bin/libr
 cd ~
 sudo rm -rf librespot-master
 #sudo rm -f ./librespot-master-a4e0f58.zip
+${HOME}/.cargo/bin/rustup self uninstall -y
 
 echo //////////////////////////////////////////////////////////////
 echo 
