@@ -174,7 +174,12 @@ function bbb_addheader () {
 function bbb_mount () {
 	case ${1} in
 	resizeimage)
-		FULLSRC_IMAGE=${BBB_WORKDIR}/${SRCIMG_NAME}
+		if [ -z "${2:-}" ]
+		then
+			FULLSRC_IMAGE=${BBB_WORKDIR}/${SRCIMG_NAME}
+		else
+			FULLSRC_IMAGE=${2}
+		fi
 		# Extend the image size to ${BBB_IMGSIZE}
 		echo -n "Extend image size to ${BBB_IMGSIZE}..."
 		truncate -s ${BBB_IMGSIZE} ${FULLSRC_IMAGE}
@@ -425,7 +430,7 @@ bbb_checkenv
 
 case _${1} in
 	_resizeimage)
-		bbb_mount resizeimage
+		bbb_mount resizeimage ${2}
 		;;
 	_interactive)
 		bbb_interactive ${2}
