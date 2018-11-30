@@ -776,7 +776,7 @@ rm rustup-init
 cd ~
 #cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
 #unzip ./librespot-master-a4e0f58.zip
-curl -sL https://github.com/librespot-org/libresve/master.tar.gz | tar xzf -
+curl -sL https://github.com/librespot-org/librespot/master.tar.gz | tar xzf -
 cd ./librespot-master
 cargo build --release --features alsa-backend --target=arm-unknown-linux-gnueabihf #-C linker=${CC} -C link-args=${CFLAGS}
 # copy binary
