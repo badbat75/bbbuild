@@ -149,13 +149,14 @@ function bbb_addheader () {
 
 		if [ \${CCACHE_ENABLED} -eq 1 ]
 		then
-		#	 export PATH=/usr/lib/ccache:\${PATH}
 			 export CC="ccache ${CC}"
 			 export CXX="ccache ${CXX}"
 		fi
+		export RUST_LINKER="${CC}"
 
 		export CFLAGS="${CFLAGS}"
 		export CXXFLAGS="${CXXFLAGS}"
+		export RUSTFLAGS="${RUSTFLAGS}"
 		export MAKEFLAGS="-j\${NPROC} V=1"
 		#export PIPFLAGS="--install-option=\"--jobs=\${NPROC}\""
 
