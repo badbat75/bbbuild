@@ -777,7 +777,7 @@ curl -sL https://github.com/librespot-org/librespot/archive/master.tar.gz | tar 
 cd ./librespot-master
 cargo build --verbose --release --features alsa-backend
 # copy binary
-sudo cp target/release/librespot /usr/local/bin/librespot
+sudo cp targetrelease/librespot /usr/local/bin/librespot
 cd ~
 sudo rm -rf librespot-master
 #sudo rm -f ./librespot-master-a4e0f58.zip
