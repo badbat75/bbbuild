@@ -147,18 +147,22 @@ function bbb_addheader () {
 		echo "Is SQUASHFS enabled: "\${ENABLE_SQUASHFS}
 		echo "Is CCACHE enabled: "\${CCACHE_ENABLED}
 
+		CC=${CC}
+		CXX=${CXX}
+		RUST_LINKER="${CC}"
 		if [ \${CCACHE_ENABLED} -eq 1 ]
 		then
-			 export CC="ccache ${CC}"
-			 export CXX="ccache ${CXX}"
+			 CC="ccache ${CC}"
+			 CXX="ccache ${CXX}"
 		fi
-		export RUST_LINKER="${CC}"
 
-		export CFLAGS="${CFLAGS}"
-		export CXXFLAGS="${CXXFLAGS}"
-		export RUSTFLAGS="${RUSTFLAGS}"
-		export MAKEFLAGS="-j\${NPROC} V=1"
-		#export PIPFLAGS="--install-option=\"--jobs=\${NPROC}\""
+		CFLAGS="${CFLAGS}"
+		CXXFLAGS="${CXXFLAGS}"
+		RUSTFLAGS="${RUSTFLAGS}"
+		MAKEFLAGS="-j\${NPROC} V=1"
+		#PIPFLAGS="--install-option=\"--jobs=\${NPROC}\""
+
+		export CC CFLAGS CXX CXXFLAGS RUST_LINKER RUSTFLAGS MAKEFLAGS
 
 		echo ""
 		echo "C: "\${CC}" "\$(which ${CC})
@@ -166,7 +170,7 @@ function bbb_addheader () {
 		echo "C++: "\${CXX}" "\$(which ${CXX})
 		echo "C++ flags: "\${CXXFLAGS}
 		echo "MAKE flags: "\${MAKEFLAGS}
-		echo "PIP flags: "\${PIPFLAGS}
+		#echo "PIP flags: "\${PIPFLAGS}
 	EOF
 	chmod +x ${BBB_CHROOTPATH}/home/pi/run.sh
 	echo "Done."

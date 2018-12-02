@@ -22,7 +22,7 @@
 # Optional compiler flags for RPi model types
 # RaspberryPi and Pi0:
 # CFLAGS="-mcpu=arm1176jzf-s -mfloat-abi=hard -mfpu=vfp -mtune=arm1176jzf-s"
-# RUSTFLAGS="-C target-cpu=arm1176jzf-s"
+# RUSTFLAGS="-C target-feature=armv6kz -C target-cpu=arm1176jzf-s"
 # RaspberryPi2:
 # CFLAGS="-mcpu=cortex-a7 -mfloat-abi=hard -mfpu=neon-vfpv4 -mtune=cortex-a7"
 # RUSTFLAGS="-C cortex-a7"
