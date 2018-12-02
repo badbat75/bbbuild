@@ -144,17 +144,18 @@ function bbb_addheader () {
 		NPROC=\$(nproc)
 		BUILDHOSTNAME=\$(hostname)
 
-		echo "Is SQUASHFS enabled: "\${ENABLE_SQUASHFS}
-		echo "Is CCACHE enabled: "\${CCACHE_ENABLED}
+		[ \${ENABLE_SQUASHFS:-0} -eq 1 ] && echo "SQUASHFS enabled"
 
-		CC=${CC}
-		CXX=${CXX}
-		RUST_LINKER="${CC}"
-		if [ \${CCACHE_ENABLED} -eq 1 ]
+		if [ \${CCACHE_ENABLED:-0} -eq 1 ]
 		then
-			 CC="ccache ${CC}"
-			 CXX="ccache ${CXX}"
+			echo "CCACHE enabled"
+			CC="ccache ${CC}"
+			CXX="ccache ${CXX}"
+		else
+			CC="${CC}"
+			CXX="${CXX}"
 		fi
+		RUST_LINKER="${CC}"
 
 		CFLAGS="${CFLAGS}"
 		CXXFLAGS="${CXXFLAGS}"
