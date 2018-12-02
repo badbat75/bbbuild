@@ -329,6 +329,10 @@ function bbb_build () {
 function bbb_interactive () {
 	echo "Interactive mode"
 	bbb_mount ${1}
+	if [ ! -z "${GCC_CUSTOM[name]}" ]
+	then
+		bbb_enable_gcc_custom || exit 1
+	fi
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
