@@ -17,6 +17,8 @@
 #GCC_CUSTOM[ver]=8.2.1
 #GCC_CUSTOM[suffix]=-${GCC_CUSTOM[ver]}
 #GCC_CUSTOM[name]=gcc-arm-linux-gnueabihf${GCC_CUSTOM[suffix]}
+#GCC_CUSTOM[ld]=ld${GCC_CUSTOM[suffix]}
+#GCC_CUSTOM[ar]=ar${GCC_CUSTOM[suffix]}
 #GCC_CUSTOM[libspath]="/usr/lib/arm-linux-gnueabihf/${GCC_CUSTOM[ver]} /lib/arm-linux-gnueabihf/${GCC_CUSTOM[ver]}"
 
 # Optional compiler flags for RPi model types
@@ -33,3 +35,5 @@
 CFLAGS="${CFLAGS} -O3"
 # Copy to CXXFLAGS:
 CXXFLAGS="$CFLAGS"
+
+RUSTFLAGS="${RUSTFLAGS} -C no-integrated-as"
