@@ -19,7 +19,7 @@
 #       Bump to MPD 0.21.3 meson/ninja build in STEP 6
 #       Add meson and ninja to core components in STEP 3
 #       Bump to shairport-sync 3.2.2 in COMPONENT 4A
-#       Bump to kernel 4.14.82 in STEP 11
+#       Bump to kernel 4.14.84 in STEP 11
 #       Update the procedure for librespot in COMPONENT 4B
 #       Deprecate symlink to /var/lib/mpd/music in STEP 7
 # v2.6: Move timezone setting to after ssh login in STEP 2
@@ -122,8 +122,8 @@ texinfo help2man python3-pip
 
 #sudo apt-get clean
 
-# kernel ver 4.14.82
-KERNELBUILD=7dcd64144a10f5d6f81513ae36df93bb9b70f3fc
+# kernel ver 4.14.84
+KERNELBUILD=e5585fc7a074ab6614cff8e41cf0fa041851fd7f
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -174,8 +174,8 @@ echo
 
 cd ~
 #wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
-cp /mnt/resources/rel-stretch-r44g.zip .
-unzip ./rel-stretch-r44g.zip
+cp /mnt/resources/rel-stretch-r44h.zip .
+unzip ./rel-stretch-r44h.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
