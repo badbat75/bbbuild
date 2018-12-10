@@ -1,7 +1,5 @@
 ./.vscode
-./*.img
-./*.zip
-./*.xz
 ./logs
 ./images
+./osimages
 ./conf/bbbuilder.conf
