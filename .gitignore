@@ -1,6 +1,5 @@
-./*.img
-./*.zip
-./*.xz
+./.vscode
 ./logs
 ./images
+./osimages
 ./conf/bbbuilder.conf

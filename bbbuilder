@@ -87,7 +87,7 @@ function bbb_enable_ccache () {
 
 function bbb_enable_gcc_custom () {
 	echo "Create environment for GCC ${GCC_CUSTOM[name]}..."
-	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
+	sudo tar xf ${STARTDIR}/resources/compilers/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
 	echo "Testing ${CC}: "
@@ -144,28 +144,35 @@ function bbb_addheader () {
 		NPROC=\$(nproc)
 		BUILDHOSTNAME=\$(hostname)
 
-		echo "Is SQUASHFS enabled: "\${ENABLE_SQUASHFS}
-		echo "Is CCACHE enabled: "\${CCACHE_ENABLED}
+		[ \${ENABLE_SQUASHFS:-0} -eq 1 ] && echo "SQUASHFS enabled"
 
-		if [ \${CCACHE_ENABLED} -eq 1 ]
+		RUSTCC="${CC}"
+		if [ \${CCACHE_ENABLED:-0} -eq 1 ]
 		then
-		#	 export PATH=/usr/lib/ccache:\${PATH}
-			 export CC="ccache ${CC}"
-			 export CXX="ccache ${CXX}"
+			echo "CCACHE enabled"
+			CC="ccache ${CC}"
+			CXX="ccache ${CXX}"
+		else
+			CC="${CC}"
+			CXX="${CXX}"
 		fi
 
-		export CFLAGS="${CFLAGS}"
-		export CXXFLAGS="${CXXFLAGS}"
-		export MAKEFLAGS="-j\${NPROC} V=1"
-		#export PIPFLAGS="--install-option=\"--jobs=\${NPROC}\""
+		CFLAGS="${CFLAGS}"
+		CXXFLAGS="${CXXFLAGS}"
+		RUSTFLAGS="-C linker=\${RUSTCC} ${RUSTFLAGS}"
+		MAKEFLAGS="-j\${NPROC} V=1"
+		#PIPFLAGS="--install-option=\"--jobs=\${NPROC}\""
+
+		export CC CFLAGS CXX CXXFLAGS RUSTFLAGS MAKEFLAGS
 
 		echo ""
 		echo "C: "\${CC}" "\$(which ${CC})
 		echo "C flags: "\${CFLAGS}
 		echo "C++: "\${CXX}" "\$(which ${CXX})
 		echo "C++ flags: "\${CXXFLAGS}
+		echo "Rust flags: "\${RUSTFLAGS}
 		echo "MAKE flags: "\${MAKEFLAGS}
-		echo "PIP flags: "\${PIPFLAGS}
+		#echo "PIP flags: "\${PIPFLAGS}
 	EOF
 	chmod +x ${BBB_CHROOTPATH}/home/pi/run.sh
 	echo "Done."
@@ -174,7 +181,12 @@ function bbb_addheader () {
 function bbb_mount () {
 	case ${1} in
 	resizeimage)
-		FULLSRC_IMAGE=${BBB_WORKDIR}/${SRCIMG_NAME}
+		if [ -z "${2:-}" ]
+		then
+			FULLSRC_IMAGE=${BBB_WORKDIR}/${SRCIMG_NAME}
+		else
+			FULLSRC_IMAGE=${2}
+		fi
 		# Extend the image size to ${BBB_IMGSIZE}
 		echo -n "Extend image size to ${BBB_IMGSIZE}..."
 		truncate -s ${BBB_IMGSIZE} ${FULLSRC_IMAGE}
@@ -317,6 +329,10 @@ function bbb_build () {
 function bbb_interactive () {
 	echo "Interactive mode"
 	bbb_mount ${1}
+	if [ ! -z "${GCC_CUSTOM[name]}" ]
+	then
+		bbb_enable_gcc_custom || exit 1
+	fi
 	bbb_addheader
 	# Run interactive chrooted environment
 	echo "Interactive chroot mode. Press CTRL+D or type EXIT to close interactive chroot mode."
@@ -424,6 +440,9 @@ function bbb_help () {
 bbb_checkenv
 
 case _${1} in
+	_resizeimage)
+		bbb_mount resizeimage ${2}
+		;;
 	_interactive)
 		bbb_interactive ${2}
 		;;
