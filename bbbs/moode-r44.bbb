@@ -268,6 +268,23 @@ rm -rf /tmp/fdk-aac
 #cd ~
 #rm -rf /tmp/openaptx
 
+#cd /tmp
+#git clone --single-branch https://android.googlesource.com/platform/external/libldac
+#cd libldac
+#wget \
+#  https://github.com/Arkq/arkq-overlay/raw/master/media-libs/libldac/files/Makefile.am \
+#  https://github.com/Arkq/arkq-overlay/raw/master/media-libs/libldac/files/configure.ac \
+#  https://github.com/Arkq/arkq-overlay/raw/master/media-libs/libldac/files/libldacBT.pc.in\
+#  https://github.com/Arkq/arkq-overlay/raw/master/media-libs/libldac/files/libldacBT_abr.pc.in
+#autoreconf --install
+#mkdir build
+#cd build
+#../configure
+#make
+#sudo make install
+#cd ~
+#rm -rf /tmp/libldac
+
 # Compile bluealsa from master
 git clone --single-branch https://github.com/Arkq/bluez-alsa.git
 cd bluez-alsa
