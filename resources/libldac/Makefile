@@ -56,7 +56,6 @@ $(LIB_ENC): $(OBJS_ENC)
 clean:
         $(RM) $(STATIC_ABR) $(LIB_ABR) $(OBJS_ABR) $(STATIC_ENC) $(LIB_ENC) $(OBJS_ENC)
 
-
 .PHONY: install
 install: install-libs install-static
 
