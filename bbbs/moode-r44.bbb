@@ -745,7 +745,7 @@ sudo make install
 sudo systemctl disable shairport-sync
 cd ~
 rm -rf ./shairport-sync
-sudo cp /mnt/resources/shairport-sync.conf /usr/local/etc
+sudo cp /mnt/resources/etc/shairport-sync.conf /usr/local/etc
 #sudo cp ./rel-stretch/usr/local/etc/shairport-sync.conf /usr/local/etc
 
 echo ////////////////////////////////////////////////////////////////

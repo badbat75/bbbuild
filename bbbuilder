@@ -87,7 +87,7 @@ function bbb_enable_ccache () {
 
 function bbb_enable_gcc_custom () {
 	echo "Create environment for GCC ${GCC_CUSTOM[name]}..."
-	sudo tar xf ${STARTDIR}/resources/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
+	sudo tar xf ${STARTDIR}/resources/compilers/${GCC_CUSTOM[name]}.tar.* -C ${BBB_CHROOTPATH}
 	CC="gcc${GCC_CUSTOM[suffix]}"
 	CXX="g++${GCC_CUSTOM[suffix]}"
 	echo "Testing ${CC}: "
