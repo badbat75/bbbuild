@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libldacBT
+Description: Audio coding technology developed by Sony
+Version: @VERSION@
+Libs: -L${libdir} -lldacBT
+Cflags: -I${includedir}
