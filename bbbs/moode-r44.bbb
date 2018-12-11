@@ -173,9 +173,9 @@ echo  moOde 4.4
 echo 
 
 cd ~
-#wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
-cp /mnt/resources/rel-stretch-r44h.zip .
-unzip ./rel-stretch-r44h.zip
+wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
+#cp /mnt/resources/rel-stretch-r44h.zip .
+unzip ./rel-stretch-r44.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
