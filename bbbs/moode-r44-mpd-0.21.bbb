@@ -1,8 +1,8 @@
 ################################################################
 #
-# Build Recipe v2.5, 2018-07-11
+# Build Recipe v2.7, 2018-11-15
 #
-# moOde 4.2
+# moOde 4.4 2018-11-15
 #
 # These instructions are written for Linux Enthusiasts
 # and System Integrators and provide a recipe for making
@@ -15,6 +15,21 @@
 #
 # Changes:
 #
+# v2.7: Bump to 2018-11-13 Stretch Lite
+#       Bump to MPD 0.21.3 meson/ninja build in STEP 6
+#       Add meson and ninja to core components in STEP 3
+#       Bump to shairport-sync 3.2.2 in COMPONENT 4A
+#       Bump to kernel 4.14.84 in STEP 11
+#       Update the procedure for librespot in COMPONENT 4B
+#       Deprecate symlink to /var/lib/mpd/music in STEP 7
+# v2.6: Move timezone setting to after ssh login in STEP 2
+#       Replace Browse tab w/Music tab in STEP 12 1b.
+#       Correct STEP 1 Option 2 to use 2018-06-27 Stretch Lite
+#       Update root symlink
+#       Bump to kernel 4.14.68 in STEP 11
+#       Add libaudiofile for wav to mpd compile in STEP 6
+#       Add php7.0-gd in STEP 3
+#       Add component 4B - Librespot
 # v2.5: Add -DGPIO cflag to new Squeezelite compile in COMPONENT 5.
 #       Use BlueZ-master-4e926f8.zip in STEP 4
 #       Use bluez-alsa-master-88aefee.zip in STEP 4
@@ -89,22 +104,26 @@ sudo apt-get -y upgrade
 
 sudo apt-get update
 sudo apt-get -y install \
-php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
+php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache php7.0-gd mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
 dnsmasq hostapd \
 \
 dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev libdbus-1-dev \
 libbsd-dev libncurses5-dev libsndfile1-dev \
 \
-libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcdio-paranoia-dev libiso9660-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
+libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
 autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi-client-dev libssl-dev libsoxr-dev \
 libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
-xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
+\
+portaudio19-dev python3-setuptools ninja-build \
+\
+texinfo help2man python3-pip
 
 #sudo apt-get clean
 
-# kernel ver 4.14.54
-KERNELBUILD=ec9d84e1d2ba701fd28897809269d8116b31dbf5
+# kernel ver 4.14.84
+KERNELBUILD=e5585fc7a074ab6614cff8e41cf0fa041851fd7f
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -135,25 +154,28 @@ echo //////////////////////////////////////////////////////////////
 
 sudo timedatectl set-timezone "Europe/Rome"
 
-echo "Change the current password (raspberry) to moodeaudio and the host name to moode."
+echo "2. Change the current password (raspberry) to moodeaudio and the host name to moode."
 
 echo "pi:moodeaudio" | sudo chpasswd
-sudo sed -i "s/raspberrypi/moode/" /etc/hostname
-sudo sed -i "s/raspberrypi/moode/" /etc/hosts
-sudo hostname moode
+#Hostname and hosts configured at the end
 
-echo  Download moOde application sources and configs.
+echo 3. Change timezone to local time zone
+
+#sudo timedatectl set-timezone "America/Detroit"
+sudo timedatectl set-timezone "Europe/Rome"
+
+echo 4. Download moOde application sources and configs.
 
 echo 
 echo  NOTE: We are downloading the Sources in this particular step in order to obtain the resizefs.sh file.
 echo 
-echo  moOde 4.2
+echo  moOde 4.4
 echo 
 
 cd ~
-wget http://moodeaudio.org/downloads/prod/rel-stretch-r42.zip
-#cp /mnt/resources/rel-stretch-r42.zip .
-unzip ./rel-stretch-r42.zip
+wget http://moodeaudio.org/downloads/prod/rel-stretch-r44.zip
+#cp /mnt/resources/rel-stretch-r44h.zip .
+unzip ./rel-stretch-r44.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -171,6 +193,13 @@ sudo systemctl enable rpcbind
 sudo systemctl set-default multi-user.target
 
 echo  Install core packages.
+
+# meson
+curl -Ls https://files.pythonhosted.org/packages/bc/2f/85346d2cb39b7e301e02209f0954c3fdf4213818b84a42cc595d2f77c867/meson-0.48.2.tar.gz | tar xzf -
+cd meson-0.48.2
+sudo python3 setup.py install
+cd ~
+sudo rm -rf meson-0.48.2
 
 sudo systemctl disable shellinabox
 
@@ -191,11 +220,6 @@ echo  Install Bluetooth
 # Remove current bluez installation
 sudo apt-get -y purge bluez libbluetooth-dev libbluetooth3
 
-# Compile bluez 5.49
-# 2018-05-02 commit 4e926f8e3ef2e3321f9b169db54ec256d9b41207
-#cp ./rel-stretch/other/bluetooth/BlueZ-master-4e926f8.zip ./
-#unzip BlueZ-master-4e926f8.zip >/dev/null
-#cd BlueZ-master
 # Compile bluez 5.50
 curl -Ls http://www.kernel.org/pub/linux/bluetooth/bluez-5.50.tar.xz | tar xvJf -
 cd bluez-5.50
@@ -204,8 +228,6 @@ autoreconf --install
 make
 sudo make install
 cd ~
-#rm -rf ./BlueZ-master
-#rm ./BlueZ-master-4e926f8.zip
 rm -rf bluez-5.50
 
 # Delete symlink and bin for old bluetoothd
@@ -246,30 +268,30 @@ rm -rf /tmp/fdk-aac
 #cd ~
 #rm -rf /tmp/openaptx
 
-# Compile bluealsa 1.3.0
-# 2018-04-16 commit 88aefeea56b7ea20668796c2c7a8312bf595eef4
-#cp ./rel-stretch/other/bluetooth/bluez-alsa-master-88aefee.zip ./
-#unzip bluez-alsa-master-88aefee.zip
-#cd bluez-alsa-master
-git clone --single-branch --branch v1.3.0 https://github.com/Arkq/bluez-alsa.git
-cd bluez-alsa
-
-# To use when using 1.3.0 branch
-patch -p1 < /mnt/resources/bluez-alsa-1.3.0-iphone-aac.patch
-# To use when using master branch
-##patch -p1 < /mnt/resources/remove-65a1a11-commit.patch
-
-# NOTE: Ignore warnings from autoreconf and configure
+cd /tmp
+git clone --single-branch https://android.googlesource.com/platform/external/libldac
+cd libldac
+cp /mnt/resources/libldac/* .
 autoreconf --install
 mkdir build
 cd build
-#../configure --enable-hcitop --enable-aac --enable-aptx --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
-../configure --enable-hcitop --enable-aac --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+../configure
 make
 sudo make install
 cd ~
-#rm -rf bluez-alsa-master
-#rm bluez-alsa-master-88aefee.zip
+rm -rf /tmp/libldac
+
+# Compile bluealsa from master
+git clone --single-branch https://github.com/Arkq/bluez-alsa.git
+cd bluez-alsa
+autoreconf --install
+mkdir build
+cd build
+# Append --enable-aptx to enable APTx plugin
+../configure --enable-hcitop --enable-aac --enable-ldac --with-alsaplugindir=/usr/lib/arm-linux-gnueabihf/alsa-lib
+make
+sudo make install
+cd ~
 rm -rf bluez-alsa
 
 echo  Services are started by moOde Worker so lets disable them here.
@@ -332,37 +354,102 @@ sudo chmod 0666 /etc/mpd.conf
 
 echo  Install MPD dev libs.
 
-echo  Download MPD 0.20.18 sources and prep for compile.
+echo  Download MPD 0.21.3 sources and prep for compile.
 
 # Optionally install pre-compiled binary and skip to STEP 7
-#sudo cp ./rel-stretch/other/mpd/mpd-0.20.12 /usr/local/bin/mpd
+#sudo cp ./rel-stretch/other/mpd/mpd-0.20.20 /usr/local/bin/mpd
 
-wget http://www.musicpd.org/download/mpd/0.20/mpd-0.20.20.tar.xz
-tar xf mpd-0.20.20.tar.xz
-cd mpd-0.20.20
-sh autogen.sh
-
-echo  Configure compile options.
-
-./configure --enable-database --enable-libmpdclient --enable-alsa \
---enable-curl --enable-dsd --enable-ffmpeg --enable-flac \
---enable-id3 --enable-soundcloud --enable-lame-encoder --enable-mad \
---enable-mpg123 --enable-pipe-output --enable-recorder-output --enable-shout \
---enable-vorbis --enable-wave-encoder --enable-wavpack --enable-httpd-output \
---enable-soxr --with-zeroconf=avahi \
---disable-bzip2 --disable-zzip --disable-fluidsynth --disable-gme \
---disable-wildmidi --disable-sqlite --disable-jack --disable-ao --disable-oss \
---disable-ipv6 --disable-pulse --disable-nfs --disable-smbclient \
---disable-upnp --disable-expat --disable-lsr \
---disable-sndfile --disable-audiofile --disable-sidplay
-
-echo  Compile and install.
-
+# Install libcdio
+wget http://git.savannah.gnu.org/cgit/libcdio.git/snapshot/libcdio-release-2.0.0.tar.gz
+tar xvzf libcdio-release-2.0.0.tar.gz
+cd libcdio-release-2.0.0
+autoreconf -f -i
+mkdir build
+cd build
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var --enable-maintainer-mode
+#cd doc
+#make stamp-vti
+#cd -
 make
 sudo make install
-sudo strip --strip-unneeded /usr/local/bin/mpd
 cd ~
-rm -rf ./mpd-0.20.20*
+rm -rf ./libcdio-release-2.0.0*
+
+wget https://github.com/rocky/libcdio-paranoia/archive/release-10.2+0.94+2.zip
+unzip release-10.2+0.94+2.zip
+cd libcdio-paranoia-release-10.2-0.94-2
+autoreconf -f -i
+mkdir build
+cd build
+../configure --prefix=/usr --libdir=/usr/lib/arm-linux-gnueabihf --sysconfdir=/etc --localstatedir=/var
+make
+sudo make install
+cd ~
+rm -rf ./libcdio-paranoia-release-10.2-0.94-2 ./release-10.2+0.94+2.zip
+
+wget http://www.musicpd.org/download/mpd/0.21/mpd-0.21.3.tar.xz
+tar xf mpd-0.21.3.tar.xz
+cd mpd-0.21.3
+meson . output/release --buildtype=release -Db_ndebug=true
+
+# 4. Configure compile options.
+
+meson configure \
+-Dalsa=enabled \
+-Dcurl=enabled \
+-Ddatabase=true \
+-Ddsd=true \
+-Dffmpeg=enabled \
+-Dfaad=enabled \
+-Dflac=enabled \
+-Dhttpd=true \
+-Did3tag=enabled \
+-Dlame=enabled \
+-Dlibmpdclient=enabled \
+-Dmad=enabled \
+-Dmpg123=enabled \
+-Dpipe=true \
+-Drecorder=true \
+-Dshout=enabled \
+-Dsoundcloud=enabled \
+-Dsoxr=enabled \
+-Dvorbis=enabled \
+-Dwave_encoder=true \
+-Dwavpack=enabled \
+-Dzeroconf=avahi \
+-Dao=disabled \
+-Daudiofile=disabled \
+-Dbzip2=disabled \
+-Dexpat=disabled \
+-Dfluidsynth=disabled \
+-Dgme=disabled \
+-Dipv6=disabled \
+-Djack=disabled \
+-Dlibsamplerate=disabled \
+-Dnfs=disabled \
+-Doss=disabled \
+-Dpulse=disabled \
+-Dsidplay=disabled \
+-Dsmbclient=disabled \
+-Dsndfile=disabled \
+-Dsqlite=disabled \
+-Dupnp=disabled \
+-Dwildmidi=disabled \
+-Dzzip=disabled \
+-Ddbus=disabled \
+-Dudisks=disabled \
+output/release
+
+# 5. Compile and install.
+
+ninja -C output/release
+sudo ninja -C output/release install
+cd ~
+rm -rf ./mpd-0.21.3*
+
+sudo rm -f /usr/local/lib/systemd/system/mpd.service
+sudo rm -f /usr/local/lib/systemd/system/mpd.socket
+sudo rm -f /usr/local/lib/systemd/user/mpd.service
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -398,7 +485,6 @@ sudo mkdir /mnt/SDCARD
 sudo ln -s /mnt/NAS /var/lib/mpd/music/NAS
 sudo ln -s /mnt/SDCARD /var/lib/mpd/music/SDCARD
 sudo ln -s /media /var/lib/mpd/music/USB
-sudo ln -s /var/lib/mpd/music /var/www/vlmm90614385
 # Logs
 sudo touch /var/log/moode.log
 sudo chmod 0666 /var/log/moode.log
@@ -624,9 +710,9 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo git clone https://github.com/Joshkunz/ashuffle.git
+git clone https://github.com/Joshkunz/ashuffle.git
 cd ashuffle
-sudo make
+make
 cd ~
 sudo cp ./ashuffle/ashuffle /usr/local/bin
 sudo rm -rf ./ashuffle
@@ -638,9 +724,9 @@ echo
 echo //////////////////////////////////////////////////////////////
 
 cd ~
-sudo git clone https://github.com/hrkfdn/mpdas
+git clone https://github.com/hrkfdn/mpdas
 cd mpdas
-sudo make
+make
 sudo cp ./mpdas /usr/local/bin
 cd ~/
 sudo rm -rf ./mpdas
@@ -649,7 +735,7 @@ sudo chmod 0755 /usr/local/etc/mpdasrc
 
 echo //////////////////////////////////////////////////////////////
 echo 
-echo  COMPONENT 4 - Shairport-sync
+echo  COMPONENT 4A - Shairport-sync
 echo 
 echo //////////////////////////////////////////////////////////////
 
@@ -663,7 +749,7 @@ sudo make install
 cd ~
 rm -rf ./alac
 
-git clone https://github.com/mikebrady/shairport-sync.git
+git clone -b 3.2.2 https://github.com/mikebrady/shairport-sync.git
 cd shairport-sync
 autoreconf -i -f
 ./configure --with-alsa --with-avahi --with-ssl=openssl --with-soxr --with-apple-alac --with-metadata --with-stdout --with-systemd
@@ -672,8 +758,44 @@ sudo make install
 sudo systemctl disable shairport-sync
 cd ~
 rm -rf ./shairport-sync
-sudo cp /mnt/resources/shairport-sync.conf /usr/local/etc
+sudo cp /mnt/resources/etc/shairport-sync.conf /usr/local/etc
 #sudo cp ./rel-stretch/usr/local/etc/shairport-sync.conf /usr/local/etc
+
+echo ////////////////////////////////////////////////////////////////
+echo //
+echo // COMPONENT 4B - Librespot
+echo //
+echo ////////////////////////////////////////////////////////////////
+
+# The procedure for librespot is to compile it on armv6l architecture (Pi-1B | Zero | Zero W) because
+# this binary also runs equally well on armv7l (Pi-2B | 3B | 3B+).
+
+# Install the rust compiler and cargo package manager. Choose #1 when prompted.
+#wget -qL --content-disposition https://sh.rustup.rs
+#chmod +x rustup-init.sh
+#./rustup-init.sh -y 
+#rm rustup-init.sh
+wget -qL --content-disposition https://static.rust-lang.org/rustup/dist/arm-unknown-linux-gnueabihf/rustup-init
+chmod +x rustup-init
+./rustup-init -y --default-host arm-unknown-linux-gnueabihf
+rm rustup-init
+
+. ${HOME}/.cargo/env
+
+# Compile librespot
+cd ~
+#cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
+#unzip ./librespot-master-a4e0f58.zip
+curl -sL https://github.com/librespot-org/librespot/archive/master.tar.gz | tar xzf -
+cd ./librespot-master
+cargo build --verbose --release --features alsa-backend
+strip --strip-unneeded target/release/librespot
+# copy binary
+sudo cp target/release/librespot /usr/local/bin/librespot
+cd ~
+sudo rm -rf librespot-master
+#sudo rm -f ./librespot-master-a4e0f58.zip
+${HOME}/.cargo/bin/rustup self uninstall -y
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -684,9 +806,8 @@ echo //////////////////////////////////////////////////////////////
 cp ./rel-stretch/other/squeezelite/squeezelite-1.8.7-1052.zip ./
 unzip ./squeezelite-1.8.7-1052.zip
 cd ./squeezelite-master/
-export CFLAGS="${CFLAGS} -march=native -mcpu=native -DDSD -DRESAMPLE -DGPIO -fno-fast-math -mfloat-abi=hard -pipe -fPIC"
 cat ./scripts/squeezelite-ralphy-dsd.patch | patch -p 0
-make
+CFLAGS="${CFLAGS} -DDSD -DRESAMPLE -DGPIO -fno-fast-math -pipe -fPIC" make
 sudo cp ./squeezelite /usr/local/bin/
 cd ~
 sudo rm -rf ./squeezelite-master/
@@ -768,7 +889,7 @@ echo //////////////////////////////////////////////////////////////
 echo NOTE: This component enables access to Google Play Music service via UPnP renderer.
 echo       If its not installed, the Google Play section in UPnP config screen will not be present.
 
-pip install gmusicapi
+pip3 install ${PIPFLAGS} gmusicapi
 
 echo //////////////////////////////////////////////////////////////
 echo 
@@ -828,5 +949,7 @@ cd ~
 sudo /var/www/command/util.sh clear-syslogs
 #sudo apt-get autoremove
 
+sudo sed -i "s/raspberrypi/moode/" /etc/hostname
+sudo sed -i "s/raspberrypi/moode/" /etc/hosts
+
 [ $ENABLE_SQUASHFS -eq 1 ] && sudo umount /var/www
-sudo hostname $BUILDHOSTNAME
