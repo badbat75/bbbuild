@@ -550,6 +550,7 @@ sudo chmod 0777 /var/local/www/libcache.json
 
 echo  Some modification on official configuration files
 
+sudo sed -i -e 's/\[Service\]/\[Service\]\nNice=-10/g' /etc/systemd/system/bluealsa.service
 sudo echo 'BUFFERTIME=20000' >> /etc/bluealsaaplay.conf
 sudo sed -i 's|bluealsa-aplay --profile-a2dp|bluealsa-aplay --pcm-buffer-time=${BUFFERTIME} --profile-a2dp|g' /etc/systemd/system/bluealsa-aplay@.service
 
@@ -750,8 +751,9 @@ cd ~
 curl -sL https://github.com/librespot-org/librespot/archive/master.tar.gz | tar xzf -
 cd ./librespot-master
 cargo build --verbose --release --features alsa-backend
+strip --strip-unneeded target/release/librespot
 # copy binary
-sudo cp targetrelease/librespot /usr/local/bin/librespot
+sudo cp target/release/librespot /usr/local/bin/librespot
 cd ~
 sudo rm -rf librespot-master
 #sudo rm -f ./librespot-master-a4e0f58.zip
