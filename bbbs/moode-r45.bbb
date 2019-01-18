@@ -25,8 +25,8 @@ texinfo help2man python3-pip
 
 #sudo apt-get clean
 
-# kernel ver 4.14.90
-KERNELBUILD=da5948d8ef8354557732d9c8f5ad5e7e24374a69
+# kernel ver 4.14.92
+KERNELBUILD=6aec73ed5547e09bea3e20aa2803343872c254b6
 echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
@@ -376,12 +376,9 @@ echo  Directories and files
 # Dirs
 sudo mkdir /var/local/www
 sudo mkdir /var/local/www/commandw
-sudo mkdir /var/local/www/cssw
-sudo mkdir /var/local/www/jsw
 sudo mkdir /var/local/www/imagesw
 sudo mkdir /var/local/www/imagesw/toggle
 sudo mkdir /var/local/www/db
-sudo mkdir /var/local/www/templatesw
 sudo chmod -R 0755 /var/local/www
 sudo mkdir /var/lib/mpd/music/RADIO
 # Mount points
@@ -445,8 +442,7 @@ sudo chmod 0755 /home/pi/*.sh
 sudo chmod 0755 /home/pi/*.php
 sudo chmod 0755 /var/www/command/*
 
-sudo /var/www/command/util.sh emerald "27ae60" "rgba(39,174,96,0.71)"
-sudo  sqlite3 /var/local/www/db/moode-sqlite3.db "update cfg_system set value='Emerald' where param='themecolor'"
+sudo  sqlite3 /var/local/www/db/moode-sqlite3.db "update cfg_system set value='Emerald' where param='accent_color'"
 
 echo  Permissions for service files
 
@@ -676,11 +672,7 @@ echo ////////////////////////////////////////////////////////////////
 # The procedure for librespot is to compile it on armv6l architecture (Pi-1B | Zero | Zero W) because
 # this binary also runs equally well on armv7l (Pi-2B | 3B | 3B+).
 
-# Install the rust compiler and cargo package manager. Choose #1 when prompted.
-#wget -qL --content-disposition https://sh.rustup.rs
-#chmod +x rustup-init.sh
-#./rustup-init.sh -y 
-#rm rustup-init.sh
+# Install the rust compiler and cargo package manager.
 wget -qL --content-disposition https://static.rust-lang.org/rustup/dist/arm-unknown-linux-gnueabihf/rustup-init
 chmod +x rustup-init
 ./rustup-init -y --default-host arm-unknown-linux-gnueabihf
@@ -690,8 +682,6 @@ rm rustup-init
 
 # Compile librespot
 cd ~
-#cp ./rel-stretch/other/librespot/librespot-master-a4e0f58.zip ./
-#unzip ./librespot-master-a4e0f58.zip
 curl -sL https://github.com/librespot-org/librespot/archive/master.tar.gz | tar xzf -
 cd ./librespot-master
 cargo build --verbose --release --features alsa-backend
@@ -699,7 +689,6 @@ cargo build --verbose --release --features alsa-backend
 sudo cp targetrelease/librespot /usr/local/bin/librespot
 cd ~
 sudo rm -rf librespot-master
-#sudo rm -f ./librespot-master-a4e0f58.zip
 ${HOME}/.cargo/bin/rustup self uninstall -y
 
 echo //////////////////////////////////////////////////////////////
