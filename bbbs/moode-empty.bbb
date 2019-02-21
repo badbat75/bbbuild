@@ -1,6 +1,6 @@
 sudo apt-get update
 
-sudo apt-get -y purge triggerhappy
+sudo apt-get -y purge triggerhappy bluez libbluetooth-dev libbluetooth3
 
 sudo apt-get -y upgrade
 
