@@ -1,0 +1,62 @@
+sudo apt-get update
+
+sudo apt-get -y purge triggerhappy
+
+sudo apt-get -y upgrade
+
+sudo apt-get -y install \
+php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache php7.0-gd mpc bs2b-ladspa libbs2b0 libasound2-plugin-equal telnet automake sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse git inotify-tools libav-tools avahi-utils \
+dnsmasq hostapd \
+\
+dh-autoreconf expect libortp-dev libbluetooth-dev libasound2-dev \
+libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libsbc1 libsbc-dev libdbus-1-dev \
+libbsd-dev libncurses5-dev libsndfile1-dev \
+\
+libmad0-dev libmpg123-dev libid3tag0-dev libflac-dev libvorbis-dev libaudiofile-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libsoxr-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libmpdclient-dev libavahi-client-dev libsystemd-dev libwrap0-dev libboost-dev libicu-dev libglib2.0-dev \
+autoconf libtool libdaemon-dev libasound2-dev libpopt-dev libconfig-dev libavahi-client-dev libssl-dev libsoxr-dev \
+libmicrohttpd-dev libexpat1-dev libxml2-dev libxslt1-dev libjsoncpp-dev python-requests python-pip \
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
+\
+portaudio19-dev python3-setuptools \
+\
+libmediainfo0v5 libmms0 libtinyxml2-4 libzen0v5 libmediainfo-dev libzen-dev \
+\
+texinfo help2man python3-pip
+
+#sudo pip3 install meson ninja
+
+# kernel ver 4.14.92
+KERNELBUILD=6aec73ed5547e09bea3e20aa2803343872c254b6
+echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
+
+sudo rm -rf /lib/modules.bak
+sudo rm -rf /boot.bak
+
+echo //////////////////////////////////////////////////////////////
+echo 
+echo  STEP 1 - Modify Raspbian Lite and create a new, base image
+echo 
+echo  Use one of the two options below depending on what
+echo  type of host computer you are going to be using.
+echo 
+echo //////////////////////////////////////////////////////////////
+
+sudo touch /boot/ssh
+
+sudo sed -i "s/init=.*//" /boot/cmdline.txt
+sudo sed -i "s/quiet.*//" /boot/cmdline.txt
+sudo rm /etc/init.d/resize2fs_once
+# Configure to use standard interface names
+sudo sed -i "s/^/net.ifnames=0 /" /boot/cmdline.txt
+
+sudo timedatectl set-timezone "Europe/Rome"
+
+echo "2. Change the current password (raspberry) to moodeaudio and the host name to moode."
+
+echo "pi:moodeaudio" | sudo chpasswd
+#Hostname and hosts configured at the end
+
+echo 3. Change timezone to local time zone
+
+#sudo timedatectl set-timezone "America/Detroit"
+sudo timedatectl set-timezone "Europe/Rome"
