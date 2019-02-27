@@ -2,4 +2,5 @@
 ./logs
 ./images
 ./osimages
+./pkgcache
 ./conf/bbbuilder.conf
