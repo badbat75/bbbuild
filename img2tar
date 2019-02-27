@@ -1,0 +1,11 @@
+#!/bin/bash
+[ ! -f "${1}" ] && exit 1
+rm -f /mnt/data/moode-empty.tar.xz
+./bbbuilder mount ${1}
+sudo umount /tmp/bbbuild/root/var/cache/apt/archives /tmp/bbbuild/root/mnt/resources /tmp/bbbuild/root/proc /tmp/bbbuild/root/dev/pts /tmp/bbbuild/root/run
+cd /tmp/bbbuild/root/
+sudo tar --exclude=./tmp -cf /mnt/data/moode-empty.tar .
+cd -
+./bbbuilder unmount
+sudo xz -T0 /mnt/data/moode-empty.tar
+sudo chown $(id -u):$(id -g) /mnt/data/moode-empty.tar.xz
