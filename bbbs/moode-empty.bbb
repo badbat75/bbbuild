@@ -27,13 +27,6 @@ texinfo help2man python3-pip
 
 #sudo pip3 install meson ninja
 
-# kernel ver 4.14.92
-KERNELBUILD=6aec73ed5547e09bea3e20aa2803343872c254b6
-echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
-
-sudo rm -rf /lib/modules.bak
-sudo rm -rf /boot.bak
-
 echo //////////////////////////////////////////////////////////////
 echo 
 echo  STEP 1 - Modify Raspbian Lite and create a new, base image
