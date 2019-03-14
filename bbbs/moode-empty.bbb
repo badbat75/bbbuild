@@ -19,9 +19,9 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 libasound2-dev libsqlite3-dev libjpeg62-turbo-dev \
 \
-portaudio19-dev python3-setuptools \
+python3-setuptools \
 \
-libmediainfo0v5 libmms0 libtinyxml2-4 libzen0v5 libmediainfo-dev libzen-dev \
+libzen0v5 libzen-dev \
 \
 texinfo help2man python3-pip
 
