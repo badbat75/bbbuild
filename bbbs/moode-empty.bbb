@@ -25,33 +25,3 @@ libzen0v5 libzen-dev \
 \
 texinfo help2man python3-pip
 
-#sudo pip3 install meson ninja
-
-echo //////////////////////////////////////////////////////////////
-echo 
-echo  STEP 1 - Modify Raspbian Lite and create a new, base image
-echo 
-echo  Use one of the two options below depending on what
-echo  type of host computer you are going to be using.
-echo 
-echo //////////////////////////////////////////////////////////////
-
-sudo touch /boot/ssh
-
-sudo sed -i "s/init=.*//" /boot/cmdline.txt
-sudo sed -i "s/quiet.*//" /boot/cmdline.txt
-sudo rm /etc/init.d/resize2fs_once
-# Configure to use standard interface names
-sudo sed -i "s/^/net.ifnames=0 /" /boot/cmdline.txt
-
-sudo timedatectl set-timezone "Europe/Rome"
-
-echo "2. Change the current password (raspberry) to moodeaudio and the host name to moode."
-
-echo "pi:moodeaudio" | sudo chpasswd
-#Hostname and hosts configured at the end
-
-echo 3. Change timezone to local time zone
-
-#sudo timedatectl set-timezone "America/Detroit"
-sudo timedatectl set-timezone "Europe/Rome"
