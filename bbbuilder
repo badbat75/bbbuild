@@ -265,13 +265,16 @@ function bbb_manageimage () {
 		_ZIP)
 			zip -j ${BBB_IMGPATH}/${TGTIMG_NAME}".img.zip" ${BBB_WORKDIR}/${TGTIMG_NAME}".img" &&
 			rm -f ${BBB_WORKDIR}/${TGTIMG_NAME}".img"
+			echo ${BBB_IMGPATH}/${TGTIMG_NAME}".img.zip"
 			;;
 		_XZ)
 			xz -T0 ${BBB_WORKDIR}/${TGTIMG_NAME}".img" &&
 			mv ${BBB_WORKDIR}/${TGTIMG_NAME}".img.xz" ${BBB_IMGPATH}/
+			echo ${BBB_IMGPATH}/${TGTIMG_NAME}".img.xz"
 			;;
 		_)
 			mv ${BBB_WORKDIR}/${TGTIMG_NAME}".img" ${BBB_IMGPATH}/
+			echo ${BBB_IMGPATH}/${TGTIMG_NAME}".img"
 			;;
 		*)
 			echo "Compression ${ZIP_FORMAT} not supported."
