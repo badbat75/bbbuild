@@ -2,8 +2,7 @@
 [ ! -f "${1}" ] && exit 1
 FILENAME=$(basename ${1} | sed 's/.img$//')
 DIRNAME=$(dirname $(realpath ${1}))
-sudo xz -T0 ${DIRNAME}/${FILENAME}.img
-sudo chown $(id -u):$(id -g) ${DIRNAME}/${FILENAME}.tar.xz
+xz -T0 ${DIRNAME}/${FILENAME}.img
 aws s3api put-object --bucket bbb-build-artifacts --key moode/${FILENAME}.tar.xz --body ${DIRNAME}/${FILENAME}.tar.xz --storage-class ONEZONE_IA &&
 rm -f ${DIRNAME}/${FILENAME}.tar.xz &&
 rm -f ${1}
