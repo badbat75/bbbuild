@@ -8,7 +8,7 @@ cd /tmp/bbbuild/root/
 sudo tar --exclude=./tmp -cf ${DIRNAME}/${FILENAME}.tar .
 cd -
 ./bbbuilder unmount
-sudo xz -T0 ${DIRNAME}/${FILENAME}.tar
+sudo xz -v -T0 ${DIRNAME}/${FILENAME}.tar
 sudo chown $(id -u):$(id -g) ${DIRNAME}/${FILENAME}.tar.xz
 aws s3api put-object --bucket bbb-build-artifacts --key moode/${FILENAME}.tar.xz --body ${DIRNAME}/${FILENAME}.tar.xz --storage-class ONEZONE_IA &&
 rm -f ${DIRNAME}/${FILENAME}.tar.xz &&
