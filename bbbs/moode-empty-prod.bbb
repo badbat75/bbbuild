@@ -1,0 +1,16 @@
+sudo apt-get update
+
+sudo apt-get -y purge triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30
+
+sudo apt-get -y upgrade
+
+sudo apt-get -y install \
+php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache php7.0-gd \
+bs2b-ladspa libbs2b0 libasound2-plugin-equal \
+telnet sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse inotify-tools \
+libav-tools avahi-utils \
+\
+dnsmasq hostapd \
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
+\
+python3 python3-pip python3-setuptools
