@@ -11,6 +11,9 @@ telnet sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue nt
 libav-tools avahi-utils \
 \
 dnsmasq hostapd \
+\
+ffmpeg libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 \
+\
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 python3
