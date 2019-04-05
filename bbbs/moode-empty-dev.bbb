@@ -10,7 +10,7 @@ bs2b-ladspa libbs2b0 libasound2-plugin-equal \
 telnet sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse inotify-tools \
 libav-tools avahi-utils \
 \
-dnsmasq \
+dnsmasq wireless-regdb \
 \
 libortp-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libdbus-1-dev \
