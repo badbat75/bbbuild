@@ -23,4 +23,4 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 libjpeg62-turbo-dev \
 \
-python3 python3-pip libpython3-dev python3-setuptools
+python3 python3-pip libpython3-dev python3-setuptools swig
