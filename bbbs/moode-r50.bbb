@@ -28,8 +28,8 @@ sudo pip3 install meson ninja
 #sudo apt-get clean
 
 # kernel ver 4.14.92
-KERNELBUILD=6aec73ed5547e09bea3e20aa2803343872c254b6
-echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
+#KERNELBUILD=6aec73ed5547e09bea3e20aa2803343872c254b6
+#echo "y" | sudo PRUNE_MODULES=1 rpi-update $KERNELBUILD
 
 sudo rm -rf /lib/modules.bak
 sudo rm -rf /boot.bak
@@ -78,9 +78,9 @@ echo  moOde 4.4
 echo 
 
 cd ~
-wget https://github.com/moode-player/test/releases/download/r50-rc1-21/rel-stretch-r50-rc1-21.zip
+wget http://moodeaudio.org/downloads/prod/rel-stretch-r50.zip
 #cp /mnt/resources/rel-stretch-r50.zip .
-unzip ./rel-stretch-r50-rc1-21.zip
+unzip ./rel-stretch-r50.zip
 
 echo //////////////////////////////////////////////////////////////
 echo 
