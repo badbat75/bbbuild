@@ -1,7 +1,7 @@
 sudo apt-get update
 
 sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30
-#hostapd wpa_supplicant
+#wpa_supplicant
 
 sudo apt-get -y upgrade
 
