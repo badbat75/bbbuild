@@ -20,3 +20,14 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 python3
 
 touch /boot/ssh
+
+cat > /etc/rc.local <<-EOF
+    #!/bin/sh -e
+    if [ -f /root/moode.sfx ]
+    then
+        echo "Extracting moode.sfx"
+        /root/moode.sfx > /root/moode.sfx.log 2>&1
+        /sbin/reboot
+    fi
+    exit 0
+EOF
