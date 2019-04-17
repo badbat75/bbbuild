@@ -4,5 +4,5 @@ FILENAME=$(basename ${1} | sed 's/.img$//')
 DIRNAME=$(dirname $(realpath ${1}))
 xz -v -T0 ${DIRNAME}/${FILENAME}.img
 aws s3api put-object --bucket bbb-build-artifacts --key moode/${FILENAME}.img.xz --body ${DIRNAME}/${FILENAME}.img.xz --storage-class ONEZONE_IA &&
-rm -f ${DIRNAME}/${FILENAME}.tar.xz &&
+rm -f ${DIRNAME}/${FILENAME}.img.xz &&
 rm -f ${1}
