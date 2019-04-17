@@ -31,3 +31,4 @@ cat > /etc/rc.local <<-EOF
     fi
     exit 0
 EOF
+chmod +x /etc/rc.local
