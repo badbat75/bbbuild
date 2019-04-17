@@ -19,7 +19,7 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 python3
 
-sudo cat > /etc/rc.local <<-EOF
+sudo sh -c 'cat > /etc/rc.local' <<-EOF
     #!/bin/sh -e
     if [ -f /root/moode.sfx ]
     then
