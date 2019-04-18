@@ -1,7 +1,6 @@
 sudo apt-get update
 
-sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30
-#wpa_supplicant
+sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30 wpa_supplicant
 
 sudo apt-get -y upgrade
 
@@ -20,13 +19,13 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 python3
 
 sudo sh -c 'cat > /etc/rc.local' <<-EOF
-    #!/bin/sh -e
-    if [ -f /root/moode.sfx ]
-    then
-        echo "Extracting moode.sfx"
-        /root/moode.sfx > /root/moode.sfx.log 2>&1
-        /sbin/reboot
-    fi
-    exit 0
+	#!/bin/sh -e
+	if [ -f /root/moode.sfx ]
+	then
+		echo "Extracting moode.sfx"
+		/root/moode.sfx > /root/moode.sfx.log 2>&1
+		/sbin/reboot
+	fi
+	exit 0
 EOF
 sudo chmod +x /etc/rc.local
