@@ -16,8 +16,7 @@ ffmpeg libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 \
 \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
-python-dbus \
-python3
+python3 python3-dbus
 
 sudo sh -c 'cat > /etc/rc.local' <<-EOF
 	#!/bin/sh -e
