@@ -1,13 +1,13 @@
 sudo apt-get update
 
-sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30 wpa_supplicant
+sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30 wpa_supplicant iw
 
 sudo apt-get -y upgrade
 
 sudo apt-get -y install \
 php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache php7.0-gd \
 bs2b-ladspa libbs2b0 libasound2-plugin-equal \
-telnet sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse inotify-tools \
+telnet sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse inotify-tools expect \
 libav-tools avahi-utils \
 \
 hostapd dnsmasq \
@@ -16,6 +16,7 @@ ffmpeg libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 \
 \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
+python-dbus \
 python3
 
 sudo sh -c 'cat > /etc/rc.local' <<-EOF
