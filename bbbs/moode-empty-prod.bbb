@@ -18,5 +18,4 @@ xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
 python3 python3-dbus
 
-sed -i 's|init=/usr/lib/raspi-config/init_resize.sh|init=/root/moode.sfx|' /boot/cmdline.txt
-sed -i 's|root=[^ ]*|root=/dev/mmcblk0p2|;s| quiet||' /boot/cmdline.txt
+sudo sed -i 's|root=[^ ]*|root=/dev/mmcblk0p2|;s|init=/usr/lib/raspi-config/init_resize.sh|init=/root/moode.sfx|;s| quiet||' /boot/cmdline.txt
