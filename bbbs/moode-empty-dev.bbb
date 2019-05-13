@@ -12,6 +12,8 @@ libav-tools avahi-utils \
 \
 dnsmasq \
 \
+libc6-dev \
+\
 libortp-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libdbus-1-dev \
 libbsd-dev libncurses5-dev libsndfile1-dev libdaemon-dev \
