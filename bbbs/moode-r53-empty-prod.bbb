@@ -8,11 +8,7 @@ sudo apt-get -y install \
 php-fpm nginx sqlite3 php-sqlite3 memcached php-memcache php7.0-gd \
 bs2b-ladspa libbs2b0 libasound2-plugin-equal \
 telnet sysstat squashfs-tools tcpdump shellinabox samba smbclient udisks-glue ntfs-3g exfat-fuse inotify-tools expect \
-libav-tools avahi-utils \
-\
-dnsmasq \
-\
-ffmpeg libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 \
+libav-tools avahi-utils dnsmasq ffmpeg libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 winbind libnss-winbind \
 \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
 \
