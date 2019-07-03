@@ -1,0 +1,25 @@
+sudo apt-get update
+
+sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 gcc build-essential aptitude libxapian30 wpasupplicant iw
+
+sudo apt-get -y upgrade
+
+sudo apt-get -y install \
+php-fpm nginx sqlite3 php-sqlite3 php7.3-gd \
+bs2b-ladspa libbs2b0 libasound2-plugin-equal \
+telnet sysstat squashfs-tools shellinabox \
+samba smbclient ntfs-3g exfat-fuse inotify-tools ffmpeg \
+avahi-utils winbind libnss-winbind djmount \
+libatasmart4 libdbus-glib-1-2 libgudev-1.0-0 libsgutils2-2 libdevmapper-event1.02.1 \
+\
+libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 \
+\
+dnsmasq \
+\
+expect \
+\
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
+\
+python3 python3-dbus
+
+sudo sed -i 's|root=[^ ]*|root=/dev/mmcblk0p2|;s|init=/usr/lib/raspi-config/init_resize.sh|init=/root/moode.sfx|;s| quiet||' /boot/cmdline.txt
