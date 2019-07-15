@@ -12,7 +12,7 @@ samba smbclient ntfs-3g exfat-fuse inotify-tools ffmpeg \
 avahi-utils winbind libnss-winbind djmount \
 libatasmart4 libdbus-glib-1-2 libgudev-1.0-0 libsgutils2-2 libdevmapper-event1.02.1 \
 \
-libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 \
+libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 libcurl3-gnutls \
 \
 dnsmasq \
 \
