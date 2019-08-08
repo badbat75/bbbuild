@@ -9,7 +9,7 @@ php-fpm nginx sqlite3 php-sqlite3 php7.3-gd \
 bs2b-ladspa libbs2b0 libasound2-plugin-equal \
 telnet sysstat squashfs-tools shellinabox \
 samba smbclient ntfs-3g exfat-fuse inotify-tools ffmpeg \
-avahi-utils winbind libnss-winbind djmount \
+avahi-utils winbind libnss-winbind djmount haveged \
 libatasmart4 libdbus-glib-1-2 libgudev-1.0-0 libsgutils2-2 libdevmapper-event1.02.1 \
 \
 libyajl2 libshout3 libfaad2 libmad0 libavahi-client3 libcurl3-gnutls \
