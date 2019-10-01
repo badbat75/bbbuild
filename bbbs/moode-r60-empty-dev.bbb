@@ -20,7 +20,8 @@ libortp-dev libasound2-dev \
 libusb-dev libglib2.0-dev libudev-dev libical-dev libreadline-dev libdbus-1-dev \
 libbsd-dev libncurses5-dev libsndfile1-dev libdaemon-dev \
 \
-libmad0-dev libmpg123-dev libflac-dev libvorbis-dev libopus-dev libopusfile-dev libaudiofile-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libavahi-client-dev libsystemd-dev libwrap0-dev libicu-dev libglib2.0-dev \
+libmad0-dev libmpg123-dev libflac-dev libvorbis-dev libopus-dev libopusfile-dev libaudiofile-dev libfaad-dev libwavpack-dev libavcodec-dev libavformat-dev libmp3lame-dev libcurl4-gnutls-dev libasound2-dev libshout3-dev libyajl-dev libavahi-client-dev libsystemd-dev libwrap0-dev libicu-dev libglib2.0-dev libbz2-dev libzzip-dev \
+\
 libasound2-dev libpopt-dev libavahi-client-dev libssl-dev \
 libexpat1-dev libxml2-dev libxslt1-dev \
 xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \

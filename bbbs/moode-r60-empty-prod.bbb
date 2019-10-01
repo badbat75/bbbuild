@@ -7,6 +7,7 @@ sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y install \
 php-fpm nginx sqlite3 php-sqlite3 php7.3-gd \
 bs2b-ladspa libbs2b0 libasound2-plugin-equal \
+libzzip \
 telnet sysstat squashfs-tools shellinabox \
 samba smbclient ntfs-3g exfat-fuse inotify-tools ffmpeg \
 avahi-utils winbind libnss-winbind djmount haveged \
