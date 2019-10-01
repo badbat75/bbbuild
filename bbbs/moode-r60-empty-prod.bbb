@@ -20,7 +20,7 @@ dnsmasq \
 expect \
 \
 libopusfile0 \
-xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 \
+xinit xorg xserver-xorg-legacy chromium-browser libgtk-3-0 libgles2 \
 \
 python3 python3-dbus
 
