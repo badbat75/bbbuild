@@ -1,6 +1,6 @@
-./.vscode
-./logs
-./images
-./osimages
-./pkgcache
-./conf/bbbuilder.conf
+.vscode
+logs
+images
+osimages
+pkgcache
+conf/bbbuilder.conf
