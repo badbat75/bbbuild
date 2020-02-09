@@ -1,6 +1,8 @@
 sudo apt-get update
 
-sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30 hostapd wpa_supplicant iw
+sudo apt-get -y purge --autoremove triggerhappy bluez libbluetooth-dev libbluetooth3 aptitude libxapian30 hostapd wpa_supplicant iw \
+ibverbs-providers libcephfs2 libibverbs1 libnl-3-200 libnl-route-3-200 librados2 \
+libboost-atomic1.67.0 libboost-iostreams1.58.0 libboost-iostreams1.67.0 libboost-regex1.67.0 libboost-system1.67.0 libboost-thread1.67.0
 
 sudo DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 
